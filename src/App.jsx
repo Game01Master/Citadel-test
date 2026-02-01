@@ -6,7 +6,6 @@ import TB from "./tb_data.json";
    🎨 TEMA I DIZAJN (GOLD PRO GAMING)
    ========================================= */
 
-// Učitavanje fontova
 const fontLink = document.createElement("link");
 fontLink.href = "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@400;600;800&display=swap";
 fontLink.rel = "stylesheet";
@@ -21,7 +20,7 @@ const THEME = {
     textDim: "#A0AEC0",
     accent: "#4299e1",
     danger: "#e53e3e",
-    cardBg: "rgba(22, 26, 34, 0.95)", // Tamna neprozirnija pozadina za bolji kontrast
+    cardBg: "rgba(22, 26, 34, 0.95)", // Tamna pozadina kartica
     inputBg: "rgba(0, 0, 0, 0.6)",
     btnGradient: "linear-gradient(135deg, #C5A059 0%, #8b6508 100%)"
   }
@@ -52,15 +51,13 @@ function normName(s) { return String(s ?? "").toLowerCase().replace(/\s+/g, " ")
 async function copyToClipboard(text) { try { await navigator.clipboard.writeText(text); return true; } catch { return false; } }
 
 /* =========================================
-   🧩 UI KOMPONENTE (S PORTALOM ZA Z-INDEX)
+   🧩 UI KOMPONENTE
    ========================================= */
 
-// Portal osigurava da dropdown bude na vrhu svega
 const Portal = ({ children }) => {
   return createPortal(children, document.body);
 };
 
-// Univerzalni Select (za Trupe i Setup)
 const CustomSelect = ({ value, options, onChange, labelTransform }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
@@ -94,7 +91,7 @@ const CustomSelect = ({ value, options, onChange, labelTransform }) => {
         style={{
           width: "100%", minHeight: "54px", padding: "8px 12px", 
           background: "linear-gradient(180deg, rgba(30,30,35,0.9) 0%, rgba(10,10,15,0.95) 100%)",
-          border: `1px solid ${isOpen ? THEME.colors.gold : "rgba(197, 160, 89, 0.3)"}`, // Zlatni border uvijek (tamniji kad nije aktivan)
+          border: `1px solid ${isOpen ? THEME.colors.gold : "rgba(197, 160, 89, 0.4)"}`,
           boxShadow: isOpen ? `0 0 15px ${THEME.colors.goldDim}` : "inset 0 2px 4px rgba(0,0,0,0.5)", 
           borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "space-between", 
           cursor: "pointer", boxSizing: "border-box", transition: "all 0.2s ease"
@@ -104,7 +101,6 @@ const CustomSelect = ({ value, options, onChange, labelTransform }) => {
           {hasIcon ? (
             <img src={hasIcon} width="38" height="38" style={{ borderRadius: "6px", border: "1px solid #444" }} alt="" /> 
           ) : null}
-          
           <span style={{ fontWeight: "700", fontSize: "15px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: "'Inter', sans-serif", paddingLeft: hasIcon ? 0 : 4 }}>
             {displayLabel}
           </span>
@@ -115,18 +111,10 @@ const CustomSelect = ({ value, options, onChange, labelTransform }) => {
       {isOpen && (
         <Portal>
           <div style={{position: "fixed", inset: 0, zIndex: 9998, cursor: "default"}} onClick={() => setIsOpen(false)} />
-          
           <div style={{
-            position: "absolute",
-            top: coords.top,
-            left: coords.left,
-            width: coords.width,
-            background: "#121214",
-            border: `1px solid ${THEME.colors.gold}`,
-            borderRadius: "8px",
-            maxHeight: "300px",
-            overflowY: "auto",
-            zIndex: 9999,
+            position: "absolute", top: coords.top, left: coords.left, width: coords.width,
+            background: "#121214", border: `1px solid ${THEME.colors.gold}`, borderRadius: "8px",
+            maxHeight: "300px", overflowY: "auto", zIndex: 9999,
             boxShadow: "0 10px 40px rgba(0,0,0,0.95), 0 0 15px rgba(197, 160, 89, 0.1)",
             display: "flex", flexDirection: "column"
           }}>
@@ -135,14 +123,9 @@ const CustomSelect = ({ value, options, onChange, labelTransform }) => {
                const display = labelTransform ? labelTransform(rawValue) : (rawValue === "" ? "— None —" : rawValue);
                const isActive = value === rawValue;
                const optIcon = iconSrcForTroop(rawValue);
-
                return (
                 <div key={rawValue || "blank"} 
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
-                    onChange(rawValue); 
-                    setIsOpen(false); 
-                  }}
+                  onClick={(e) => { e.stopPropagation(); onChange(rawValue); setIsOpen(false); }}
                   style={{ 
                     padding: "12px", display: "flex", alignItems: "center", gap: "12px", 
                     borderBottom: "1px solid rgba(255,255,255,0.05)", cursor: "pointer",
@@ -152,9 +135,7 @@ const CustomSelect = ({ value, options, onChange, labelTransform }) => {
                   onMouseEnter={(e) => { if(!isActive) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
                   onMouseLeave={(e) => { if(!isActive) e.currentTarget.style.background = "transparent"; }}
                 >
-                  {optIcon ? (
-                    <img src={optIcon} width="40" height="40" style={{ borderRadius: "6px", border: "1px solid #333" }} alt="" />
-                  ) : null}
+                  {optIcon ? <img src={optIcon} width="40" height="40" style={{ borderRadius: "6px", border: "1px solid #333" }} alt="" /> : null}
                   <span style={{ color: isActive ? THEME.colors.gold : "#eee", fontSize: "14px", fontWeight: "600", fontFamily:"'Inter', sans-serif", paddingLeft: optIcon ? 0 : 4 }}>
                     {display}
                   </span>
@@ -172,23 +153,16 @@ const BonusInput = ({ label, color, ...props }) => (
   <div style={{ width: "100%", boxSizing: "border-box" }}>
     <label style={{ fontSize: "11px", color: color || THEME.colors.gold, fontWeight: "800", display: "block", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "'Inter', sans-serif" }}>{label}</label>
     <div style={{ position: "relative", width: "100%", boxSizing: "border-box" }}>
-      <input 
-        {...props} 
+      <input {...props} 
         style={{ 
           width: "100%", padding: "12px", background: "rgba(0, 0, 0, 0.6)", 
-          border: `1px solid ${color || "rgba(197, 160, 89, 0.3)"}`, borderRadius: "8px", 
+          border: `1px solid ${color || "rgba(197, 160, 89, 0.4)"}`, borderRadius: "8px", 
           color: "#fff", fontSize: "16px", fontWeight: "bold", textAlign: "center", 
           boxSizing: "border-box", outline: "none", fontFamily: "'Inter', sans-serif",
           transition: "border-color 0.2s, box-shadow 0.2s"
         }} 
-        onFocus={(e) => {
-          e.target.style.borderColor = color || THEME.colors.gold;
-          e.target.style.boxShadow = `0 0 10px ${color || THEME.colors.goldDim}40`;
-        }}
-        onBlur={(e) => {
-          e.target.style.borderColor = color || "rgba(197, 160, 89, 0.3)";
-          e.target.style.boxShadow = "none";
-        }}
+        onFocus={(e) => { e.target.style.borderColor = color || THEME.colors.gold; e.target.style.boxShadow = `0 0 10px ${color || THEME.colors.goldDim}40`; }}
+        onBlur={(e) => { e.target.style.borderColor = color || "rgba(197, 160, 89, 0.4)"; e.target.style.boxShadow = "none"; }}
       />
       <span style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", color: "#666", fontWeight: "bold", pointerEvents: "none" }}>%</span>
     </div>
@@ -199,10 +173,10 @@ const GameCard = ({ title, children, isSpecial }) => (
   <div style={{
     background: THEME.colors.cardBg,
     backdropFilter: "blur(12px)",
-    // SVE kartice sada imaju zlatni border
-    border: `1px solid ${isSpecial ? THEME.colors.gold : "rgba(197, 160, 89, 0.4)"}`,
+    // SVE KARTICE IMAJU ZLATNI OBRUB
+    border: `1px solid ${THEME.colors.gold}`,
     borderRadius: "16px",
-    padding: "24px",
+    padding: "20px", // Malo manji padding za uži izgled
     marginBottom: "20px",
     boxShadow: isSpecial 
       ? `0 0 25px ${THEME.colors.goldDim}30, inset 0 0 10px ${THEME.colors.goldDim}10` 
@@ -211,6 +185,7 @@ const GameCard = ({ title, children, isSpecial }) => (
     width: "100%", 
     boxSizing: "border-box"
   }}>
+    {/* Ukrasna linija */}
     <div style={{
       position: "absolute", left: 0, top: "20px", bottom: "20px", width: "3px", 
       background: `linear-gradient(to bottom, ${THEME.colors.gold}, transparent)`,
@@ -222,7 +197,7 @@ const GameCard = ({ title, children, isSpecial }) => (
       color: THEME.colors.goldBright,
       marginBottom: "20px", textTransform: "uppercase", letterSpacing: "1.5px",
       display: "flex", justifyContent: "space-between", alignItems: "center",
-      borderBottom: `1px solid rgba(197, 160, 89, 0.2)`, paddingBottom: "12px",
+      borderBottom: `1px solid rgba(255,255,255,0.1)`, paddingBottom: "12px",
       textShadow: "0 2px 4px rgba(0,0,0,0.8)"
     }}>
       <span>{title}</span>
@@ -248,7 +223,7 @@ const Modal = ({ open, title, onClose, children }) => {
         display: "flex", alignItems: "center", justifyContent: "center", padding: 15, backdropFilter: "blur(8px)" 
       }}>
         <div style={{ 
-          background: "#16181d", width: "100%", maxWidth: "500px", borderRadius: "16px", 
+          background: "#16181d", width: "100%", maxWidth: "480px", borderRadius: "16px", 
           border: `1px solid ${THEME.colors.gold}`, 
           boxShadow: `0 0 60px ${THEME.colors.goldDim}40`,
           maxHeight: "90vh", display: "flex", flexDirection: "column" 
@@ -582,7 +557,8 @@ export default function App() {
         ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 3px; }
       `}</style>
 
-      <div style={{ width: "100%", maxWidth: "600px", padding: "20px 16px", position: "relative", zIndex: 1 }}>
+      {/* KONTEJNER ZA CENTRIRANJE - SMANJENA ŠIRINA NA 480px */}
+      <div style={{ width: "100%", maxWidth: "480px", padding: "20px 16px", position: "relative", zIndex: 1 }}>
         
         <div style={{ 
           fontFamily: "'Cinzel', serif", color: THEME.colors.goldBright, textAlign: "center", 
@@ -592,7 +568,7 @@ export default function App() {
           Citadel Calculator <br/> <span style={{fontSize:"16px", color: THEME.colors.textDim}}>by GM</span>
         </div>
 
-        {/* SETUP - SADA KORISTI GAMING SELECT */}
+        {/* SETUP */}
         <GameCard title="⚙️ Setup">
           <button onClick={() => setHelpOpen(true)} style={{ 
              width: "100%", padding: "12px", borderRadius: "8px", 
@@ -692,8 +668,8 @@ export default function App() {
            zIndex: 1000, backdropFilter: "blur(10px)",
            boxShadow: "0 -10px 30px rgba(0,0,0,0.5)"
         }}>
-           <div style={{ maxWidth: "600px", margin: "0 auto" }}>
-             <button onClick={showResults} style={{
+           <div style={{ maxWidth: "480px", margin: "0 auto" }}>
+             <button onClick={calculate} style={{
                 width: "100%", padding: "16px", borderRadius: "10px", border: "none",
                 background: THEME.colors.btnGradient,
                 color: "#000", fontWeight: "900", fontSize: "18px", letterSpacing: "2px",
