@@ -1,8 +1,12 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
-// IMPORTANT: replace with your repo name
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: "/Citadel-test/",
-});
+  base: '/Citadel-test/',  // <--- OBAVEZNO OVO, sa kosim crtama na početku i kraju
+  build: {
+    outDir: 'dist',
+  }
+})
+
