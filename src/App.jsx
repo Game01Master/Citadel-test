@@ -1385,7 +1385,7 @@ const [calcOutput, setCalcOutput] = useState(null);
     </div>
 
     <div>
-        <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🦸 Captains</div>
+        <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>⚔️ Captains</div>
         <div style={{ color: theme.subtext }}>
         Recommended:
         <b style={{ color: theme.text }}> Wu Zetian, Brunhild, Skadi, Beowulf, Aydae, Ramses, Sofia</b>.
