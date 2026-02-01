@@ -41,7 +41,7 @@ const ICON_FILE_MAP = {
   "Heavy Knight VI": "Heavy Knight VI.png", "Swordsmen V": "Swordsmen V.png",
 };
 
-const ICON_BASE = "./"; // Pretpostavka za putanju
+const ICON_BASE = "./";
 
 function iconSrcForTroop(name) {
   const file = ICON_FILE_MAP[name];
@@ -55,7 +55,7 @@ function normName(s) { return String(s ?? "").toLowerCase().replace(/\s+/g, " ")
 async function copyToClipboard(text) { try { await navigator.clipboard.writeText(text); return true; } catch { return false; } }
 
 /* =========================================
-   🧩 UI KOMPONENTE (IZ APP_GOLD.JSX)
+   🧩 UI KOMPONENTE
    ========================================= */
 
 const Portal = ({ children }) => {
@@ -154,17 +154,24 @@ const CustomSelect = ({ value, options, onChange, labelTransform }) => {
   );
 };
 
+// FIX: BonusInput sada ima type="number" i step="any"
 const BonusInput = ({ label, color, ...props }) => (
   <div style={{ width: "100%", boxSizing: "border-box" }}>
     <label style={{ fontSize: "11px", color: color || THEME.colors.gold, fontWeight: "800", display: "block", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "'Inter', sans-serif" }}>{label}</label>
     <div style={{ position: "relative", width: "100%", boxSizing: "border-box" }}>
-      <input {...props} 
+      <input 
+        type="number"
+        step="any"
+        inputMode="decimal"
+        {...props} 
         style={{ 
           width: "100%", padding: "12px", background: "rgba(0, 0, 0, 0.6)", 
           border: `1px solid ${color || "rgba(197, 160, 89, 0.3)"}`, borderRadius: "8px", 
           color: "#fff", fontSize: "16px", fontWeight: "bold", textAlign: "center", 
           boxSizing: "border-box", outline: "none", fontFamily: "'Inter', sans-serif",
-          transition: "border-color 0.2s, box-shadow 0.2s"
+          transition: "border-color 0.2s, box-shadow 0.2s",
+          appearance: "textfield",
+          MozAppearance: "textfield"
         }} 
         onFocus={(e) => { e.target.style.borderColor = color || THEME.colors.gold; e.target.style.boxShadow = `0 0 10px ${color || THEME.colors.goldDim}40`; }}
         onBlur={(e) => { e.target.style.borderColor = color || "rgba(255,255,255,0.2)"; e.target.style.boxShadow = "none"; }}
@@ -249,46 +256,17 @@ const Modal = ({ open, title, onClose, children }) => {
 };
 
 /* =========================================
-   ⚙️ LOGIKA (KOPIRANA IZ APP_GEMINI.JSX - POTPUNA)
+   ⚙️ LOGIKA (100% IDENTIČNA APP_GEMINI.JSX)
    ========================================= */
 
 const MODE_WITHOUT = "WITHOUT";
 const MODE_WITH = "WITH";
 
-const STRIKER_LABELS = [
-  "First Striker", "Second Striker", "Third Striker", "Cleanup 1", "Cleanup 2", "Cleanup 3", "Cleanup 4", "Cleanup 5", "Cleanup 6",
-];
-
-const RESULT_ORDER = [
-  "Wyvern", "Warregal", "Jago", "Ariel", "Epic Monster Hunter", "Fire Phoenix II",
-  "Fire Phoenix I", "Manticore", "Corax II", "Royal Lion II", "Corax I",
-  "Royal Lion I", "Griffin VII", "Josephine II", "Griffin VI", "Josephine I",
-  "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI", "Punisher I",
-  "Duelist I", "Catapult V", "Vulture VII", "Heavy Halberdier VII",
-  "Heavy Knight VII", "Catapult IV", "Vulture VI", "Heavy Halberdier VI",
-  "Heavy Knight VI", "Spearmen V", "Swordsmen V", "Vulture V"
-];
-
-const TROOPS_WITH_M8_RAW = [
-  "Wyvern", "Warregal", "Jago", "Ariel", "Epic Monster Hunter", "Fire Phoenix II",
-  "Fire Phoenix I", "Manticore", "Corax II", "Royal Lion II", "Corax I",
-  "Royal Lion I", "Griffin VII", "Josephine II", "Griffin VI", "Josephine I",
-  "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI", "Catapult V",
-  "Vulture VII", "Catapult IV", "Vulture VI", "Vulture V",
-];
-
-const TROOPS_WITHOUT_M8_RAW = [
-  "Wyvern", "Warregal", "Jago", "Ariel", "Epic Monster Hunter", "Manticore",
-  "Corax I", "Royal Lion I", "Griffin VII", "Josephine II", "Griffin VI",
-  "Josephine I", "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI",
-  "Punisher I", "Duelist I", "Catapult V", "Vulture VII", "Heavy Halberdier VII",
-  "Heavy Knight VII", "Catapult IV", "Vulture VI", "Heavy Halberdier VI",
-  "Heavy Knight VI", "Spearmen V", "Swordsmen V", "Vulture V"
-];
-
-const WALL_KILLER_NAMES_RAW = [
-  "Ariel", "Josephine II", "Josephine I", "Siege Ballistae VII", "Siege Ballistae VI", "Catapult V", "Catapult IV",
-];
+const STRIKER_LABELS = ["First Striker", "Second Striker", "Third Striker", "Cleanup 1", "Cleanup 2", "Cleanup 3", "Cleanup 4", "Cleanup 5", "Cleanup 6"];
+const RESULT_ORDER = ["Wyvern", "Warregal", "Jago", "Ariel", "Epic Monster Hunter", "Fire Phoenix II", "Fire Phoenix I", "Manticore", "Corax II", "Royal Lion II", "Corax I", "Royal Lion I", "Griffin VII", "Josephine II", "Griffin VI", "Josephine I", "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI", "Punisher I", "Duelist I", "Catapult V", "Vulture VII", "Heavy Halberdier VII", "Heavy Knight VII", "Catapult IV", "Vulture VI", "Heavy Halberdier VI", "Heavy Knight VI", "Spearmen V", "Swordsmen V", "Vulture V"];
+const TROOPS_WITH_M8_RAW = ["Wyvern", "Warregal", "Jago", "Ariel", "Epic Monster Hunter", "Fire Phoenix II", "Fire Phoenix I", "Manticore", "Corax II", "Royal Lion II", "Corax I", "Royal Lion I", "Griffin VII", "Josephine II", "Griffin VI", "Josephine I", "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI", "Catapult V", "Vulture VII", "Catapult IV", "Vulture VI", "Vulture V"];
+const TROOPS_WITHOUT_M8_RAW = ["Wyvern", "Warregal", "Jago", "Ariel", "Epic Monster Hunter", "Manticore", "Corax I", "Royal Lion I", "Griffin VII", "Josephine II", "Griffin VI", "Josephine I", "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI", "Punisher I", "Duelist I", "Catapult V", "Vulture VII", "Heavy Halberdier VII", "Heavy Knight VII", "Catapult IV", "Vulture VI", "Heavy Halberdier VI", "Heavy Knight VI", "Spearmen V", "Swordsmen V", "Vulture V"];
+const WALL_KILLER_NAMES_RAW = ["Ariel", "Josephine II", "Josephine I", "Siege Ballistae VII", "Siege Ballistae VI", "Catapult V", "Catapult IV"];
 
 export default function App() {
   const citadelKeys = Object.keys(TB.citadels ?? {});
@@ -528,7 +506,7 @@ export default function App() {
     if (!cit) return { effBonus: 0, requiredTroops: 0 };
     const troop = troopByName.get(wallKillerTroop);
     const baseStrength = troop ? toNum(troop.strength) : 0;
-    const fort = troop?.fortBonus !== undefined ? toNum(troop.fortBonus) : 0;
+    const fort = troop?.fortBonus !== undefined && troop?.fortBonus !== null ? toNum(troop.fortBonus) : 0;
     const effBonus = toNum(wallKillerBonusPct) + fort;
     const dmgPerTroop = baseStrength * (1 + effBonus / 100) * 20;
     const wallHP = toNum(cit.wallHP);
@@ -567,9 +545,6 @@ export default function App() {
     setResultsOpen(true);
   };
 
-  /* =========================================
-     APP RENDER (VISUALS FROM GOLD + SETUP FIX)
-     ========================================= */
   return (
     <div style={{
       width: "100%", minHeight: "100vh",
@@ -577,7 +552,8 @@ export default function App() {
       backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed",
       color: THEME.colors.text, fontFamily: "'Inter', sans-serif",
       paddingBottom: "120px", boxSizing: "border-box",
-      display: "flex", flexDirection: "column", alignItems: "center" 
+      // FLEXBOX ZA CENTRIRANJE
+      display: "flex", flexDirection: "column", alignItems: "center"
     }}>
       <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 0 }} />
       
@@ -587,10 +563,17 @@ export default function App() {
         ::-webkit-scrollbar-track { background: #111; }
         ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 3px; }
         ::placeholder { color: #666; opacity: 1; }
+        /* Ukloni strelice za number input */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+          -webkit-appearance: none; 
+          margin: 0; 
+        }
+        input[type=number] { -moz-appearance: textfield; }
       `}</style>
 
-      {/* GLAVNI KONTEJNER ZA CENTRIRANJE - 600px kao u originalu App_gold.jsx */}
-      <div style={{ width: "100%", maxWidth: "600px", padding: "20px 16px", position: "relative", zIndex: 1 }}>
+      {/* KONTEJNER ZA CENTRIRANJE - BEZ FIKSNOG LIMITA ŠIRINE ZA WEB PRIKAZ */}
+      <div style={{ width: "100%", maxWidth: "1000px", padding: "20px 16px", position: "relative", zIndex: 1 }}>
         
         <div style={{ 
           fontFamily: "'Cinzel', serif", color: THEME.colors.goldBright, textAlign: "center", 
@@ -600,7 +583,7 @@ export default function App() {
           Citadel Calculator <br/> <span style={{fontSize:"16px", color: THEME.colors.textDim}}>by GM</span>
         </div>
 
-        {/* SETUP - SADA KORISTI GAMING SELECT */}
+        {/* SETUP */}
         <GameCard title="⚙️ Setup">
           <button onClick={() => setHelpOpen(true)} style={{ 
              width: "100%", padding: "12px", borderRadius: "8px", 
@@ -645,21 +628,15 @@ export default function App() {
         <GameCard title="🛡️ Wall Killer" isSpecial>
            <div style={{ marginBottom: "16px" }}>
               <label style={{ fontSize: "11px", color: THEME.colors.textDim, display:"block", marginBottom:"6px", textTransform:"uppercase", fontWeight:"bold" }}>Select Troop</label>
-              <CustomSelect value={wallKillerTroop} options={wallKillerPool} onChange={setWallKillerTroop} />
+              <CustomSelect value={wallKillerTroop} options={wallKillerPool} onChange={(v) => { setWallKillerTroop(v); setCalcOutput(null); setResultsOpen(false); }} />
            </div>
 
            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }}>
               <BonusInput label="Strength Bonus (%)" value={wallKillerBonusPct} onChange={e => { setWallKillerBonusPct(e.target.value); setCalcOutput(null); setResultsOpen(false); }} placeholder="0" />
               
               <div style={{ background: "rgba(0,0,0,0.3)", padding: "12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-                    <span style={{ color: THEME.colors.textDim, fontSize: "13px", textTransform: "uppercase" }}>Effective Bonus</span>
-                    <span style={{ color: THEME.colors.accent, fontWeight: "bold" }}>{fmtInt(wallKiller.effBonus)}%</span>
-                 </div>
-                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ color: THEME.colors.textDim, fontSize: "13px", textTransform: "uppercase" }}>Required Troops</span>
-                    <span style={{ color: THEME.colors.goldBright, fontWeight: "bold", fontSize: "18px" }}>{fmtInt(wallKiller.requiredTroops)}</span>
-                 </div>
+                 <Row label="Effective Bonus" value={`${fmtInt(wallKiller.effBonus)}%`} theme={THEME} accent />
+                 <Row label="Required Troops" value={fmtInt(wallKiller.requiredTroops)} theme={THEME} accent />
               </div>
            </div>
         </GameCard>
@@ -684,14 +661,8 @@ export default function App() {
                 </div>
                 
                 <div style={{ background: "rgba(0,0,0,0.3)", borderRadius:"8px", padding:"12px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-                      <span style={{ color: THEME.colors.textDim, fontSize: "13px", textTransform: "uppercase" }}>Effective Bonus</span>
-                      <span style={{ color: THEME.colors.accent, fontWeight: "bold" }}>{fmtInt(s.effBonus)}%</span>
-                   </div>
-                   <div style={{ display: "flex", justifyContent: "space-between" }}>
-                      <span style={{ color: THEME.colors.textDim, fontSize: "13px", textTransform: "uppercase" }}>Required Troops</span>
-                      <span style={{ color: THEME.colors.goldBright, fontWeight: "bold", fontSize: "18px" }}>{fmtInt(s.requiredTroops)}</span>
-                   </div>
+                   <Row label="Effective Bonus" value={`${fmtInt(s.effBonus)}%`} theme={THEME} accent />
+                   <Row label="Required Troops" value={fmtInt(s.requiredTroops)} theme={THEME} accent />
                    {isFirst && (
                       <div style={{ marginTop: "8px", paddingTop: "8px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
                          <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -712,8 +683,8 @@ export default function App() {
            zIndex: 1000, backdropFilter: "blur(10px)",
            boxShadow: "0 -10px 30px rgba(0,0,0,0.5)"
         }}>
-           <div style={{ maxWidth: "600px", margin: "0 auto" }}>
-             <button onClick={showResults} style={{
+           <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+             <button onClick={calculate} style={{
                 width: "100%", padding: "16px", borderRadius: "10px", border: "none",
                 background: THEME.colors.btnGradient,
                 color: "#000", fontWeight: "900", fontSize: "18px", letterSpacing: "2px",
@@ -722,29 +693,25 @@ export default function App() {
                 textShadow: "0 1px 0 rgba(255,255,255,0.4)",
              }}
              >
-                CALCULATE RESULTS
+                CALCULATE
              </button>
            </div>
         </div>
 
         {/* MODALS */}
-        <Modal open={!!warningMsg} title="⚠️ Invalid Striker Order" onClose={() => setWarningMsg("")}>
+        <Modal open={!!warningMsg} title="⚠️ Invalid Striker Order" onClose={() => setWarningMsg("")} theme={THEME}>
           <p style={{ lineHeight: "1.6", whiteSpace: "pre-wrap", color: "#ddd", fontSize: "15px" }}>{warningMsg}</p>
           <button onClick={() => setWarningMsg("")} style={{ width: "100%", padding: "14px", background: THEME.colors.gold, border: "none", borderRadius: "8px", marginTop: "20px", fontWeight: "bold", cursor: "pointer", fontSize: "16px" }}>OK</button>
         </Modal>
 
-        <Modal open={resultsOpen} title="📋 Battle Report" onClose={() => setResultsOpen(false)}>
+        <Modal open={resultsOpen} title="📋 Calculated Results" onClose={() => setResultsOpen(false)} theme={THEME}>
           <div style={{ background: "rgba(255,255,255,0.05)", padding: "12px", borderRadius: "8px", marginBottom: "20px", border: "1px solid rgba(255,255,255,0.1)" }}>
-             <div style={{display:"flex", justifyContent:"space-between", marginBottom:4}}>
-                <span style={{color:THEME.colors.textDim}}>Mode</span><span style={{fontWeight:"bold", color: THEME.colors.goldBright}}>{calcOutput?.modeLabel}</span>
-             </div>
-             <div style={{display:"flex", justifyContent:"space-between"}}>
-                <span style={{color:THEME.colors.textDim}}>Citadel</span><span style={{fontWeight:"bold", color: "#fff"}}>{calcOutput?.citadelLabel}</span>
-             </div>
+             <Row label="Mode" value={calcOutput?.modeLabel} theme={THEME} accent />
+             <Row label="Citadel" value={calcOutput?.citadelLabel} theme={THEME} accent />
           </div>
 
           <button onClick={async () => {
-              const list = calcOutput.troops.map(t => `${t.troop} - ${fmtInt(t.required)}`).join("\n");
+              const list = (calcOutput?.troops || []).map(t => `${t.troop} - ${fmtInt(t.required)}`).join("\n");
               const ok = await copyToClipboard(list);
               setCopyNotice(ok ? "✅ Copied!" : "❌ Error");
               setTimeout(() => setCopyNotice(""), 2000);
@@ -768,7 +735,7 @@ export default function App() {
           </div>
         </Modal>
 
-        <Modal open={helpOpen} title="ℹ️ Instructions & Help" onClose={() => setHelpOpen(false)}>
+        <Modal open={helpOpen} title="ℹ️ Instructions & Help" onClose={() => setHelpOpen(false)} theme={THEME}>
           <div style={{ color: "#e0e0e0", lineHeight: 1.6, fontSize: 15, display: "grid", gap: 20 }}>
             <div>
                 <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>🎯 Goal</div>
@@ -776,14 +743,8 @@ export default function App() {
             </div>
             <div>
                 <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.danger }}>❗ Most Important Rule</div>
-                <div style={{ color: "#bbb", borderLeft: `4px solid ${THEME.colors.danger}`, paddingLeft: 12 }}>
-                Maximize <b style={{ color: "#fff" }}>First Striker Health</b>. In a proper attack, the First Striker is the only troop group that should take losses. If you are losing other troops, check your bonuses or troop counts.<br /><br />
-                The number of <b style={{ color: "#fff" }}>FIRST STRIKER</b> troops <b style={{ color: "#fff" }}> CAN</b> be higher than calculated. All other troops <b style={{ color: "#fff" }}>MUST</b> be used in the exact number as calculated.
-                </div>
-            </div>
-            <div>
-                <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>🦅 First Striker</div>
-                <div style={{ color: "#bbb" }}>Must be the strongest <b style={{ color: "#fff" }}>flying Guardsmen</b>: <b style={{ color: "#fff" }}> Corax</b> or <b style={{ color: "#fff" }}> Griffin</b>.</div>
+                <div style={{ color: "#bbb", borderLeft: `4px solid ${THEME.colors.danger}`, paddingLeft: 12 }}>Maximize <b style={{ color: "#fff" }}>First Striker Health</b>. In a proper attack, the First Striker is the only troop group that should take losses. If you are losing other troops, check your bonuses or troop counts.<br /><br />The number of <b style={{ color: "#fff" }}>FIRST STRIKER</b> troops <b style={{ color: "#fff" }}> CAN</b> be higher than calculated. All other troops <b style={{ color: "#fff" }}>MUST</b> be used in the exact number as calculated.</div></div>
+            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>🦅 First Striker</div><div style={{ color: "#bbb" }}>Must be the strongest <b style={{ color: "#fff" }}>flying Guardsmen</b>: <b style={{ color: "#fff" }}> Corax</b> or <b style={{ color: "#fff" }}> Griffin</b>.</div>
             </div>
             <div>
                 <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>🦸 Captains</div>
