@@ -186,27 +186,6 @@ function iconSrcForTroop(name) {
 }
 
 
-function renderTroopWithIcon(name, theme) {
-  const src = iconSrcForTroop(name);
-  if (!src) return name;
-  return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-      <img
-        src={src}
-        alt={name}
-        width={18}
-        height={18}
-        style={{ borderRadius: 4, display: "block" }}
-        loading="lazy"
-      />
-      <span style={{ color: theme.text }}>{name}</span>
-    </span>
-  );
-}
-
-
-
-
 async function copyToClipboard(text) {
   try {
     await navigator.clipboard.writeText(text);
@@ -259,20 +238,24 @@ function usePrefersDark() {
 
 function makeTheme(isDark) {
   return {
-    pageBg: isDark ? "#0f1115" : "#fafafa",
-    cardBg: isDark ? "#161a22" : "#ffffff",
-    border: isDark ? "#2a2f3a" : "#e6e6e6",
-    borderSoft: isDark ? "#222834" : "#f0f0f0",
-    text: isDark ? "#eaeaea" : "#111111",
-    subtext: isDark ? "#a6b0bf" : "#666666",
-    inputBg: isDark ? "#0f1115" : "#ffffff",
-    inputBorder: isDark ? "#3a4252" : "#dddddd",
-    btnBg: isDark ? "#1f6feb" : "#111111",
+    pageBg: isDark ? "#121212" : "#f5f7fa", // Softer dark, cleaner light
+    cardBg: isDark ? "#1e1e1e" : "#ffffff",
+    border: isDark ? "#333333" : "#e0e4e8",
+    borderSoft: isDark ? "#2c2c2c" : "#ebeff3",
+    text: isDark ? "#e0e0e0" : "#2d3748", // Softer white, darker gray
+    subtext: isDark ? "#a0aec0" : "#718096",
+    inputBg: isDark ? "#2d2d2d" : "#edf2f7",
+    inputBorder: isDark ? "#4a4a4a" : "#cbd5e0",
+    btnBg: isDark ? "#4a90e2" : "#3182ce", // A nice blue
     btnText: "#ffffff",
-    btnGhostBg: isDark ? "#0f1115" : "#ffffff",
-    btnGhostBorder: isDark ? "#3a4252" : "#dddddd",
-    overlay: "rgba(0,0,0,0.45)",
-    bottomBarBg: isDark ? "rgba(22,26,34,0.92)" : "rgba(250,250,250,0.92)",
+    btnGhostBg: isDark ? "#2d2d2d" : "#edf2f7",
+    btnGhostBorder: isDark ? "#4a4a4a" : "#cbd5e0",
+    overlay: isDark ? "rgba(0,0,0,0.7)" : "rgba(0,0,0,0.5)",
+    bottomBarBg: isDark ? "rgba(30,30,30,0.95)" : "rgba(255,255,255,0.95)",
+    accent: isDark ? "#63b3ed" : "#4299e1",
+    danger: "#e53e3e",
+    shadow: isDark ? "0 4px 6px rgba(0,0,0,0.4)" : "0 4px 6px rgba(0,0,0,0.1)",
+    cardShadow: isDark ? "0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -2px rgba(0,0,0,0.2)" : "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)",
   };
 }
 
@@ -281,12 +264,22 @@ function Card({ title, children, theme }) {
     <div
       style={{
         border: `1px solid ${theme.border}`,
-        borderRadius: 16,
-        padding: 12,
+        borderRadius: 20, // More rounded
+        padding: 20, // More padding
         background: theme.cardBg,
+        boxShadow: theme.cardShadow,
+        transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-2px)";
+        e.currentTarget.style.boxShadow = theme.shadow;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = theme.cardShadow;
       }}
     >
-      <div style={{ fontWeight: 900, marginBottom: 10, color: theme.text }}>
+      <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 16, color: theme.text }}>
         {title}
       </div>
       {children}
@@ -301,8 +294,8 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle }) {
   const display = value ? value : "—";
 
   return (
-    <div style={{ display: "grid", gap: 6 }}>
-      <span style={{ color: theme.subtext }}>{label}</span>
+    <div style={{ display: "grid", gap: 8 }}>
+      <span style={{ color: theme.subtext, fontWeight: 600, fontSize: 14 }}>{label}</span>
 
       <button
         type="button"
@@ -313,18 +306,19 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle }) {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: 10,
+          gap: 12,
+          cursor: "pointer",
         }}
       >
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 12, minWidth: 0 }}>
           {value ? (
             iconSrcForTroop(value) ? (
               <img
                 src={iconSrcForTroop(value)}
                 alt={value}
-                width={34}
-                height={34}
-                style={{ borderRadius: 7, flexShrink: 0 }}
+                width={40} // Larger icon
+                height={40}
+                style={{ borderRadius: 10, flexShrink: 0, boxShadow: theme.shadow }}
                 loading="lazy"
               />
             ) : null
@@ -333,7 +327,8 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle }) {
           <span
             style={{
               color: theme.text,
-              fontWeight: 800,
+              fontWeight: 600,
+              fontSize: 16,
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
@@ -343,14 +338,15 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle }) {
           </span>
         </span>
 
-        <span style={{ color: theme.subtext, fontWeight: 900, flexShrink: 0 }}>▾</span>
+        <span style={{ color: theme.subtext, fontSize: 20, flexShrink: 0 }}>▾</span>
       </button>
 
       <Modal open={open} title={label} onClose={() => setOpen(false)} theme={theme}>
-        <div style={{ display: "grid", gap: 8 }}>
+        <div style={{ display: "grid", gap: 10, padding: "8px 0" }}>
           {options.map((opt) => {
             const isBlank = opt === "";
             const name = isBlank ? "—" : opt;
+            const isSelected = opt === value;
             return (
               <button
                 key={opt || "__blank__"}
@@ -362,28 +358,33 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle }) {
                 style={{
                   width: "100%",
                   textAlign: "left",
-                  padding: "10px 10px",
-                  borderRadius: 14,
-                  border: `1px solid ${theme.border}`,
-                  background: theme.cardBg,
+                  padding: "12px",
+                  borderRadius: 16,
+                  border: `1px solid ${isSelected ? theme.accent : theme.border}`,
+                  background: isSelected ? `${theme.accent}20` : theme.cardBg, // Subtle highlight
                   color: theme.text,
-                  fontWeight: 800,
+                  fontWeight: 600,
+                  fontSize: 16,
                   display: "flex",
                   alignItems: "center",
-                  gap: 10,
+                  gap: 12,
+                  cursor: "pointer",
+                  transition: "background-color 0.2s",
                 }}
+                onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.background = theme.inputBg; }}
+                onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.background = theme.cardBg; }}
               >
                 {!isBlank && iconSrcForTroop(opt) ? (
                   <img
                     src={iconSrcForTroop(opt)}
                     alt={opt}
-                    width={34}
-                    height={34}
-                    style={{ borderRadius: 7, flexShrink: 0 }}
+                    width={40}
+                    height={40}
+                    style={{ borderRadius: 10, flexShrink: 0, boxShadow: theme.shadow }}
                     loading="lazy"
                   />
                 ) : (
-                  <div style={{ width: 34, height: 34, borderRadius: 7, flexShrink: 0 }} />
+                  <div style={{ width: 40, height: 40, borderRadius: 10, flexShrink: 0, border: `1px dashed ${theme.border}` }} />
                 )}
 
                 <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
@@ -397,22 +398,22 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle }) {
 }
 
 
-function Row({ label, value, theme }) {
+function Row({ label, value, theme, accent }) {
   return (
     <div
       style={{
-        display: "grid",
-        gridTemplateColumns: "1fr auto",
-        gap: 8,
+        display: "flex",
+        justifyContent: "space-between",
         alignItems: "center",
         width: "100%",
-        padding: "4px 0",
+        padding: "8px 0",
+        borderBottom: `1px solid ${theme.borderSoft}`,
       }}
     >
-      <div style={{ color: theme.subtext, overflowWrap: "anywhere" }}>
+      <div style={{ color: theme.subtext, fontSize: 14, fontWeight: 500 }}>
         {label}
       </div>
-      <div style={{ fontWeight: 900, color: theme.text, whiteSpace: "nowrap" }}>
+      <div style={{ fontWeight: 700, fontSize: 16, color: accent ? theme.accent : theme.text, whiteSpace: "nowrap" }}>
         {value}
       </div>
     </div>
@@ -430,23 +431,27 @@ function Modal({ open, title, onClose, children, theme }) {
         inset: 0,
         background: theme.overlay,
         display: "flex",
-        alignItems: "flex-end",
+        alignItems: "center", // Center vertically
         justifyContent: "center",
-        padding: 12,
+        padding: 20,
         zIndex: 1000,
+        backdropFilter: "blur(4px)",
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%",
-          maxWidth: 600,
+          maxWidth: 500, // Slightly narrower
           background: theme.cardBg,
           color: theme.text,
-          borderRadius: 18,
+          borderRadius: 24,
           border: `1px solid ${theme.border}`,
           overflow: "hidden",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+          boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+          maxHeight: "85vh", // More height
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         <div
@@ -454,30 +459,38 @@ function Modal({ open, title, onClose, children, theme }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: 12,
+            padding: "16px 20px",
+            borderBottom: `1px solid ${theme.border}`,
           }}
         >
-          <div style={{ fontWeight: 900 }}>{title}</div>
+          <div style={{ fontWeight: 700, fontSize: 20 }}>{title}</div>
           <button
             onClick={onClose}
             style={{
-              border: `1px solid ${theme.btnGhostBorder}`,
-              background: theme.btnGhostBg,
-              color: theme.text,
-              borderRadius: 12,
-              padding: "8px 10px",
-              fontWeight: 900,
+              border: "none",
+              background: "transparent",
+              color: theme.subtext,
+              borderRadius: "50%",
+              width: 36,
+              height: 36,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 24,
+              cursor: "pointer",
+              transition: "background-color 0.2s, color 0.2s",
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = theme.inputBg; e.currentTarget.style.color = theme.text; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = theme.subtext; }}
           >
             ✕
           </button>
         </div>
         <div
           style={{
-            padding: 12,
-            paddingTop: 0,
-            maxHeight: "70vh",
+            padding: 20,
             overflowY: "auto",
+            flex: 1, // Allow content to stretch
           }}
         >
           {children}
@@ -608,15 +621,21 @@ const [calcOutput, setCalcOutput] = useState(null);
 
   const inputStyle = useMemo(
     () => ({
-      padding: 10,
+      padding: "12px 16px",
       borderRadius: 12,
-      border: `1px solid ${theme.inputBorder}`,
+      border: `2px solid ${theme.inputBorder}`,
       background: theme.inputBg,
       color: theme.text,
       outline: "none",
       width: "100%",
       boxSizing: "border-box",
-
+      fontSize: 16,
+      fontWeight: 500,
+      transition: "border-color 0.2s, box-shadow 0.2s",
+      "&:focus": {
+        borderColor: theme.accent,
+        boxShadow: `0 0 0 3px ${theme.accent}30`,
+      }
     }),
     [theme]
   );
@@ -1010,6 +1029,7 @@ const [calcOutput, setCalcOutput] = useState(null);
         minHeight: "100vh",
         background: theme.pageBg,
         color: theme.text,
+        transition: "background-color 0.3s, color 0.3s",
       }}
     >
 
@@ -1018,41 +1038,78 @@ const [calcOutput, setCalcOutput] = useState(null);
         html, body, #root { width: 100%; max-width: 100%; margin: 0; padding: 0; }
         #root { display: block; }
         *, *::before, *::after { box-sizing: border-box; }
+        
+        /* Custom Scrollbar for modal */
+        ::-webkit-scrollbar {
+          width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+          background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb {
+          background: ${theme.border}; 
+          border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: ${theme.subtext}; 
+        }
+        
+        /* Input focus styles */
+        input:focus, select:focus, button:focus {
+          outline: none;
+        }
       `}</style>
       <div
         style={{
           width: "100%",
           maxWidth: 600,
           margin: "0 auto",
-          padding: 12,
-          fontFamily: "system-ui, Arial",
+          padding: "20px 16px",
+          fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
         }}
       >
-      <div style={{ fontWeight: 900, fontSize: 18, marginBottom: 10 }}>
-        Citadel Calculator by GM
+      <div style={{ 
+        fontWeight: 800, 
+        fontSize: 28, 
+        marginBottom: 24, 
+        textAlign: "center",
+        background: `linear-gradient(135deg, ${theme.accent}, ${theme.text})`,
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+      }}>
+        Citadel Calculator
       </div>
 
-      <div style={{ display: "grid", gap: 10, paddingBottom: 130 }}>
-        <Card title="Setup" theme={theme}>
+      <div style={{ display: "grid", gap: 16, paddingBottom: 100 }}>
+        <Card title="⚙️ Setup" theme={theme}>
           <button
             onClick={() => setHelpOpen(true)}
             style={{
               width: "100%",
-              padding: "10px 12px",
-              borderRadius: 14,
-              border: `1px solid ${theme.border}`,
+              padding: "12px 16px",
+              borderRadius: 12,
+              border: `2px solid ${theme.btnGhostBorder}`,
               background: theme.btnGhostBg,
               color: theme.text,
-              fontWeight: 900,
-              marginBottom: 12,
+              fontWeight: 700,
+              fontSize: 16,
+              marginBottom: 16,
+              cursor: "pointer",
+              transition: "all 0.2s",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = theme.accent; e.currentTarget.style.color = theme.accent; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = theme.btnGhostBorder; e.currentTarget.style.color = theme.text; }}
           >
-            Click for instructions
+            <span>ℹ️</span> Instructions
           </button>
 
-          <div style={{ display: "grid", gap: 10 }}>
-            <label style={{ display: "grid", gap: 6 }}>
-              <span style={{ color: theme.subtext }}>Do you have M8/M9 troops?</span>
+          <div style={{ display: "grid", gap: 16 }}>
+            <label style={{ display: "grid", gap: 8 }}>
+              <span style={{ color: theme.subtext, fontWeight: 600, fontSize: 14 }}>Do you have M8/M9 troops?</span>
               <select
                 value={mode}
                 onChange={(e) => handleModeChange(e.target.value)}
@@ -1063,8 +1120,8 @@ const [calcOutput, setCalcOutput] = useState(null);
               </select>
             </label>
 
-            <label style={{ display: "grid", gap: 6 }}>
-              <span style={{ color: theme.subtext }}>Citadel Level</span>
+            <label style={{ display: "grid", gap: 8 }}>
+              <span style={{ color: theme.subtext, fontWeight: 600, fontSize: 14 }}>Citadel Level</span>
               <select
                 value={citadelLevel}
                 onChange={(e) => {
@@ -1086,23 +1143,29 @@ const [calcOutput, setCalcOutput] = useState(null);
               onClick={resetSelections}
               style={{
                 width: "100%",
-                padding: "12px 12px",
-                borderRadius: 14,
-                border: `1px solid ${theme.btnGhostBorder}`,
-                background: theme.btnGhostBg,
-                color: "#c63636",
-                fontWeight: 900,
+                padding: "12px 16px",
+                borderRadius: 12,
+                border: `2px solid ${theme.danger}40`,
+                background: `${theme.danger}10`,
+                color: theme.danger,
+                fontWeight: 700,
+                fontSize: 16,
+                cursor: "pointer",
+                transition: "all 0.2s",
+                marginTop: 8,
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = `${theme.danger}20`; e.currentTarget.style.borderColor = theme.danger; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = `${theme.danger}10`; e.currentTarget.style.borderColor = `${theme.danger}40`; }}
             >
-              Reset Troops selection
+              Reset Troops Selection
             </button>
           </div>
         </Card>
 
-        <Card title="Wall Killer" theme={theme}>
-          <div style={{ display: "grid", gap: 10 }}>
+        <Card title="🛡️ Wall Killer" theme={theme}>
+          <div style={{ display: "grid", gap: 16 }}>
             <TroopPicker
-              label="Troops"
+              label="Select Troop"
               value={wallKillerTroop}
               options={wallKillerPool}
               onChange={(v) => {
@@ -1114,12 +1177,13 @@ const [calcOutput, setCalcOutput] = useState(null);
               inputStyle={inputStyle}
             />
 
-            <label style={{ display: "grid", gap: 6 }}>
-              <span style={{ color: theme.subtext }}>Strength Bonus (%)</span>
+            <label style={{ display: "grid", gap: 8 }}>
+              <span style={{ color: theme.subtext, fontWeight: 600, fontSize: 14 }}>Strength Bonus (%)</span>
               <input
                 type="number"
                 step="any"
                 inputMode="decimal"
+                placeholder="0"
                 value={wallKillerBonusPct}
                 onChange={(e) => {
                   setWallKillerBonusPct(e.target.value);
@@ -1127,11 +1191,14 @@ const [calcOutput, setCalcOutput] = useState(null);
                   setResultsOpen(false);
                 }}
                 style={inputStyle}
+                onFocus={(e) => e.target.select()}
               />
             </label>
 
-            <Row label="Effective Bonus" value={`${fmtInt(wallKiller.effBonus)}%`} theme={theme} />
-            <Row label="Required Troops" value={fmtInt(wallKiller.requiredTroops)} theme={theme} />
+            <div style={{ background: theme.inputBg, padding: "12px 16px", borderRadius: 12 }}>
+                <Row label="Effective Bonus" value={`${fmtInt(wallKiller.effBonus)}%`} theme={theme} accent />
+                <Row label="Required Troops" value={fmtInt(wallKiller.requiredTroops)} theme={theme} accent />
+            </div>
           </div>
         </Card>
 
@@ -1142,9 +1209,9 @@ const [calcOutput, setCalcOutput] = useState(null);
 
           return (
             <Card key={idx} title={`${idx + 1}. ${s.label}`} theme={theme}>
-              <div style={{ display: "grid", gap: 10 }}>
+              <div style={{ display: "grid", gap: 16 }}>
                 <TroopPicker
-                  label="Troops"
+                  label="Select Troop"
                   value={strikerTroops[idx]}
                   options={opts}
                   onChange={(v) => handleTroopChange(idx, v)}
@@ -1153,12 +1220,13 @@ const [calcOutput, setCalcOutput] = useState(null);
                 />
 
                 {isFirst && (
-                  <label style={{ display: "grid", gap: 6 }}>
-                    <span style={{ color: theme.subtext }}>Health Bonus (%)</span>
+                  <label style={{ display: "grid", gap: 8 }}>
+                    <span style={{ color: theme.subtext, fontWeight: 600, fontSize: 14 }}>Health Bonus (%)</span>
                     <input
                       type="number"
                 step="any"
                 inputMode="decimal"
+                      placeholder="0"
                       value={firstHealthBonusPct}
                       onChange={(e) => {
                         setFirstHealthBonusPct(e.target.value);
@@ -1166,30 +1234,35 @@ const [calcOutput, setCalcOutput] = useState(null);
                         setResultsOpen(false);
                       }}
                       style={inputStyle}
+                      onFocus={(e) => e.target.select()}
                     />
                   </label>
                 )}
 
-                <label style={{ display: "grid", gap: 6 }}>
-                  <span style={{ color: theme.subtext }}>Strength Bonus (%)</span>
+                <label style={{ display: "grid", gap: 8 }}>
+                  <span style={{ color: theme.subtext, fontWeight: 600, fontSize: 14 }}>Strength Bonus (%)</span>
                   <input
                     type="number"
                 step="any"
                 inputMode="decimal"
+                    placeholder="0"
                     value={strikerBonusPct[idx]}
                     onChange={(e) => setBonusAt(idx, e.target.value)}
                     style={inputStyle}
+                    onFocus={(e) => e.target.select()}
                   />
                 </label>
 
-                <Row label="Effective Bonus" value={`${fmtInt(s.effBonus)}%`} theme={theme} />
-                <Row label="Required Troops" value={fmtInt(s.requiredTroops)} theme={theme} />
+                <div style={{ background: theme.inputBg, padding: "12px 16px", borderRadius: 12 }}>
+                    <Row label="Effective Bonus" value={`${fmtInt(s.effBonus)}%`} theme={theme} accent />
+                    <Row label="Required Troops" value={fmtInt(s.requiredTroops)} theme={theme} accent />
 
-                {isFirst && (
-                  <div style={{ marginTop: 6, paddingTop: 8, borderTop: `1px solid ${theme.borderSoft}` }}>
-                    <Row label="Losses if citadel strikes first" value={fmtInt(firstDeaths)} theme={theme} />
-                  </div>
-                )}
+                    {isFirst && (
+                    <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px solid ${theme.borderSoft}` }}>
+                        <Row label="Citadel First Strike Losses" value={fmtInt(firstDeaths)} theme={theme} />
+                    </div>
+                    )}
+                </div>
               </div>
             </Card>
           );
@@ -1203,30 +1276,39 @@ const [calcOutput, setCalcOutput] = useState(null);
           left: 0,
           right: 0,
           bottom: 0,
-          paddingTop: 10,
-          paddingBottom: "calc(10px + env(safe-area-inset-bottom))",
-          paddingLeft: 0,
-          paddingRight: 0,
+          padding: "16px",
+          paddingBottom: "calc(16px + env(safe-area-inset-bottom))",
           background: theme.bottomBarBg,
-          backdropFilter: "blur(8px)",
+          backdropFilter: "blur(12px)",
           borderTop: `1px solid ${theme.border}`,
-          zIndex: 999,
+          zIndex: 99,
+          boxShadow: `0 -4px 10px ${theme.shadow}`,
         }}
       >
-        <div style={{ width: "100%", maxWidth: 600, margin: "0 auto", padding: "0 12px" }}>
+        <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
           <button
             onClick={showResults}
             style={{
               width: "100%",
-              padding: "14px 12px",
+              padding: "16px",
               borderRadius: 16,
               border: "none",
-              background: theme.btnBg,
+              background: `linear-gradient(135deg, ${theme.accent}, ${theme.btnBg})`,
               color: theme.btnText,
-              fontWeight: 900,
-              letterSpacing: 0.4,
-              fontSize: 16,
-              boxShadow: "0 10px 25px rgba(0,0,0,0.18)",
+              fontWeight: 800,
+              letterSpacing: 1,
+              fontSize: 18,
+              boxShadow: `0 8px 20px -4px ${theme.accent}60`,
+              cursor: "pointer",
+              transition: "transform 0.2s, box-shadow 0.2s",
+            }}
+            onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = `0 12px 24px -4px ${theme.accent}80`;
+            }}
+            onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = `0 8px 20px -4px ${theme.accent}60`;
             }}
           >
             CALCULATE
@@ -1236,24 +1318,26 @@ const [calcOutput, setCalcOutput] = useState(null);
       {/* Warning popup */}
       <Modal
         open={!!warningMsg}
-        title="Invalid striker order"
+        title="⚠️ Invalid Striker Order"
         onClose={() => setWarningMsg("")}
         theme={theme}
       >
-        <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.5, color: theme.text }}>
+        <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6, color: theme.text, fontSize: 16 }}>
           {warningMsg}
         </div>
         <button
           onClick={() => setWarningMsg("")}
           style={{
             width: "100%",
-            marginTop: 12,
-            padding: "12px",
-            borderRadius: 14,
-            border: `1px solid ${theme.btnGhostBorder}`,
-            background: theme.btnGhostBg,
-            color: theme.text,
-            fontWeight: 900,
+            marginTop: 24,
+            padding: "14px",
+            borderRadius: 16,
+            border: "none",
+            background: theme.accent,
+            color: "#ffffff",
+            fontWeight: 700,
+            fontSize: 18,
+            cursor: "pointer",
           }}
         >
           OK
@@ -1265,80 +1349,74 @@ const [calcOutput, setCalcOutput] = useState(null);
 {/* Help popup */}
 <Modal
   open={helpOpen}
-  title="Help"
+  title="ℹ️ Instructions & Help"
   onClose={() => setHelpOpen(false)}
   theme={theme}
 >
-  <div style={{ color: theme.text, lineHeight: 1.45, fontSize: 14 }}>
-    <div style={{ fontWeight: 900, marginBottom: 6 }}>Goal</div>
-    <div style={{ color: theme.subtext, marginBottom: 12 }}>
-      Use the correct troops and bonuses to minimize losses when attacking a Citadel.
-      I took care of the proper troops selection.
+  <div style={{ color: theme.text, lineHeight: 1.6, fontSize: 15, display: "grid", gap: 20 }}>
+    <div>
+        <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🎯 Goal</div>
+        <div style={{ color: theme.subtext }}>
+        Use the correct troops and bonuses to minimize losses when attacking a Citadel.
+        I took care of the proper troops selection.
+        </div>
     </div>
 
-    <div style={{ fontWeight: 900, marginBottom: 6 }}>Most important rule</div>
-    <div style={{ color: theme.subtext, marginBottom: 12 }}>
-      Maximize <b style={{ color: theme.text }}>First Striker Health</b>.
-      In a proper attack, the First Striker is the only troop group that should take losses.
-      If, after using the calculator, you are losing troops that are not First Strikers,
-      you have entered an incorrect bonus for one of the troops or used the wrong number
-      of troops during the attack.
-      <br /><br />
-      The number of <b style={{ color: theme.text }}>FIRST STRIKER</b> troops
-      <b style={{ color: theme.text }}> CAN</b> be higher than calculated in the calculator.
-      All other troops <b style={{ color: theme.text }}>MUST</b> be used in the exact number
-      as calculated.
+    <div>
+        <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.danger }}>❗ Most Important Rule</div>
+        <div style={{ color: theme.subtext, borderLeft: `4px solid ${theme.danger}`, paddingLeft: 12 }}>
+        Maximize <b style={{ color: theme.text }}>First Striker Health</b>.
+        In a proper attack, the First Striker is the only troop group that should take losses.
+        If you are losing other troops, check your bonuses or troop counts.
+        <br /><br />
+        The number of <b style={{ color: theme.text }}>FIRST STRIKER</b> troops
+        <b style={{ color: theme.text }}> CAN</b> be higher than calculated.
+        All other troops <b style={{ color: theme.text }}>MUST</b> be used in the exact number
+        as calculated.
+        </div>
     </div>
 
-    <div style={{ fontWeight: 900, marginBottom: 6 }}>First Striker</div>
-    <div style={{ color: theme.subtext, marginBottom: 12 }}>
-      First Striker must be the strongest <b style={{ color: theme.text }}>flying Guardsmen</b>:
-      <b style={{ color: theme.text }}> Corax</b> or <b style={{ color: theme.text }}> Griffin</b>.
+    <div>
+        <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🦅 First Striker</div>
+        <div style={{ color: theme.subtext }}>
+        Must be the strongest <b style={{ color: theme.text }}>flying Guardsmen</b>:
+        <b style={{ color: theme.text }}> Corax</b> or <b style={{ color: theme.text }}> Griffin</b>.
+        </div>
     </div>
 
-    <div style={{ fontWeight: 900, marginBottom: 6 }}>Captains</div>
-    <div style={{ color: theme.subtext, marginBottom: 12 }}>
-      Recommended captains:
-      <b style={{ color: theme.text }}> Wu Zetian</b>,
-      <b style={{ color: theme.text }}> Brunhild</b>,
-      <b style={{ color: theme.text }}> Skadi</b>,
-      <b style={{ color: theme.text }}> Beowulf</b>,
-      <b style={{ color: theme.text }}> Aydae</b>,
-      <b style={{ color: theme.text }}> Ramses</b>,
-      <b style={{ color: theme.text }}> Sofia</b>.
+    <div>
+        <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🦸 Captains</div>
+        <div style={{ color: theme.subtext }}>
+        Recommended:
+        <b style={{ color: theme.text }}> Wu Zetian, Brunhild, Skadi, Beowulf, Aydae, Ramses, Sofia</b>.
+        </div>
     </div>
 
-    <div style={{ fontWeight: 900, marginBottom: 6 }}>Artifacts</div>
-    <div style={{ color: theme.subtext, marginBottom: 12 }}>
-      Use artifacts that increase Health for
-      <b style={{ color: theme.text }}> Flying</b>,
-      <b style={{ color: theme.text }}> Guardsmen</b>,
-      or the <b style={{ color: theme.text }}> Army</b>.
-      <br />
-      Best options include
-      <b style={{ color: theme.text }}> Valkyrie Diadem</b>,
-      <b style={{ color: theme.text }}> Medallion</b>,
-      <b style={{ color: theme.text }}> Belt</b>,
-      <b style={{ color: theme.text }}> Flask</b>.
+    <div>
+        <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>✨ Artifacts</div>
+        <div style={{ color: theme.subtext }}>
+        Use artifacts that increase Health for
+        <b style={{ color: theme.text }}> Flying</b>,
+        <b style={{ color: theme.text }}> Guardsmen</b>,
+        or the <b style={{ color: theme.text }}> Army</b>.
+        (e.g., <b style={{ color: theme.text }}>Valkyrie Diadem, Medallion, Belt, Flask</b>).
+        </div>
     </div>
 
-    <div style={{ fontWeight: 900, marginBottom: 6 }}>Recalculate after changes</div>
-    <div style={{ color: theme.subtext, marginBottom: 12 }}>
-      After any strength bonus change (captain level, artifact, equipment, bonuses),
-      enter new strength bonuses and press
-      <b style={{ color: theme.text }}> Calculate</b> again.
-      <br />
-      Even a small strength change can alter the required troop numbers.
+    <div>
+        <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🔄 Recalculate</div>
+        <div style={{ color: theme.subtext }}>
+        After ANY strength bonus change, enter new bonuses and press
+        <b style={{ color: theme.text }}> Calculate</b> again. Small changes matter!
+        </div>
     </div>
 
-    <div style={{ fontWeight: 900, marginBottom: 6 }}>
-      How to find strength and health bonuses?
-    </div>
-    <div style={{ color: theme.subtext }}>
-      Select the troops in the calculator, make an attack on a level 10 Citadel with
-      <b style={{ color: theme.text }}> 10 of each troop type</b>,
-      then copy the bonuses from the report into the calculator and press
-      <b style={{ color: theme.text }}> Calculate</b>.
+    <div>
+        <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>❓ How to find bonuses?</div>
+        <div style={{ color: theme.subtext }}>
+        Attack a level 10 Citadel with <b style={{ color: theme.text }}>10 of each selected troop type</b>.
+        Copy the bonuses from the attack report into the calculator.
+        </div>
     </div>
   </div>
 </Modal>
@@ -1346,71 +1424,90 @@ const [calcOutput, setCalcOutput] = useState(null);
 {/* Results popup */}
       <Modal
         open={resultsOpen}
-        title="Calculated List"
+        title="📋 Calculated Results"
         onClose={() => setResultsOpen(false)}
         theme={theme}
       >
         {calcOutput ? (
           <>
+            <div style={{ background: theme.inputBg, padding: 16, borderRadius: 16, marginBottom: 20 }}>
+                <Row label="Mode" value={calcOutput.modeLabel} theme={theme} />
+                <Row label="Citadel" value={calcOutput.citadelLabel} theme={theme} />
+            </div>
+
             <button
               onClick={async () => {
                 const list = (calcOutput.lines || calcOutput.troops || [])
                   .map((t) => `${t.troop} - ${fmtInt(t.required)}`)
                   .join("\n");
                 const ok = await copyToClipboard(list);
-                setCopyNotice(ok ? "Copied!" : "Copy failed");
-                window.setTimeout(() => setCopyNotice(""), 1200);
+                setCopyNotice(ok ? "✅ Copied!" : "❌ Copy failed");
+                window.setTimeout(() => setCopyNotice(""), 1500);
               }}
               style={{
                 width: "100%",
-                padding: "10px 12px",
-                borderRadius: 14,
-                border: `1px solid ${theme.border}`,
-                background: theme.btnBg,
-                color: theme.btnText,
-                fontWeight: 900,
+                padding: "14px",
+                borderRadius: 16,
+                border: "none",
+                background: theme.accent,
+                color: "#ffffff",
+                fontWeight: 700,
+                fontSize: 16,
                 marginBottom: 8,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                transition: "background-color 0.2s",
               }}
+              onMouseEnter={(e) => e.currentTarget.style.background = theme.btnBg}
+              onMouseLeave={(e) => e.currentTarget.style.background = theme.accent}
             >
-              Copy list
+              <span>📄</span> Copy List to Clipboard
             </button>
             {copyNotice ? (
-              <div style={{ marginBottom: 8, color: theme.subtext, fontWeight: 700 }}>
+              <div style={{ textAlign: "center", marginBottom: 16, color: theme.accent, fontWeight: 700 }}>
                 {copyNotice}
               </div>
             ) : null}
-
-            <Row label="Mode" value={calcOutput.modeLabel} theme={theme} />
-            <Row label="Citadel" value={calcOutput.citadelLabel} theme={theme} />
-            <div style={{ height: 10 }} />
+            
+            <div style={{ display: "grid", gap: 8 }}>
             {calcOutput.troops.map((l, i) => (
               <div
                 key={i}
                 style={{
-                  padding: "10px 0",
-                  borderTop: `1px solid ${i === 0 ? theme.borderSoft : (isDark ? "#1f2531" : "#f6f6f6")}`,
+                  padding: "12px 16px",
+                  background: theme.cardBg,
+                  borderRadius: 12,
+                  border: `1px solid ${theme.border}`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  boxShadow: theme.shadow,
                 }}
               >
                 
-                <div style={{ display: "flex", alignItems: "center", gap: 10, color: theme.text }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   {iconSrcForTroop(l.troop) ? (
                     <img
                       src={iconSrcForTroop(l.troop)}
                       alt={l.troop}
-                      width={34}
-                      height={34}
-                      style={{ borderRadius: 7, flexShrink: 0 }}
+                      width={44}
+                      height={44}
+                      style={{ borderRadius: 10, flexShrink: 0 }}
                       loading="lazy"
                     />
                   ) : null}
-                  <span style={{ fontWeight: 900, color: theme.text }}>{l.troop}</span>
-                  <span style={{ fontWeight: 900, color: theme.text }}>- {fmtInt(l.required)}</span>
+                  <span style={{ fontWeight: 700, color: theme.text, fontSize: 16 }}>{l.troop}</span>
                 </div>
+                <span style={{ fontWeight: 800, color: theme.accent, fontSize: 20 }}>{fmtInt(l.required)}</span>
               </div>
             ))}
+            </div>
           </>
         ) : (
-          <div style={{ color: theme.subtext }}>No results yet.</div>
+          <div style={{ color: theme.subtext, textAlign: "center", padding: 20 }}>No results to display.</div>
         )}
       </Modal>
       </div>
