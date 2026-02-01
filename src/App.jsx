@@ -27,21 +27,73 @@ const THEME = {
   }
 };
 
+/* =========================================
+   CONSTANTS & DATA (KOMPLETNE LISTE)
+   ========================================= */
+
+const MODE_WITHOUT = "WITHOUT";
+const MODE_WITH = "WITH";
+
+const STRIKER_LABELS = [
+  "First Striker", "Second Striker", "Third Striker",
+  "Cleanup 1", "Cleanup 2", "Cleanup 3", "Cleanup 4", "Cleanup 5", "Cleanup 6",
+];
+
+const RESULT_ORDER = [
+  "Wyvern", "Warregal", "Jago", "Ariel", "Epic Monster Hunter", "Fire Phoenix II",
+  "Fire Phoenix I", "Manticore", "Corax II", "Royal Lion II", "Corax I",
+  "Royal Lion I", "Griffin VII", "Josephine II", "Griffin VI", "Josephine I",
+  "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI", "Punisher I",
+  "Duelist I", "Catapult V", "Vulture VII", "Heavy Halberdier VII",
+  "Heavy Knight VII", "Catapult IV", "Vulture VI", "Heavy Halberdier VI",
+  "Heavy Knight VI", "Spearmen V", "Swordsmen V", "Vulture V"
+];
+
+const TROOPS_WITH_M8_RAW = [
+  "Wyvern", "Warregal", "Jago", "Ariel", "Epic Monster Hunter", "Fire Phoenix II",
+  "Fire Phoenix I", "Manticore", "Corax II", "Royal Lion II", "Corax I",
+  "Royal Lion I", "Griffin VII", "Josephine II", "Griffin VI", "Josephine I",
+  "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI", "Catapult V",
+  "Vulture VII", "Catapult IV", "Vulture VI", "Vulture V",
+];
+
+const TROOPS_WITHOUT_M8_RAW = [
+  "Wyvern", "Warregal", "Jago", "Ariel", "Epic Monster Hunter", "Manticore",
+  "Corax I", "Royal Lion I", "Griffin VII", "Josephine II", "Griffin VI",
+  "Josephine I", "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI",
+  "Punisher I", "Duelist I", "Catapult V", "Vulture VII", "Heavy Halberdier VII",
+  "Heavy Knight VII", "Catapult IV", "Vulture VI", "Heavy Halberdier VI",
+  "Heavy Knight VI", "Spearmen V", "Swordsmen V", "Vulture V"
+];
+
+const WALL_KILLER_NAMES_RAW = [
+  "Ariel", "Josephine II", "Josephine I", "Siege Ballistae VII",
+  "Siege Ballistae VI", "Catapult V", "Catapult IV",
+];
+
 const ICON_FILE_MAP = {
-  "Corax II": "Corax II.png", "Corax I": "Corax I.png", "Griffin VII": "Griffin VII.png", 
-  "Griffin VI": "Griffin VI.png", "Griffin V": "Griffin V.png", "Wyvern": "Wyvern.png", 
-  "Warregal": "Warregal.png", "Jago": "Jago.png", "Epic Monster Hunter": "Epic Monster Hunter.png", 
-  "Royal Lion II": "Royal Lion II.png", "Royal Lion I": "Royal Lion I.png", "Vulture VII": "Vulture VII.png", 
-  "Vulture VI": "Vulture VI.png", "Vulture V": "Vulture V.png", "Fire Phoenix II": "Fire Phoenix II.png", 
-  "Fire Phoenix I": "Fire Phoenix I.png", "Manticore": "Manticore.png", "Ariel": "Ariel.png", 
-  "Josephine II": "Josephine II.png", "Josephine I": "Josephine I.png", "Siege Ballistae VII": "Siege Ballistae VII.png", 
-  "Siege Ballistae VI": "Siege Ballistae VI.png", "Catapult V": "Catapult V.png", "Catapult IV": "Catapult IV.png", 
-  "Punisher I": "Punisher I.png", "Heavy Halberdier VII": "Heavy Halberdier VII.png", "Heavy Halberdier VI": "Heavy Halberdier VI.png", 
-  "Spearmen V": "Spearmen V.png", "Duelist I": "Duelist I.png", "Heavy Knight VII": "Heavy Knight VII.png", 
+  "Corax II": "Corax II.png", "Corax I": "Corax I.png", "Griffin VII": "Griffin VII.png",
+  "Griffin VI": "Griffin VI.png", "Griffin V": "Griffin V.png", "Wyvern": "Wyvern.png",
+  "Warregal": "Warregal.png", "Jago": "Jago.png", "Epic Monster Hunter": "Epic Monster Hunter.png",
+  "Royal Lion II": "Royal Lion II.png", "Royal Lion I": "Royal Lion I.png", "Vulture VII": "Vulture VII.png",
+  "Vulture VI": "Vulture VI.png", "Vulture V": "Vulture V.png", "Fire Phoenix II": "Fire Phoenix II.png",
+  "Fire Phoenix I": "Fire Phoenix I.png", "Manticore": "Manticore.png", "Ariel": "Ariel.png",
+  "Josephine II": "Josephine II.png", "Josephine I": "Josephine I.png", "Siege Ballistae VII": "Siege Ballistae VII.png",
+  "Siege Ballistae VI": "Siege Ballistae VI.png", "Catapult V": "Catapult V.png", "Catapult IV": "Catapult IV.png",
+  "Punisher I": "Punisher I.png", "Heavy Halberdier VII": "Heavy Halberdier VII.png", "Heavy Halberdier VI": "Heavy Halberdier VI.png",
+  "Spearmen V": "Spearmen V.png", "Duelist I": "Duelist I.png", "Heavy Knight VII": "Heavy Knight VII.png",
   "Heavy Knight VI": "Heavy Knight VI.png", "Swordsmen V": "Swordsmen V.png",
 };
 
 const ICON_BASE = "./";
+
+/* =========================================
+   HELPER FUNCTIONS
+   ========================================= */
+
+function toNum(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
+function fmtInt(n) { if (!Number.isFinite(n)) return "-"; return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Math.floor(n)); }
+function normName(s) { return String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim(); }
 
 function iconSrcForTroop(name) {
   const file = ICON_FILE_MAP[name];
@@ -49,16 +101,24 @@ function iconSrcForTroop(name) {
   return `${ICON_BASE}icons/${encodeURIComponent(file)}`;
 }
 
-function toNum(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
-function fmtInt(n) { if (!Number.isFinite(n)) return "-"; return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Math.floor(n)); }
-function normName(s) { return String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim(); }
-async function copyToClipboard(text) { try { await navigator.clipboard.writeText(text); return true; } catch { return false; } }
+async function copyToClipboard(text) {
+  try { await navigator.clipboard.writeText(text); return true; } 
+  catch { 
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px";
+      document.body.appendChild(ta); ta.select(); document.execCommand("copy");
+      document.body.removeChild(ta); return true;
+    } catch { return false; }
+  }
+}
 
 /* =========================================
    🧩 UI KOMPONENTE
    ========================================= */
 
 const Portal = ({ children }) => {
+  if (typeof document === "undefined") return null;
   return createPortal(children, document.body);
 };
 
@@ -84,6 +144,12 @@ const CustomSelect = ({ value, options, onChange, labelTransform }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isOpen]);
 
+  useEffect(() => {
+    const handleResize = () => setIsOpen(false);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const displayLabel = labelTransform ? labelTransform(value) : (value || "Select");
   const hasIcon = iconSrcForTroop(value);
 
@@ -95,7 +161,7 @@ const CustomSelect = ({ value, options, onChange, labelTransform }) => {
         style={{
           width: "100%", minHeight: "54px", padding: "8px 12px", 
           background: "linear-gradient(180deg, rgba(30,30,35,0.9) 0%, rgba(10,10,15,0.95) 100%)",
-          border: `1px solid ${isOpen ? THEME.colors.gold : "rgba(197, 160, 89, 0.3)"}`,
+          border: `1px solid ${isOpen ? THEME.colors.gold : "rgba(255,255,255,0.15)"}`,
           boxShadow: isOpen ? `0 0 15px ${THEME.colors.goldDim}` : "inset 0 2px 4px rgba(0,0,0,0.5)", 
           borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "space-between", 
           cursor: "pointer", boxSizing: "border-box", transition: "all 0.2s ease"
@@ -134,7 +200,7 @@ const CustomSelect = ({ value, options, onChange, labelTransform }) => {
                   style={{ 
                     padding: "12px", display: "flex", alignItems: "center", gap: "12px", 
                     borderBottom: "1px solid rgba(255,255,255,0.05)", cursor: "pointer",
-                    background: isActive ? "rgba(197, 160, 89, 0.15)" : "transparent",
+                    background: isActive ? "rgba(212, 175, 55, 0.15)" : "transparent",
                     transition: "background 0.1s"
                   }}
                   onMouseEnter={(e) => { if(!isActive) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
@@ -154,7 +220,6 @@ const CustomSelect = ({ value, options, onChange, labelTransform }) => {
   );
 };
 
-// FIX: BonusInput sada ima type="number" i step="any"
 const BonusInput = ({ label, color, ...props }) => (
   <div style={{ width: "100%", boxSizing: "border-box" }}>
     <label style={{ fontSize: "11px", color: color || THEME.colors.gold, fontWeight: "800", display: "block", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "'Inter', sans-serif" }}>{label}</label>
@@ -166,12 +231,11 @@ const BonusInput = ({ label, color, ...props }) => (
         {...props} 
         style={{ 
           width: "100%", padding: "12px", background: "rgba(0, 0, 0, 0.6)", 
-          border: `1px solid ${color || "rgba(197, 160, 89, 0.3)"}`, borderRadius: "8px", 
+          border: `1px solid ${color || "rgba(255,255,255,0.2)"}`, borderRadius: "8px", 
           color: "#fff", fontSize: "16px", fontWeight: "bold", textAlign: "center", 
           boxSizing: "border-box", outline: "none", fontFamily: "'Inter', sans-serif",
           transition: "border-color 0.2s, box-shadow 0.2s",
-          appearance: "textfield",
-          MozAppearance: "textfield"
+          appearance: "textfield", MozAppearance: "textfield"
         }} 
         onFocus={(e) => { e.target.style.borderColor = color || THEME.colors.gold; e.target.style.boxShadow = `0 0 10px ${color || THEME.colors.goldDim}40`; }}
         onBlur={(e) => { e.target.style.borderColor = color || "rgba(255,255,255,0.2)"; e.target.style.boxShadow = "none"; }}
@@ -185,7 +249,7 @@ const GameCard = ({ title, children, isSpecial }) => (
   <div style={{
     background: THEME.colors.cardBg,
     backdropFilter: "blur(12px)",
-    border: `1px solid ${THEME.colors.gold}`, // SVE KARTICE ZLATNE
+    border: `1px solid ${THEME.colors.gold}`, // SVE KARTICE IMAJU ZLATNI OBRUB
     borderRadius: "16px",
     padding: "24px",
     marginBottom: "20px",
@@ -256,17 +320,8 @@ const Modal = ({ open, title, onClose, children }) => {
 };
 
 /* =========================================
-   ⚙️ LOGIKA (100% IDENTIČNA APP_GEMINI.JSX)
+   ⚙️ GLAVNA LOGIKA APP-A (100% IZ APP_GEMINI.JSX + DODACI IZ GOLD)
    ========================================= */
-
-const MODE_WITHOUT = "WITHOUT";
-const MODE_WITH = "WITH";
-
-const STRIKER_LABELS = ["First Striker", "Second Striker", "Third Striker", "Cleanup 1", "Cleanup 2", "Cleanup 3", "Cleanup 4", "Cleanup 5", "Cleanup 6"];
-const RESULT_ORDER = ["Wyvern", "Warregal", "Jago", "Ariel", "Epic Monster Hunter", "Fire Phoenix II", "Fire Phoenix I", "Manticore", "Corax II", "Royal Lion II", "Corax I", "Royal Lion I", "Griffin VII", "Josephine II", "Griffin VI", "Josephine I", "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI", "Punisher I", "Duelist I", "Catapult V", "Vulture VII", "Heavy Halberdier VII", "Heavy Knight VII", "Catapult IV", "Vulture VI", "Heavy Halberdier VI", "Heavy Knight VI", "Spearmen V", "Swordsmen V", "Vulture V"];
-const TROOPS_WITH_M8_RAW = ["Wyvern", "Warregal", "Jago", "Ariel", "Epic Monster Hunter", "Fire Phoenix II", "Fire Phoenix I", "Manticore", "Corax II", "Royal Lion II", "Corax I", "Royal Lion I", "Griffin VII", "Josephine II", "Griffin VI", "Josephine I", "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI", "Catapult V", "Vulture VII", "Catapult IV", "Vulture VI", "Vulture V"];
-const TROOPS_WITHOUT_M8_RAW = ["Wyvern", "Warregal", "Jago", "Ariel", "Epic Monster Hunter", "Manticore", "Corax I", "Royal Lion I", "Griffin VII", "Josephine II", "Griffin VI", "Josephine I", "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI", "Punisher I", "Duelist I", "Catapult V", "Vulture VII", "Heavy Halberdier VII", "Heavy Knight VII", "Catapult IV", "Vulture VI", "Heavy Halberdier VI", "Heavy Knight VI", "Spearmen V", "Swordsmen V", "Vulture V"];
-const WALL_KILLER_NAMES_RAW = ["Ariel", "Josephine II", "Josephine I", "Siege Ballistae VII", "Siege Ballistae VI", "Catapult V", "Catapult IV"];
 
 export default function App() {
   const citadelKeys = Object.keys(TB.citadels ?? {});
@@ -280,16 +335,20 @@ export default function App() {
   }, [troops]);
 
   const troopByName = useMemo(() => new Map(troops.map((t) => [t.name, t])), [troops]);
+
   const additionalBonus = TB.additionalBonusNormal ?? {};
   const phoenixExtra = TB.phoenixExtra ?? {};
   const firstStrikerAllowed = TB.firstStrikerAllowed ?? {};
 
   const [citadelLevel, setCitadelLevel] = useState(citadelKeys[0] ?? "25");
   const [mode, setMode] = useState(MODE_WITHOUT);
+
   const [strikerTroops, setStrikerTroops] = useState(() => Array(9).fill(""));
   const [strikerBonusPct, setStrikerBonusPct] = useState(() => Array(9).fill(""));
   const [firstHealthBonusPct, setFirstHealthBonusPct] = useState("");
   const [warningMsg, setWarningMsg] = useState("");
+  
+  // Group Bonus Logic (iz Gold verzije koja je bila dobra)
   const [groupBonusPct, setGroupBonusPct] = useState({});
 
   const getBonusGroup = (troopName) => {
@@ -311,6 +370,7 @@ export default function App() {
     if (!troopName) return 0;
     const exact = canon.get(normName(troopName)) || troopName;
     const t = troopByName.get(exact);
+    // Provjera svih mogućih ključeva iz JSON-a
     return Number(t?.baseStrength ?? t?.base_strength ?? t?.strength ?? t?.base ?? 0) || 0;
   };
 
@@ -572,8 +632,8 @@ export default function App() {
         input[type=number] { -moz-appearance: textfield; }
       `}</style>
 
-      {/* KONTEJNER ZA CENTRIRANJE - BEZ FIKSNOG LIMITA ŠIRINE ZA WEB PRIKAZ */}
-      <div style={{ width: "100%", maxWidth: "1000px", padding: "20px 16px", position: "relative", zIndex: 1 }}>
+      {/* KONTEJNER ZA CENTRIRANJE - 500px */}
+      <div style={{ width: "100%", maxWidth: "500px", padding: "20px 16px", position: "relative", zIndex: 1 }}>
         
         <div style={{ 
           fontFamily: "'Cinzel', serif", color: THEME.colors.goldBright, textAlign: "center", 
@@ -683,7 +743,7 @@ export default function App() {
            zIndex: 1000, backdropFilter: "blur(10px)",
            boxShadow: "0 -10px 30px rgba(0,0,0,0.5)"
         }}>
-           <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+           <div style={{ maxWidth: "500px", margin: "0 auto" }}>
              <button onClick={calculate} style={{
                 width: "100%", padding: "16px", borderRadius: "10px", border: "none",
                 background: THEME.colors.btnGradient,
@@ -744,23 +804,13 @@ export default function App() {
             <div>
                 <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.danger }}>❗ Most Important Rule</div>
                 <div style={{ color: "#bbb", borderLeft: `4px solid ${THEME.colors.danger}`, paddingLeft: 12 }}>Maximize <b style={{ color: "#fff" }}>First Striker Health</b>. In a proper attack, the First Striker is the only troop group that should take losses. If you are losing other troops, check your bonuses or troop counts.<br /><br />The number of <b style={{ color: "#fff" }}>FIRST STRIKER</b> troops <b style={{ color: "#fff" }}> CAN</b> be higher than calculated. All other troops <b style={{ color: "#fff" }}>MUST</b> be used in the exact number as calculated.</div></div>
-            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>🦅 First Striker</div><div style={{ color: "#bbb" }}>Must be the strongest <b style={{ color: "#fff" }}>flying Guardsmen</b>: <b style={{ color: "#fff" }}> Corax</b> or <b style={{ color: "#fff" }}> Griffin</b>.</div>
+            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>🦅 First Striker</div><div style={{ color: "#bbb" }}>Must be the strongest <b style={{ color: "#fff" }}>flying Guardsmen</b>: <b style={{ color: "#fff" }}> Corax</b> or <b style={{ color: "#fff" }}> Griffin</b>.</div></div>
+            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>🦸 Captains</div><div style={{ color: "#bbb" }}>Recommended: <b style={{ color: "#fff" }}> Wu Zetian, Brunhild, Skadi, Beowulf, Aydae, Ramses, Sofia</b>.</div></div>
+            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>✨ Artifacts</div><div style={{ color: "#bbb" }}>Use artifacts that increase Health for <b style={{ color: "#fff" }}> Flying</b>, <b style={{ color: "#fff" }}> Guardsmen</b>, or the <b style={{ color: "#fff" }}> Army</b>. (e.g., <b style={{ color: "#fff" }}>Valkyrie Diadem, Medallion, Belt, Flask</b>).</div></div>
+            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>🔄 Recalculate</div><div style={{ color: "#bbb" }}>After ANY strength bonus change, enter new bonuses and press <b style={{ color: "#fff" }}> Calculate</b> again. Small changes matter!</div>
             </div>
             <div>
-                <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>🦸 Captains</div>
-                <div style={{ color: "#bbb" }}>Recommended: <b style={{ color: "#fff" }}> Wu Zetian, Brunhild, Skadi, Beowulf, Aydae, Ramses, Sofia</b>.</div>
-            </div>
-            <div>
-                <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>✨ Artifacts</div>
-                <div style={{ color: "#bbb" }}>Use artifacts that increase Health for <b style={{ color: "#fff" }}> Flying</b>, <b style={{ color: "#fff" }}> Guardsmen</b>, or the <b style={{ color: "#fff" }}> Army</b>. (e.g., <b style={{ color: "#fff" }}>Valkyrie Diadem, Medallion, Belt, Flask</b>).</div>
-            </div>
-            <div>
-                <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>🔄 Recalculate</div>
-                <div style={{ color: "#bbb" }}>After ANY strength bonus change, enter new bonuses and press <b style={{ color: "#fff" }}> Calculate</b> again. Small changes matter!</div>
-            </div>
-            <div>
-                <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>❓ How to find bonuses?</div>
-                <div style={{ color: "#bbb" }}>Attack a level 10 Citadel with <b style={{ color: "#fff" }}>10 of each selected troop type</b>. Copy the bonuses from the attack report into the calculator.</div>
+                <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>❓ How to find bonuses?</div><div style={{ color: "#bbb" }}>Attack a level 10 Citadel with <b style={{ color: "#fff" }}>10 of each selected troop type</b>. Copy the bonuses from the attack report into the calculator.</div>
             </div>
           </div>
         </Modal>
