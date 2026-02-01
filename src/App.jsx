@@ -1,34 +1,29 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import TB from "./tb_data.json";
 
-/* =========================================
-   🎨 TEMA I DIZAJN (PRO GAMING STYLE)
-   ========================================= */
-
-// Učitavanje gaming fontova
-const fontLink = document.createElement("link");
-fontLink.href = "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@400;500;700&display=swap";
-fontLink.rel = "stylesheet";
-document.head.appendChild(fontLink);
-
+// --- KONFIGURACIJA TEME ---
 const THEME = {
   colors: {
-    gold: "#C5A059",        // Glavna zlatna
-    goldDim: "#8b6508",     // Tamna zlatna za sjene
-    goldBright: "#FFD700",  // Svijetla zlatna za tekst
-    text: "#E0E0E0",
-    textDim: "#A0AEC0",
-    accent: "#4299e1",      // Plava za info
-    danger: "#e53e3e",      // Crvena za greške
-    bgDark: "rgba(15, 17, 22, 0.95)", // Pozadina modala
-    cardBg: "rgba(22, 26, 34, 0.85)", // Pozadina kartica
+    gold: "#D4AF37",       // Bogata metalik zlatna
+    goldDim: "#8a6d1c",    // Tamnija zlatna za sjene
+    goldGlow: "rgba(212, 175, 55, 0.5)", // Sjaj
+    text: "#F5F5F5",       // Svijetlo siva/bijela
+    textDim: "#B0B0B0",    // Prigušeni tekst
+    bgDark: "#0a0b10",     // Skroz tamna pozadina
+    cardBg: "rgba(15, 18, 25, 0.9)", // Tamna prozirna za kartice
+    accentBlue: "#1e90ff", // Za informacije
+    danger: "#ff4d4d",     // Za upozorenja
   }
 };
 
-/* =========================================
-   CONSTANTS & DATA LISTS (POTPUNA LOGIKA)
-   ========================================= */
+// Učitavanje fontova
+const fontLink = document.createElement("link");
+fontLink.href = "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@400;600;800&display=swap";
+fontLink.rel = "stylesheet";
+document.head.appendChild(fontLink);
 
+// --- PODACI (LOGIKA) ---
 const MODE_WITHOUT = "WITHOUT";
 const MODE_WITH = "WITH";
 
@@ -69,17 +64,10 @@ const WALL_KILLER_NAMES_RAW = [
   "Siege Ballistae VI", "Catapult V", "Catapult IV",
 ];
 
-function toNum(v) {
-  const n = Number(v);
-  return Number.isFinite(n) ? n : 0;
-}
-function fmtInt(n) {
-  if (!Number.isFinite(n)) return "-";
-  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Math.floor(n));
-}
-function normName(s) {
-  return String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
-}
+// --- POMOĆNE FUNKCIJE ---
+function toNum(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
+function fmtInt(n) { if (!Number.isFinite(n)) return "-"; return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Math.floor(n)); }
+function normName(s) { return String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim(); }
 
 const ICON_FILE_MAP = {
   "Corax II": "Corax II.png", "Corax I": "Corax I.png", "Griffin VII": "Griffin VII.png",
@@ -97,92 +85,78 @@ const ICON_FILE_MAP = {
 
 function iconSrcForTroop(name) {
   const file = ICON_FILE_MAP[name];
-  if (!file) return null;
-  return `./icons/${file}`; 
+  return file ? `./icons/${file}` : null;
 }
 
 async function copyToClipboard(text) {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
+  try { await navigator.clipboard.writeText(text); return true; } 
+  catch { 
     try {
       const ta = document.createElement("textarea");
-      ta.value = text;
-      ta.style.position = "fixed"; ta.style.left = "-9999px";
-      document.body.appendChild(ta);
-      ta.select();
-      const ok = document.execCommand("copy");
-      document.body.removeChild(ta);
-      return !!ok;
+      ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px";
+      document.body.appendChild(ta); ta.select(); document.execCommand("copy");
+      document.body.removeChild(ta); return true;
     } catch { return false; }
   }
 }
 
 /* =========================================
-   🧩 CUSTOM UI KOMPONENTE
+   🧩 UI KOMPONENTE (PORTAL DROPDOWN FIX)
    ========================================= */
 
-// 1. Zlatna Kartica (s prozirnošću)
-const GameCard = ({ title, children, isSpecial }) => (
-  <div style={{
-    background: THEME.colors.cardBg,
-    backdropFilter: "blur(12px)",
-    border: `1px solid ${isSpecial ? THEME.colors.gold : "rgba(255,255,255,0.15)"}`,
-    borderRadius: "14px",
-    padding: "20px",
-    marginBottom: "20px",
-    boxShadow: isSpecial 
-      ? `0 0 20px ${THEME.colors.goldDim}40, inset 0 0 20px ${THEME.colors.goldDim}10` 
-      : "0 8px 32px 0 rgba(0, 0, 0, 0.6)",
-    position: "relative",
-    width: "100%", 
-    boxSizing: "border-box"
-  }}>
-    <div style={{
-      fontFamily: "'Cinzel', serif",
-      fontWeight: 800,
-      fontSize: "18px",
-      color: isSpecial ? THEME.colors.goldBright : "#fff",
-      marginBottom: "20px",
-      textTransform: "uppercase",
-      letterSpacing: "1px",
-      borderBottom: `1px solid ${isSpecial ? THEME.colors.goldDim : "rgba(255,255,255,0.1)"}`,
-      paddingBottom: "10px",
-      display: "flex", justifyContent: "space-between", alignItems: "center",
-      textShadow: "0 2px 4px rgba(0,0,0,0.8)"
-    }}>
-      {title}
-      {isSpecial && <span style={{fontSize: "20px"}}>🛡️</span>}
-    </div>
-    {children}
-  </div>
-);
+// Komponenta koja renderira sadržaj izvan trenutnog DOM stabla (na vrh stranice)
+const Portal = ({ children }) => {
+  return createPortal(children, document.body);
+};
 
-// 2. Custom Dropdown (Fix za Z-Index i izgled)
 const CustomTroopSelect = ({ value, options, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const wrapperRef = useRef(null);
+  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
+  const buttonRef = useRef(null);
 
+  // Ažuriraj poziciju dropdowna kad se otvori
   useEffect(() => {
-    function handleClick(e) { if (wrapperRef.current && !wrapperRef.current.contains(e.target)) setIsOpen(false); }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
+    if (isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setCoords({
+        top: rect.bottom + window.scrollY + 5,
+        left: rect.left + window.scrollX,
+        width: rect.width
+      });
+    }
+  }, [isOpen]);
+
+  // Zatvori na klik izvan
+  useEffect(() => {
+    const handleGlobalClick = (e) => {
+      // Ako klik nije na gumb, zatvori. 
+      // (Klik unutar dropdowna rješavamo u samom dropdownu)
+      if (buttonRef.current && !buttonRef.current.contains(e.target)) {
+        // Provjeri da nismo kliknuli unutar samog portala (malo teže, pa koristimo timeout/flag)
+        // Jednostavnije: Dropdown itemi imaju svoj onClick koji zatvara.
+        // Ovdje samo hvatamo klikove skroz sa strane.
+        // Zbog portala, event bubbling je tricky, pa je najlakše koristiti "backdrop" div u portalu.
+      }
+    };
+    if(isOpen) window.addEventListener('resize', () => setIsOpen(false)); // Zatvori na resize radi sigurnosti
+    return () => window.removeEventListener('resize', () => setIsOpen(false));
+  }, [isOpen]);
 
   return (
-    <div ref={wrapperRef} style={{ position: "relative", width: "100%", zIndex: isOpen ? 100 : 1 }}>
+    <>
       <div 
+        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
         style={{
           width: "100%", minHeight: "54px", padding: "8px 12px", 
-          background: "linear-gradient(180deg, rgba(20,20,25,0.9) 0%, rgba(10,10,12,0.9) 100%)",
-          border: `1px solid ${isOpen ? THEME.colors.gold : "rgba(255,255,255,0.2)"}`,
+          background: "linear-gradient(180deg, rgba(20,20,25,0.8) 0%, rgba(10,10,15,0.9) 100%)",
+          border: `1px solid ${isOpen ? THEME.colors.gold : "rgba(255,255,255,0.15)"}`,
           borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "space-between", 
-          cursor: "pointer", boxSizing: "border-box", transition: "all 0.2s"
+          cursor: "pointer", boxSizing: "border-box", transition: "all 0.2s ease",
+          boxShadow: isOpen ? `0 0 15px ${THEME.colors.goldDim}` : "none"
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", color: value ? "#fff" : "#888", overflow: "hidden" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", color: value ? "#fff" : "#777", overflow: "hidden" }}>
           {iconSrcForTroop(value) ? 
             <img src={iconSrcForTroop(value)} width="38" height="38" style={{ borderRadius: "6px", border: "1px solid #444" }} alt="" /> 
             : <div style={{width:38, height:38, borderRadius: 6, background: "rgba(255,255,255,0.05)", border: "1px dashed #444"}}/>}
@@ -192,100 +166,174 @@ const CustomTroopSelect = ({ value, options, onChange }) => {
       </div>
 
       {isOpen && (
-        <div style={{
-          position: "absolute", top: "60px", left: 0, right: 0, 
-          background: "#16181d",
-          border: `1px solid ${THEME.colors.gold}`, borderRadius: "8px", maxHeight: "280px",
-          overflowY: "auto", zIndex: 9999, // EKSTREMNO VISOK Z-INDEX
-          boxShadow: "0 10px 50px rgba(0,0,0,0.95)"
-        }}>
-          {options.map((opt) => {
-             // Prikazuj i prazne opcije kao "None"
-             const label = opt === "" ? "— None —" : opt;
-             return (
-              <div key={opt || "blank"} onClick={() => { onChange(opt); setIsOpen(false); }}
-                style={{ 
-                  padding: "12px", display: "flex", alignItems: "center", gap: "12px", 
-                  borderBottom: "1px solid rgba(255,255,255,0.05)", cursor: "pointer",
-                  background: value === opt ? "rgba(197, 160, 89, 0.15)" : "transparent"
-                }}
-              >
-                {iconSrcForTroop(opt) ? 
-                  <img src={iconSrcForTroop(opt)} width="40" height="40" style={{ borderRadius: "6px" }} alt="" />
-                  : <div style={{width:40, height:40}} />
-                }
-                <span style={{ color: value === opt ? THEME.colors.gold : "#eee", fontSize: "14px", fontWeight: "600" }}>{label}</span>
-              </div>
-             );
-          })}
-        </div>
+        <Portal>
+          {/* Invisible backdrop to catch clicks outside */}
+          <div style={{position: "fixed", inset: 0, zIndex: 9998, cursor: "default"}} onClick={() => setIsOpen(false)} />
+          
+          {/* Dropdown Menu Positioned Absolutely */}
+          <div style={{
+            position: "absolute",
+            top: coords.top,
+            left: coords.left,
+            width: coords.width,
+            background: "#121214",
+            border: `1px solid ${THEME.colors.gold}`,
+            borderRadius: "8px",
+            maxHeight: "300px",
+            overflowY: "auto",
+            zIndex: 9999,
+            boxShadow: "0 10px 40px rgba(0,0,0,0.9)",
+            display: "flex", flexDirection: "column"
+          }}>
+            {options.map((opt) => {
+               const label = opt === "" ? "— None —" : opt;
+               const isActive = value === opt;
+               return (
+                <div key={opt || "blank"} 
+                  onClick={(e) => { 
+                    e.stopPropagation(); // Spriječi zatvaranje backdropom prije nego se izvrši
+                    onChange(opt); 
+                    setIsOpen(false); 
+                  }}
+                  style={{ 
+                    padding: "12px", display: "flex", alignItems: "center", gap: "12px", 
+                    borderBottom: "1px solid rgba(255,255,255,0.05)", cursor: "pointer",
+                    background: isActive ? "rgba(212, 175, 55, 0.15)" : "transparent",
+                    transition: "background 0.2s"
+                  }}
+                  onMouseEnter={(e) => { if(!isActive) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+                  onMouseLeave={(e) => { if(!isActive) e.currentTarget.style.background = "transparent"; }}
+                >
+                  {iconSrcForTroop(opt) ? 
+                    <img src={iconSrcForTroop(opt)} width="40" height="40" style={{ borderRadius: "6px" }} alt="" />
+                    : <div style={{width:40, height:40}} />
+                  }
+                  <span style={{ color: isActive ? THEME.colors.gold : "#eee", fontSize: "14px", fontWeight: "600", fontFamily:"'Inter', sans-serif" }}>{label}</span>
+                </div>
+               );
+            })}
+          </div>
+        </Portal>
       )}
-    </div>
+    </>
   );
 };
 
-// 3. Bonus Input (Stilizirani inputi)
 const BonusInput = ({ label, color, ...props }) => (
   <div style={{ width: "100%", boxSizing: "border-box" }}>
     <label style={{ 
       fontSize: "11px", color: color || THEME.colors.gold, fontWeight: "800", 
-      display: "block", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" 
+      display: "block", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "'Inter', sans-serif"
     }}>{label}</label>
     <div style={{ position: "relative", width: "100%", boxSizing: "border-box" }}>
       <input 
         {...props} 
         style={{ 
           width: "100%", padding: "12px", 
-          background: "rgba(0, 0, 0, 0.6)", 
+          background: "rgba(0, 0, 0, 0.5)", 
           border: `1px solid ${color || "rgba(255,255,255,0.2)"}`, 
           borderRadius: "8px", color: "#fff", fontSize: "16px", fontWeight: "bold", 
           textAlign: "center", boxSizing: "border-box", outline: "none",
-          fontFamily: "'Inter', sans-serif"
+          fontFamily: "'Inter', sans-serif",
+          transition: "border-color 0.2s, box-shadow 0.2s"
         }} 
-        onFocus={(e) => { e.target.style.borderColor = color || THEME.colors.gold; }}
-        onBlur={(e) => { e.target.style.borderColor = color || "rgba(255,255,255,0.2)"; }}
+        onFocus={(e) => {
+          e.target.style.borderColor = color || THEME.colors.gold;
+          e.target.style.boxShadow = `0 0 10px ${color || THEME.colors.goldDim}40`;
+        }}
+        onBlur={(e) => {
+          e.target.style.borderColor = color || "rgba(255,255,255,0.2)";
+          e.target.style.boxShadow = "none";
+        }}
       />
       <span style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", color: "#666", fontWeight: "bold", pointerEvents: "none" }}>%</span>
     </div>
   </div>
 );
 
-// 4. Modal (Prozorčići)
+const GameCard = ({ title, children, isSpecial }) => (
+  <div style={{
+    background: THEME.colors.cardBg,
+    backdropFilter: "blur(12px)",
+    border: `1px solid ${isSpecial ? THEME.colors.gold : "rgba(255,255,255,0.1)"}`,
+    borderRadius: "16px",
+    padding: "24px", // Malo više paddinga
+    marginBottom: "20px",
+    boxShadow: isSpecial 
+      ? `0 0 25px ${THEME.colors.goldDim}30, inset 0 0 10px ${THEME.colors.goldDim}10` 
+      : "0 10px 30px 0 rgba(0, 0, 0, 0.5)",
+    position: "relative",
+    width: "100%", 
+    boxSizing: "border-box"
+  }}>
+    {/* Ukrasni header */}
+    <div style={{
+      fontFamily: "'Cinzel', serif",
+      fontWeight: 700,
+      fontSize: "18px",
+      color: isSpecial ? THEME.colors.goldBright : "#fff",
+      marginBottom: "20px",
+      textTransform: "uppercase",
+      letterSpacing: "1.5px",
+      display: "flex", justifyContent: "space-between", alignItems: "center",
+      borderBottom: `1px solid ${isSpecial ? THEME.colors.goldDim : "rgba(255,255,255,0.1)"}`,
+      paddingBottom: "12px",
+      textShadow: "0 2px 4px rgba(0,0,0,0.8)"
+    }}>
+      <span>{title}</span>
+      {isSpecial && <span style={{fontSize: "20px", filter: "drop-shadow(0 0 5px gold)"}}>🛡️</span>}
+    </div>
+    {children}
+  </div>
+);
+
+const Row = ({ label, value, theme, accent }) => (
+  <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+    <span style={{ color: THEME.colors.textDim, fontSize: "14px", textTransform: "uppercase", letterSpacing:"0.5px" }}>{label}</span>
+    <span style={{ fontWeight: 800, color: accent ? THEME.colors.goldBright : "#fff", fontSize: "16px" }}>{value}</span>
+  </div>
+);
+
+// 🛡️ MODAL - S GUMBOM ZA ZATVARANJE
 const Modal = ({ open, title, onClose, children }) => {
   if (!open) return null;
   return (
-    <div style={{ 
-      position: "fixed", inset: 0, background: "rgba(0,0,0,0.9)", zIndex: 10000, 
-      display: "flex", alignItems: "center", justifyContent: "center", padding: 15, backdropFilter: "blur(5px)" 
-    }}>
+    <Portal>
       <div style={{ 
-        background: "#16181d", width: "100%", maxWidth: "500px", borderRadius: "16px", 
-        border: `1px solid ${THEME.colors.gold}`, 
-        boxShadow: "0 0 50px rgba(197, 160, 89, 0.2)",
-        maxHeight: "90vh", display: "flex", flexDirection: "column" 
+        position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", zIndex: 10000, 
+        display: "flex", alignItems: "center", justifyContent: "center", padding: 15, backdropFilter: "blur(8px)" 
       }}>
         <div style={{ 
-          padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", 
-          borderBottom: "1px solid rgba(255,255,255,0.1)", background: "rgba(197, 160, 89, 0.05)"
+          background: "#16181d", width: "100%", maxWidth: "500px", borderRadius: "16px", 
+          border: `1px solid ${THEME.colors.gold}`, 
+          boxShadow: `0 0 60px ${THEME.colors.goldDim}40`,
+          maxHeight: "90vh", display: "flex", flexDirection: "column" 
         }}>
-          <span style={{ fontFamily: "'Cinzel', serif", color: THEME.colors.goldBright, fontWeight: "bold", fontSize: "18px", letterSpacing: "1px" }}>{title}</span>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: "28px", cursor: "pointer", padding: "0 5px" }}>✕</button>
+          <div style={{ 
+            padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", 
+            borderBottom: "1px solid rgba(255,255,255,0.1)", background: "linear-gradient(90deg, rgba(197, 160, 89, 0.1), transparent)"
+          }}>
+            <span style={{ fontFamily: "'Cinzel', serif", color: THEME.colors.goldBright, fontWeight: "bold", fontSize: "18px", letterSpacing: "1px" }}>{title}</span>
+            <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: "28px", cursor: "pointer", padding: "0 5px", transition: "color 0.2s" }}
+              onMouseEnter={(e) => e.target.style.color = THEME.colors.danger}
+              onMouseLeave={(e) => e.target.style.color = "#fff"}
+            >✕</button>
+          </div>
+          <div style={{ padding: "24px", overflowY: "auto", color: "#ddd" }}>{children}</div>
         </div>
-        <div style={{ padding: "24px", overflowY: "auto" }}>{children}</div>
       </div>
-    </div>
+    </Portal>
   );
 };
 
 /* =========================================
-   ⚙️ GLAVNA LOGIKA APP-A (100% IZ APP_GEMINI.JSX)
+   ⚙️ GLAVNA LOGIKA APP-A (100% IDENTIČNA)
    ========================================= */
 
 export default function App() {
   const citadelKeys = Object.keys(TB.citadels ?? {});
   const troops = TB.troops ?? [];
 
-  // Canonical mapping
   const canon = useMemo(() => {
     const m = new Map();
     for (const t of troops) m.set(normName(t.name), t.name);
@@ -362,6 +410,19 @@ export default function App() {
     if (!cit) return null;
     return mode === MODE_WITH ? cit.m8m9Targets : cit.normalTargets;
   }, [cit, mode]);
+
+  // STIL SELECTA U SETUP KARTICI
+  const selectStyle = {
+    padding: "12px 14px", borderRadius: "8px",
+    border: "1px solid rgba(255,255,255,0.2)",
+    background: "rgba(0, 0, 0, 0.6)",
+    color: "#fff", outline: "none", width: "100%",
+    boxSizing: "border-box", fontSize: "16px",
+    fontFamily: "'Inter', sans-serif",
+    appearance: "none",
+    backgroundImage: `url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23D4AF37%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")`,
+    backgroundRepeat: "no-repeat", backgroundPosition: "right 12px top 50%", backgroundSize: "12px auto"
+  };
 
   const poolAll = useMemo(() => {
     const raw = mode === MODE_WITH ? TROOPS_WITH_M8_RAW : TROOPS_WITHOUT_M8_RAW;
@@ -561,19 +622,24 @@ export default function App() {
     setResultsOpen(true);
   };
 
+  /* =========================================
+     RENDER
+     ========================================= */
   return (
     <div style={{
+      width: "100%",
       minHeight: "100vh",
-      backgroundImage: `url('./bg.jpg')`, 
+      backgroundImage: "url('./bg.jpg')", 
       backgroundSize: "cover",
       backgroundPosition: "center",
       backgroundAttachment: "fixed",
+      backgroundColor: "#050505", 
       color: THEME.colors.text,
       fontFamily: "'Inter', sans-serif",
       paddingBottom: "120px",
       boxSizing: "border-box"
     }}>
-      {/* Dark overlay */}
+      {/* Overlay */}
       <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 0 }} />
       
       {/* Scrollbar Style */}
@@ -581,9 +647,11 @@ export default function App() {
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #111; }
         ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 3px; }
+        /* Placeholder color */
+        ::placeholder { color: #666; opacity: 1; }
       `}</style>
 
-      <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: "600px", margin: "0 auto", padding: "20px 16px" }}>
+      <div style={{ width: "100%", maxWidth: "600px", margin: "0 auto", padding: "20px 16px", position: "relative", zIndex: 1 }}>
         
         {/* TITLE */}
         <div style={{ 
@@ -617,28 +685,14 @@ export default function App() {
           <div style={{ display: "grid", gap: "16px", marginBottom: "20px" }}>
              <div>
                 <label style={{ fontSize: "11px", color: THEME.colors.textDim, display:"block", marginBottom:"6px", textTransform:"uppercase", fontWeight:"bold" }}>Do you have M8/M9 troops?</label>
-                <select 
-                   value={mode} onChange={(e) => handleModeChange(e.target.value)}
-                   style={{ 
-                     width: "100%", padding: "12px", background: "rgba(0,0,0,0.6)", 
-                     border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", 
-                     color: "#fff", fontSize:"16px", outline:"none", appearance:"none" 
-                   }}
-                >
+                <select value={mode} onChange={(e) => handleModeChange(e.target.value)} style={selectStyle}>
                    <option value={MODE_WITHOUT}>No</option>
                    <option value={MODE_WITH}>Yes</option>
                 </select>
              </div>
              <div>
                 <label style={{ fontSize: "11px", color: THEME.colors.textDim, display:"block", marginBottom:"6px", textTransform:"uppercase", fontWeight:"bold" }}>Citadel Level</label>
-                <select 
-                   value={citadelLevel} onChange={(e) => setCitadelLevel(e.target.value)}
-                   style={{ 
-                     width: "100%", padding: "12px", background: "rgba(0,0,0,0.6)", 
-                     border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", 
-                     color: "#fff", fontSize:"16px", outline:"none", appearance:"none" 
-                   }}
-                >
+                <select value={citadelLevel} onChange={(e) => setCitadelLevel(e.target.value)} style={selectStyle}>
                    {citadelKeys.map(k => <option key={k} value={k}>Elven {k}</option>)}
                 </select>
              </div>
@@ -667,14 +721,8 @@ export default function App() {
               <BonusInput label="Strength Bonus (%)" value={wallKillerBonusPct} onChange={e => setWallKillerBonusPct(e.target.value)} placeholder="0" />
               
               <div style={{ background: "rgba(0,0,0,0.3)", padding: "12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                 <div style={{display:"flex", justifyContent:"space-between", marginBottom:"6px"}}>
-                    <span style={{color:THEME.colors.textDim, fontSize:"13px", textTransform:"uppercase"}}>Effective Bonus</span>
-                    <span style={{color:THEME.colors.accent, fontWeight:"bold"}}>{fmtInt(wallKiller.effBonus)}%</span>
-                 </div>
-                 <div style={{display:"flex", justifyContent:"space-between"}}>
-                    <span style={{color:THEME.colors.textDim, fontSize:"13px", textTransform:"uppercase"}}>Required Troops</span>
-                    <span style={{color:THEME.colors.goldBright, fontWeight:"bold", fontSize:"18px"}}>{fmtInt(wallKiller.requiredTroops)}</span>
-                 </div>
+                 <Row label="Effective Bonus" value={`${fmtInt(wallKiller.effBonus)}%`} theme={THEME} accent />
+                 <Row label="Required Troops" value={fmtInt(wallKiller.requiredTroops)} theme={THEME} accent />
               </div>
            </div>
         </GameCard>
@@ -687,11 +735,7 @@ export default function App() {
            return (
              <GameCard key={s.idx} title={`${s.idx + 1}. ${s.label}`}>
                 <div style={{ marginBottom: "16px" }}>
-                   <CustomTroopSelect 
-                      value={strikerTroops[s.idx]} 
-                      options={opts} 
-                      onChange={v => handleTroopChange(s.idx, v)} 
-                   />
+                   <CustomTroopSelect value={strikerTroops[s.idx]} options={opts} onChange={v => handleTroopChange(s.idx, v)} />
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: isFirst ? "1fr 1fr" : "1fr", gap: "16px", marginBottom: "16px" }}>
@@ -704,18 +748,14 @@ export default function App() {
                 </div>
                 
                 <div style={{ background: "rgba(0,0,0,0.3)", borderRadius:"8px", padding:"12px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                   <div style={{display:"flex", justifyContent:"space-between", marginBottom:"6px"}}>
-                      <span style={{color:THEME.colors.textDim, fontSize:"13px", textTransform:"uppercase"}}>Effective Bonus</span>
-                      <span style={{color:THEME.colors.accent, fontWeight:"bold"}}>{fmtInt(s.effBonus)}%</span>
-                   </div>
-                   <div style={{display:"flex", justifyContent:"space-between"}}>
-                      <span style={{color:THEME.colors.textDim, fontSize:"13px", textTransform:"uppercase"}}>Required Troops</span>
-                      <span style={{color:THEME.colors.goldBright, fontWeight:"bold", fontSize:"18px"}}>{fmtInt(s.requiredTroops)}</span>
-                   </div>
+                   <Row label="Effective Bonus" value={`${fmtInt(s.effBonus)}%`} theme={THEME} accent />
+                   <Row label="Required Troops" value={fmtInt(s.requiredTroops)} theme={THEME} accent />
                    {isFirst && (
-                      <div style={{display:"flex", justifyContent:"space-between", marginTop:"8px", paddingTop:"8px", borderTop:"1px solid rgba(255,255,255,0.1)"}}>
-                         <span style={{color:THEME.colors.textDim, fontSize:"12px", textTransform:"uppercase"}}>Citadel First Strike Losses</span>
-                         <span style={{color:THEME.colors.danger, fontWeight:"bold"}}>{fmtInt(firstDeaths)}</span>
+                      <div style={{ marginTop: "8px", paddingTop: "8px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+                         <div style={{ display: "flex", justifyContent: "space-between" }}>
+                            <span style={{ color: "#fc8181", fontSize: "13px", textTransform: "uppercase" }}>Citadel First Strike Losses</span>
+                            <span style={{ fontWeight: 800, color: "#fc8181", fontSize: "16px" }}>{fmtInt(firstDeaths)}</span>
+                         </div>
                       </div>
                    )}
                 </div>
@@ -731,7 +771,7 @@ export default function App() {
            boxShadow: "0 -10px 30px rgba(0,0,0,0.5)"
         }}>
            <div style={{ maxWidth: "600px", margin: "0 auto" }}>
-             <button onClick={showResults} style={{
+             <button onClick={calculate} style={{
                 width: "100%", padding: "16px", borderRadius: "10px", border: "none",
                 background: `linear-gradient(135deg, ${THEME.colors.gold} 0%, #a37c35 100%)`,
                 color: "#000", fontWeight: "900", fontSize: "18px", letterSpacing: "2px",
@@ -743,25 +783,21 @@ export default function App() {
              onMouseDown={(e) => e.target.style.transform = "scale(0.98)"}
              onMouseUp={(e) => e.target.style.transform = "scale(1)"}
              >
-                CALCULATE
+                CALCULATE RESULTS
              </button>
            </div>
         </div>
 
         {/* MODALS */}
-        <Modal open={!!warningMsg} title="⚠️ Invalid Striker Order" onClose={() => setWarningMsg("")} theme={THEME}>
+        <Modal open={!!warningMsg} title="⚠️ Invalid Striker Order" onClose={() => setWarningMsg("")}>
           <p style={{ lineHeight: "1.6", whiteSpace: "pre-wrap", color: "#ddd", fontSize: "15px" }}>{warningMsg}</p>
           <button onClick={() => setWarningMsg("")} style={{ width: "100%", padding: "14px", background: THEME.colors.gold, border: "none", borderRadius: "8px", marginTop: "20px", fontWeight: "bold", cursor: "pointer", fontSize: "16px" }}>OK</button>
         </Modal>
 
-        <Modal open={resultsOpen} title="📋 Calculated Results" onClose={() => setResultsOpen(false)} theme={THEME}>
+        <Modal open={resultsOpen} title="📋 Victory Plan" onClose={() => setResultsOpen(false)}>
           <div style={{ background: "rgba(255,255,255,0.05)", padding: "12px", borderRadius: "8px", marginBottom: "20px", border: "1px solid rgba(255,255,255,0.1)" }}>
-             <div style={{display:"flex", justifyContent:"space-between", marginBottom:4}}>
-                <span style={{color:THEME.colors.textDim}}>Mode</span><span style={{fontWeight:"bold", color: THEME.colors.goldBright}}>{calcOutput?.modeLabel}</span>
-             </div>
-             <div style={{display:"flex", justifyContent:"space-between"}}>
-                <span style={{color:THEME.colors.textDim}}>Citadel</span><span style={{fontWeight:"bold", color: "#fff"}}>{calcOutput?.citadelLabel}</span>
-             </div>
+             <Row label="Mode" value={calcOutput?.modeLabel} theme={THEME} accent />
+             <Row label="Citadel" value={calcOutput?.citadelLabel} theme={THEME} accent />
           </div>
 
           <button onClick={async () => {
@@ -789,7 +825,7 @@ export default function App() {
           </div>
         </Modal>
 
-        <Modal open={helpOpen} title="ℹ️ Instructions & Help" onClose={() => setHelpOpen(false)} theme={THEME}>
+        <Modal open={helpOpen} title="ℹ️ Instructions & Help" onClose={() => setHelpOpen(false)}>
           <div style={{ color: "#e0e0e0", lineHeight: 1.6, fontSize: 15, display: "grid", gap: 20 }}>
             <div>
                 <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>🎯 Goal</div>
