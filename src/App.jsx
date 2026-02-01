@@ -1077,7 +1077,7 @@ const [calcOutput, setCalcOutput] = useState(null);
         WebkitBackgroundClip: "text",
         WebkitTextFillColor: "transparent",
       }}>
-        Citadel Calculator
+        Citadel Calculator by GM
       </div>
 
       <div style={{ display: "grid", gap: 16, paddingBottom: 100 }}>
