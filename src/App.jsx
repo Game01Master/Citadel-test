@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import TB from "./tb_data.json";
 
 /* =========================================
-   🎨 TEMA I DIZAJN (GOLD PRO GAMING)
+   🎨 TEMA I STILOVI (GOLD GAMING)
    ========================================= */
 
 const fontLink = document.createElement("link");
@@ -13,16 +13,16 @@ document.head.appendChild(fontLink);
 
 const THEME = {
   colors: {
-    gold: "#C5A059",        // Glavna mat zlatna
-    goldDim: "#8b6508",     // Tamna zlatna
-    goldBright: "#FFD700",  // Sjajna zlatna za tekst
-    text: "#E0E0E0",
-    textDim: "#A0AEC0",
-    accent: "#4299e1",
-    danger: "#e53e3e",
-    cardBg: "rgba(22, 26, 34, 0.95)", // Tamna pozadina kartica
+    gold: "#D4AF37",        // Glavna zlatna
+    goldDim: "#8a6d1c",     // Tamna zlatna
+    goldBright: "#FFD700",  // Svijetla zlatna
+    text: "#F5F5F5",        // Tekst
+    textDim: "#B0B0B0",     // Dimmed tekst
+    cardBg: "rgba(20, 24, 28, 0.95)", // Tamna pozadina kartica
     inputBg: "rgba(0, 0, 0, 0.6)",
-    btnGradient: "linear-gradient(135deg, #C5A059 0%, #8b6508 100%)"
+    btnGradient: "linear-gradient(135deg, #D4AF37 0%, #8a6d1c 100%)",
+    accent: "#4299e1",      // Plava za info
+    danger: "#e53e3e",      // Crvena
   }
 };
 
@@ -40,24 +40,29 @@ const ICON_FILE_MAP = {
   "Heavy Knight VI": "Heavy Knight VI.png", "Swordsmen V": "Swordsmen V.png",
 };
 
+const ICON_BASE = (import.meta && import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL : "/";
+
 function iconSrcForTroop(name) {
   const file = ICON_FILE_MAP[name];
-  return file ? `./icons/${file}` : null; 
+  if (!file) return null;
+  return `${ICON_BASE}icons/${encodeURIComponent(file)}`;
 }
 
 function toNum(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
-function fmtInt(n) { if (!Number.isFinite(n)) return "-"; return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Math.floor(n)); }
+function fmtInt(n) { if (!Number.isFinite(n)) return "-"; return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(Math.floor(n)); }
 function normName(s) { return String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim(); }
 async function copyToClipboard(text) { try { await navigator.clipboard.writeText(text); return true; } catch { return false; } }
 
 /* =========================================
-   🧩 UI KOMPONENTE
+   🧩 UI KOMPONENTE (S ZLATNIM DETALJIMA)
    ========================================= */
 
+// Portal za Dropdown (Rješava Z-Index i clipping probleme)
 const Portal = ({ children }) => {
   return createPortal(children, document.body);
 };
 
+// Zlatni Dropdown Izbornik
 const CustomSelect = ({ value, options, onChange, labelTransform }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
@@ -76,7 +81,7 @@ const CustomSelect = ({ value, options, onChange, labelTransform }) => {
 
   useEffect(() => {
     const handleScroll = () => { if(isOpen) setIsOpen(false); };
-    window.addEventListener('scroll', handleScroll, { passive: true }); 
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isOpen]);
 
@@ -92,9 +97,9 @@ const CustomSelect = ({ value, options, onChange, labelTransform }) => {
           width: "100%", minHeight: "54px", padding: "8px 12px", 
           background: "linear-gradient(180deg, rgba(30,30,35,0.9) 0%, rgba(10,10,15,0.95) 100%)",
           border: `1px solid ${isOpen ? THEME.colors.gold : "rgba(197, 160, 89, 0.4)"}`,
-          boxShadow: isOpen ? `0 0 15px ${THEME.colors.goldDim}` : "inset 0 2px 4px rgba(0,0,0,0.5)", 
           borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "space-between", 
-          cursor: "pointer", boxSizing: "border-box", transition: "all 0.2s ease"
+          cursor: "pointer", boxSizing: "border-box", transition: "all 0.2s ease",
+          boxShadow: isOpen ? `0 0 10px ${THEME.colors.goldDim}` : "inset 0 1px 3px rgba(0,0,0,0.5)"
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "12px", color: value ? "#fff" : "#888", overflow: "hidden" }}>
@@ -123,6 +128,7 @@ const CustomSelect = ({ value, options, onChange, labelTransform }) => {
                const display = labelTransform ? labelTransform(rawValue) : (rawValue === "" ? "— None —" : rawValue);
                const isActive = value === rawValue;
                const optIcon = iconSrcForTroop(rawValue);
+
                return (
                 <div key={rawValue || "blank"} 
                   onClick={(e) => { e.stopPropagation(); onChange(rawValue); setIsOpen(false); }}
@@ -149,6 +155,7 @@ const CustomSelect = ({ value, options, onChange, labelTransform }) => {
   );
 };
 
+// Zlatni Input
 const BonusInput = ({ label, color, ...props }) => (
   <div style={{ width: "100%", boxSizing: "border-box" }}>
     <label style={{ fontSize: "11px", color: color || THEME.colors.gold, fontWeight: "800", display: "block", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "'Inter', sans-serif" }}>{label}</label>
@@ -169,14 +176,14 @@ const BonusInput = ({ label, color, ...props }) => (
   </div>
 );
 
+// Zlatna Kartica (Sve kartice imaju zlatni obrub)
 const GameCard = ({ title, children, isSpecial }) => (
   <div style={{
     background: THEME.colors.cardBg,
     backdropFilter: "blur(12px)",
-    // SVE KARTICE IMAJU ZLATNI OBRUB
-    border: `1px solid ${THEME.colors.gold}`,
+    border: `1px solid ${THEME.colors.gold}`, // Zlatni obrub za sve
     borderRadius: "16px",
-    padding: "20px", // Malo manji padding za uži izgled
+    padding: "20px",
     marginBottom: "20px",
     boxShadow: isSpecial 
       ? `0 0 25px ${THEME.colors.goldDim}30, inset 0 0 10px ${THEME.colors.goldDim}10` 
@@ -185,7 +192,6 @@ const GameCard = ({ title, children, isSpecial }) => (
     width: "100%", 
     boxSizing: "border-box"
   }}>
-    {/* Ukrasna linija */}
     <div style={{
       position: "absolute", left: 0, top: "20px", bottom: "20px", width: "3px", 
       background: `linear-gradient(to bottom, ${THEME.colors.gold}, transparent)`,
@@ -214,6 +220,7 @@ const Row = ({ label, value, theme, accent }) => (
   </div>
 );
 
+// Modal s gumbom za zatvaranje
 const Modal = ({ open, title, onClose, children }) => {
   if (!open) return null;
   return (
@@ -223,7 +230,7 @@ const Modal = ({ open, title, onClose, children }) => {
         display: "flex", alignItems: "center", justifyContent: "center", padding: 15, backdropFilter: "blur(8px)" 
       }}>
         <div style={{ 
-          background: "#16181d", width: "100%", maxWidth: "480px", borderRadius: "16px", 
+          background: "#16181d", width: "100%", maxWidth: "500px", borderRadius: "16px", 
           border: `1px solid ${THEME.colors.gold}`, 
           boxShadow: `0 0 60px ${THEME.colors.goldDim}40`,
           maxHeight: "90vh", display: "flex", flexDirection: "column" 
@@ -246,7 +253,7 @@ const Modal = ({ open, title, onClose, children }) => {
 };
 
 /* =========================================
-   ⚙️ LOGIKA (100% IDENTIČNA APP_GEMINI.JSX)
+   ⚙️ LOGIKA (KOPIRANA IZ APP_GEMINI.JSX)
    ========================================= */
 
 const MODE_WITHOUT = "WITHOUT";
@@ -261,7 +268,6 @@ const WALL_KILLER_NAMES_RAW = ["Ariel", "Josephine II", "Josephine I", "Siege Ba
 export default function App() {
   const citadelKeys = Object.keys(TB.citadels ?? {});
   const troops = TB.troops ?? [];
-
   const canon = useMemo(() => {
     const m = new Map();
     for (const t of troops) m.set(normName(t.name), t.name);
@@ -270,91 +276,36 @@ export default function App() {
   }, [troops]);
 
   const troopByName = useMemo(() => new Map(troops.map((t) => [t.name, t])), [troops]);
-
   const additionalBonus = TB.additionalBonusNormal ?? {};
   const phoenixExtra = TB.phoenixExtra ?? {};
   const firstStrikerAllowed = TB.firstStrikerAllowed ?? {};
 
   const [citadelLevel, setCitadelLevel] = useState(citadelKeys[0] ?? "25");
   const [mode, setMode] = useState(MODE_WITHOUT);
-
-  const [strikerTroops, setStrikerTroops] = useState(() => Array(9).fill(""));
-  const [strikerBonusPct, setStrikerBonusPct] = useState(() => Array(9).fill(""));
+  const [strikerTroops, setStrikerTroops] = useState(Array(9).fill(""));
+  const [strikerBonusPct, setStrikerBonusPct] = useState(Array(9).fill(""));
   const [firstHealthBonusPct, setFirstHealthBonusPct] = useState("");
-
+  const [wallKillerTroop, setWallKillerTroop] = useState("");
+  const [wallKillerBonusPct, setWallKillerBonusPct] = useState("");
   const [warningMsg, setWarningMsg] = useState("");
-
-  const [groupBonusPct, setGroupBonusPct] = useState({
-    CORAX: "", PHOENIX: "", PHH_SPEAR: "", DUEL_HK_SW: "", VULTURE: "", ROYAL_LION: "", GRIFFIN: "",
-  });
-
-  const getBonusGroup = (troopName) => {
-    if (!troopName) return null;
-    const n = normName(troopName);
-    if (n === "jago") return "ROYAL_LION";
-    if (n === "warregal" || n === "warregel") return "GRIFFIN";
-    if (n.startsWith("corax")) return "CORAX";
-    if (n.startsWith("fire phoenix")) return "PHOENIX";
-    if (n.startsWith("vulture")) return "VULTURE";
-    if (n.startsWith("royal lion")) return "ROYAL_LION";
-    if (n.startsWith("griffin")) return "GRIFFIN";
-    if (n.startsWith("punisher") || n.startsWith("heavy halberdier") || n.startsWith("spearmen")) return "PHH_SPEAR";
-    if (n.startsWith("duelist") || n.startsWith("heavy knight") || n.startsWith("swordsmen")) return "DUEL_HK_SW";
-    return null;
-  };
-
-  const getBaseStrength = (troopName) => {
-    if (!troopName) return 0;
-    const exact = canon.get(normName(troopName)) || troopName;
-    const t = troopByName.get(exact);
-    const v = t?.baseStrength ?? t?.base_strength ?? t?.strength ?? t?.base ?? 0;
-    return Number(v) || 0;
-  };
-
-  const getBaseHealth = (troopName) => {
-    if (!troopName) return 0;
-    const exact = canon.get(normName(troopName)) || troopName;
-    const t = troopByName.get(exact);
-    const v = t?.baseHealth ?? t?.base_health ?? t?.health ?? t?.hp ?? 0;
-    return Number(v) || 0;
-  };
-
-  const isFirstStrikerTroop = (troopName) => {
-    if (!troopName) return false;
-    const exact = canon.get(normName(troopName)) || troopName;
-    const list = mode === MODE_WITH ? (firstStrikerAllowed.WITH || []) : (firstStrikerAllowed.WITHOUT || []);
-    for (const n of list) {
-      const nn = canon.get(normName(n)) || n;
-      if (nn === exact) return true;
-    }
-    return false;
-  };
-
   const [resultsOpen, setResultsOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [calcOutput, setCalcOutput] = useState(null);
   const [copyNotice, setCopyNotice] = useState("");
 
   const cit = TB.citadels?.[citadelLevel];
-  const targets = useMemo(() => {
-    if (!cit) return null;
-    return mode === MODE_WITH ? cit.m8m9Targets : cit.normalTargets;
-  }, [cit, mode]);
-
-  const poolAll = useMemo(() => {
-    const raw = mode === MODE_WITH ? TROOPS_WITH_M8_RAW : TROOPS_WITHOUT_M8_RAW;
-    const out = [];
-    for (const r of raw) { const c = canon.get(normName(r)); if (c) out.push(c); }
-    const seen = new Set();
-    return out.filter((n) => { const k = normName(n); if (seen.has(k)) return false; seen.add(k); return true; });
+  const targets = mode === "WITH" ? cit?.m8m9Targets : cit?.normalTargets;
+  const poolAll = useMemo(() => (mode === "WITH" ? TROOPS_WITH_M8_RAW : TROOPS_WITHOUT_M8_RAW).map(r => canon.get(normName(r))).filter(Boolean), [mode, canon]);
+  const wallKillerPool = useMemo(() => WALL_KILLER_NAMES_RAW.map(r => canon.get(normName(r))).filter(Boolean), [canon]);
+  const firstAllowed = useMemo(() => {
+    const rawList = mode === "WITH" ? TB.firstStrikerAllowed.WITH : TB.firstStrikerAllowed.WITHOUT;
+    return rawList.map(r => canon.get(normName(r))).filter(Boolean);
   }, [mode, canon]);
 
-  const wallKillerPool = useMemo(() => {
-    const out = [];
-    for (const r of WALL_KILLER_NAMES_RAW) { const c = canon.get(normName(r)); if (c) out.push(c); }
-    const seen = new Set();
-    return out.filter((n) => { const k = normName(n); if (seen.has(k)) return false; seen.add(k); return true; });
-  }, [canon]);
+  const nonWallPool = useMemo(() => {
+    const wallSet = new Set(wallKillerPool.map(normName));
+    return poolAll.filter((n) => !wallSet.has(normName(n)));
+  }, [poolAll, wallKillerPool]);
 
   const secondAllowed = useMemo(() => {
     const manticore = canon.get(normName("Manticore"));
@@ -363,23 +314,6 @@ export default function App() {
     if (mode === MODE_WITHOUT) return manticore ? [manticore] : [];
     return [fp2, fp1].filter(Boolean);
   }, [mode, canon]);
-
-  const nonWallPool = useMemo(() => {
-    const wallSet = new Set(wallKillerPool.map(normName));
-    return poolAll.filter((n) => !wallSet.has(normName(n)));
-  }, [poolAll, wallKillerPool]);
-
-  const firstAllowed = useMemo(() => {
-    const rawList = mode === MODE_WITH ? firstStrikerAllowed.WITH ?? [] : firstStrikerAllowed.WITHOUT ?? [];
-    const allowedSet = new Set(nonWallPool.map(normName));
-    const out = [];
-    for (const r of rawList) {
-      const c = canon.get(normName(r)); if (!c) continue;
-      if (allowedSet.has(normName(c))) out.push(c);
-    }
-    const seen = new Set();
-    return out.filter((n) => { const k = normName(n); if (seen.has(k)) return false; seen.add(k); return true; });
-  }, [mode, firstStrikerAllowed, nonWallPool, canon]);
 
   const normalize = (current) => {
     const next = [...current];
@@ -397,21 +331,27 @@ export default function App() {
     return next;
   };
 
-  const [wallKillerTroop, setWallKillerTroop] = useState("");
-  const [wallKillerBonusPct, setWallKillerBonusPct] = useState("");
-
-  useEffect(() => { if (!wallKillerTroop) setWallKillerTroop(wallKillerPool[0] ?? ""); }, [wallKillerTroop, wallKillerPool]);
-
   const handleModeChange = (newMode) => {
     setMode(newMode);
     setStrikerTroops((prev) => normalize(["", prev[1], "", "", "", "", "", "", ""]));
-    setStrikerBonusPct(() => Array(9).fill(""));
+    setStrikerBonusPct(Array(9).fill(""));
     setFirstHealthBonusPct("");
-    setGroupBonusPct({ CORAX: "", PHOENIX: "", PHH_SPEAR: "", DUEL_HK_SW: "", VULTURE: "", ROYAL_LION: "", GRIFFIN: "" });
     setCalcOutput(null);
     setResultsOpen(false);
   };
 
+  const resetSelections = () => {
+    setStrikerTroops((prev) => normalize(["", prev[1], "", "", "", "", "", "", ""]));
+    setStrikerBonusPct(Array(9).fill(""));
+    setFirstHealthBonusPct("");
+    setWallKillerTroop(wallKillerPool[0] ?? "");
+    setWallKillerBonusPct("");
+    setCalcOutput(null);
+    setResultsOpen(false);
+  };
+
+  useEffect(() => { if (!wallKillerTroop) setWallKillerTroop(wallKillerPool[0] ?? ""); }, [wallKillerTroop, wallKillerPool]);
+  
   useEffect(() => {
     setStrikerTroops((prev) => normalize(prev));
     setCalcOutput(null);
@@ -428,185 +368,87 @@ export default function App() {
     return idx !== 1 ? ["", ...filtered] : filtered;
   };
 
-  const setTroopAt = (idx, name) => {
-    setStrikerTroops((prev) => normalize(prev.map((v, i) => (i === idx ? name : v))));
-    const g = getBonusGroup(name);
-    if (g) {
-      setStrikerBonusPct((prev) => { const next = [...prev]; next[idx] = groupBonusPct[g] ?? ""; return next; });
-    } else if (!name) {
-      setStrikerBonusPct((prev) => { const next = [...prev]; next[idx] = ""; return next; });
-    }
-    setCalcOutput(null);
-    setResultsOpen(false);
-  };
-
   const handleTroopChange = (idx, picked) => {
-    if (idx >= 2) {
+    if (idx >= 2 && picked) {
       const first = strikerTroops[0];
-      if (first && picked && isFirstStrikerTroop(picked)) {
-        const firstS = getBaseStrength(first); const firstH = getBaseHealth(first);
-        const pickedS = getBaseStrength(picked); const pickedH = getBaseHealth(picked);
-        if (pickedS > firstS || pickedH > firstH) {
-          const label = STRIKER_LABELS[idx] || "Striker";
-          setWarningMsg(`${label} (${picked}) has higher BASE strength (${fmtInt(pickedS)}) and BASE health (${fmtInt(pickedH)}) than your First striker (${first}, ${fmtInt(firstS)} / ${fmtInt(firstH)}).\n\nChoose a stronger First striker troops!!`);
-          setTroopAt(idx, "");
-          setStrikerBonusPct((prev) => { const next = [...prev]; next[idx] = ""; return next; });
-          return;
-        }
+      const t = troopByName.get(picked);
+      const f = troopByName.get(first);
+      if (f && t && (t.baseStrength > f.baseStrength || t.baseHealth > f.baseHealth)) {
+        setWarningMsg(`${STRIKER_LABELS[idx]} (${picked}) has higher BASE strength (${fmtInt(t.baseStrength)}) and BASE health (${fmtInt(t.baseHealth)}) than your First striker (${first}, ${fmtInt(f.baseStrength)} / ${fmtInt(f.baseHealth)}).\n\nChoose a stronger First striker troops!!`);
+        return;
       }
     }
-    setTroopAt(idx, picked);
+    const next = [...strikerTroops]; next[idx] = picked; setStrikerTroops(normalize(next));
   };
 
-  const setBonusAt = (idx, v) => {
-    const raw = v;
-    const troopName = strikerTroops[idx];
-    const g = getBonusGroup(troopName);
-    if (g) {
-      setGroupBonusPct((prev) => ({ ...prev, [g]: raw }));
-      setStrikerBonusPct((prev) => {
-        const next = [...prev];
-        for (let i = 0; i < strikerTroops.length; i++) { if (getBonusGroup(strikerTroops[i]) === g) next[i] = raw; }
-        return next;
-      });
-    } else {
-      setStrikerBonusPct((prev) => { const next = [...prev]; next[idx] = raw; return next; });
-    }
-    setCalcOutput(null);
-    setResultsOpen(false);
-  };
+  const calculate = () => {
+    const counts = new Map();
+    const add = (n, q) => { if(n) counts.set(normName(n), (counts.get(normName(n)) || 0) + q); };
 
-  const resetSelections = () => {
-    const current = normalize(strikerTroops);
-    const keepSecond = current[1];
-    setStrikerTroops(() => normalize(["", keepSecond, "", "", "", "", "", "", ""]));
-    setStrikerBonusPct(() => Array(9).fill(""));
-    setFirstHealthBonusPct("");
-    setGroupBonusPct({ CORAX: "", PHOENIX: "", PHH_SPEAR: "", DUEL_HK_SW: "", VULTURE: "", ROYAL_LION: "", GRIFFIN: "" });
-    setWallKillerTroop(wallKillerPool[0] ?? "");
-    setWallKillerBonusPct("");
-    setCalcOutput(null);
-    setResultsOpen(false);
+    const wkt = troopByName.get(wallKillerTroop);
+    const wDmg = (wkt?.strength || 0) * (1 + (toNum(wallKillerBonusPct) + (wkt?.fortBonus || 0))/100) * 20;
+    if (wDmg > 0) add(wallKillerTroop, Math.ceil(cit.wallHP / wDmg));
+
+    STRIKER_LABELS.forEach((_, i) => {
+      const name = strikerTroops[i];
+      const t = troopByName.get(name);
+      if (!t) return;
+      let b = toNum(strikerBonusPct[i]) + (additionalBonus[name] || 0);
+      if (mode === "WITH" && i === 1) b += (phoenixExtra[name] || 0);
+      const dmg = t.strength * (1 + b/100);
+      let q = dmg > 0 ? Math.floor(targets[i] / dmg) : 0;
+      if (i === 0) {
+        const h = t.health * (1 + toNum(firstHealthBonusPct)/100);
+        q += h > 0 ? Math.floor(cit.firstStrikeDamage / h) : 0;
+      }
+      add(name, q);
+    });
+
+    const ordered = RESULT_ORDER.filter(n => counts.has(normName(n))).map(n => ({ troop: n, required: counts.get(normName(n)) }));
+    setCalcOutput({ modeLabel: mode === "WITH" ? "With M8/M9" : "Without M8/M9", citadelLabel: `Elven ${citadelLevel}`, troops: ordered });
+    setResultsOpen(true);
   };
 
   const firstDeaths = useMemo(() => {
     if (!cit) return 0;
-    const troop = troopByName.get(strikerTroops[0]);
-    const baseHealth = troop ? toNum(troop.health) : 0;
-    const effHealth = baseHealth * (1 + toNum(firstHealthBonusPct) / 100);
-    const dmg = toNum(cit.firstStrikeDamage);
-    if (effHealth <= 0) return 0;
-    return Math.floor(dmg / effHealth);
+    const t = troopByName.get(strikerTroops[0]);
+    const h = (t?.health || 0) * (1 + toNum(firstHealthBonusPct)/100);
+    return h > 0 ? Math.floor(cit.firstStrikeDamage / h) : 0;
   }, [cit, troopByName, strikerTroops, firstHealthBonusPct]);
 
-  const wallKiller = useMemo(() => {
-    if (!cit) return { effBonus: 0, requiredTroops: 0 };
-    const troop = troopByName.get(wallKillerTroop);
-    const baseStrength = troop ? toNum(troop.strength) : 0;
-    const fort = troop?.fortBonus !== undefined && troop?.fortBonus !== null ? toNum(troop.fortBonus) : 0;
-    const effBonus = toNum(wallKillerBonusPct) + fort;
-    const dmgPerTroop = baseStrength * (1 + effBonus / 100) * 20;
-    const wallHP = toNum(cit.wallHP);
-    const requiredTroops = dmgPerTroop > 0 ? Math.ceil(wallHP / dmgPerTroop) : 0;
-    return { effBonus, requiredTroops };
-  }, [cit, wallKillerTroop, wallKillerBonusPct, troopByName]);
+  const wEff = useMemo(() => {
+     const t = troopByName.get(wallKillerTroop);
+     return toNum(wallKillerBonusPct) + (t?.fortBonus || 0);
+  }, [wallKillerTroop, wallKillerBonusPct, troopByName]);
 
-  const perStriker = useMemo(() => {
-    if (!cit || !targets || targets.length !== 9) return [];
-    return STRIKER_LABELS.map((label, idx) => {
-      const troopName = strikerTroops[idx];
-      const troop = troopByName.get(troopName);
-      let effBonus = toNum(strikerBonusPct[idx]);
-      if (troopName && additionalBonus[troopName] !== undefined) effBonus += toNum(additionalBonus[troopName]);
-      if (troopName && mode === MODE_WITH && idx === 1 && phoenixExtra[troopName] !== undefined) effBonus += toNum(phoenixExtra[troopName]);
-      const baseStrength = troop ? toNum(troop.strength) : 0;
-      const dmgPerTroop = baseStrength * (1 + effBonus / 100);
-      const targetHP = toNum(targets[idx]);
-      let required = dmgPerTroop > 0 ? Math.floor(targetHP / dmgPerTroop) : 0;
-      if (idx === 0 && dmgPerTroop > 0) required += firstDeaths;
-      return { idx, label, troopName, effBonus, requiredTroops: required };
-    });
-  }, [cit, targets, strikerTroops, strikerBonusPct, troopByName, additionalBonus, phoenixExtra, mode, firstDeaths]);
-
-  const showResults = () => {
-    const counts = new Map();
-    const add = (name, n) => { if (!name || !Number.isFinite(n)) return; const k = normName(name); counts.set(k, (counts.get(k) || 0) + Math.floor(n)); };
-    if (wallKillerTroop && wallKiller?.requiredTroops) add(wallKillerTroop, wallKiller.requiredTroops);
-    for (const s of perStriker) { if (s?.troopName && s?.requiredTroops) add(s.troopName, s.requiredTroops); }
-    const ordered = [];
-    for (const name of RESULT_ORDER) { const k = normName(name); if (counts.has(k)) ordered.push({ troop: name, required: counts.get(k) }); }
-    setCalcOutput({ modeLabel: mode === MODE_WITH ? "With M8/M9" : "Without M8/M9", citadelLabel: `Elven ${citadelLevel}`, troops: ordered });
-    setResultsOpen(true);
-  };
+  const wReq = useMemo(() => {
+     const t = troopByName.get(wallKillerTroop);
+     const d = (t?.strength || 0) * (1 + wEff/100) * 20;
+     return d > 0 ? Math.ceil(cit.wallHP / d) : 0;
+  }, [cit, wallKillerTroop, wEff, troopByName]);
 
   return (
-    <div style={{
-      width: "100%", minHeight: "100vh",
-      backgroundImage: `url('./bg.jpg')`, 
-      backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed",
-      color: THEME.colors.text, fontFamily: "'Inter', sans-serif",
-      paddingBottom: "120px", boxSizing: "border-box",
-      // FLEXBOX ZA CENTRIRANJE
-      display: "flex", flexDirection: "column", alignItems: "center" 
-    }}>
+    <div style={{ width: "100%", minHeight: "100vh", backgroundImage: "url('./bg.jpg')", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", color: THEME.colors.text, fontFamily: "'Inter', sans-serif", paddingBottom: "120px", boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center" }}>
       <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 0 }} />
-      
-      <style>{`
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #111; }
-        ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 3px; }
-      `}</style>
+      <style>{`* { box-sizing: border-box; } ::webkit-scrollbar { width: 6px; } ::webkit-scrollbar-track { background: #111; } ::webkit-scrollbar-thumb { background: #C5A059; border-radius: 3px; } ::placeholder { color: #666; opacity: 1; }`}</style>
 
-      {/* KONTEJNER ZA CENTRIRANJE - SMANJENA ŠIRINA NA 480px */}
-      <div style={{ width: "100%", maxWidth: "480px", padding: "20px 16px", position: "relative", zIndex: 1 }}>
-        
-        <div style={{ 
-          fontFamily: "'Cinzel', serif", color: THEME.colors.goldBright, textAlign: "center", 
-          fontSize: "32px", textShadow: "0 2px 10px rgba(0,0,0,0.8), 0 0 20px rgba(197, 160, 89, 0.4)",
-          marginBottom: "30px", letterSpacing: "2px", textTransform: "uppercase"
-        }}>
-          Citadel Calculator <br/> <span style={{fontSize:"16px", color: THEME.colors.textDim}}>by GM</span>
-        </div>
+      <div style={{ width: "100%", maxWidth: "600px", padding: "20px 16px", position: "relative", zIndex: 1 }}>
+        <div style={{ fontFamily: "'Cinzel', serif", color: THEME.colors.goldBright, textAlign: "center", fontSize: "32px", textShadow: "0 2px 10px rgba(0,0,0,0.8), 0 0 20px rgba(197, 160, 89, 0.4)", marginBottom: "30px", letterSpacing: "2px", textTransform: "uppercase" }}>Citadel Calculator <br/> <span style={{fontSize:"16px", color: THEME.colors.textDim}}>by GM</span></div>
 
         {/* SETUP */}
         <GameCard title="⚙️ Setup">
-          <button onClick={() => setHelpOpen(true)} style={{ 
-             width: "100%", padding: "12px", borderRadius: "8px", 
-             border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", 
-             color: "#ddd", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", 
-             gap: "8px", fontWeight: "bold", fontFamily: "'Inter', sans-serif", fontSize: "14px", marginBottom: "20px"
-          }}>
-             <span>ℹ️</span> Instructions
-          </button>
-
+          <button onClick={() => setHelpOpen(true)} style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "#ddd", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", fontWeight: "bold", fontFamily: "'Inter', sans-serif", fontSize: "14px", marginBottom: "20px" }}><span>ℹ️</span> Instructions</button>
           <div style={{ display: "grid", gap: "16px", marginBottom: "20px" }}>
              <div>
                 <label style={{ fontSize: "11px", color: THEME.colors.textDim, display:"block", marginBottom:"6px", textTransform:"uppercase", fontWeight:"bold" }}>Do you have M8/M9 troops?</label>
-                <CustomSelect 
-                   value={mode} 
-                   options={[MODE_WITHOUT, MODE_WITH]} 
-                   onChange={handleModeChange}
-                   labelTransform={(val) => val === MODE_WITHOUT ? "No" : "Yes"}
-                />
+                <CustomSelect value={mode} options={[MODE_WITHOUT, MODE_WITH]} onChange={handleModeChange} labelTransform={(val) => val === MODE_WITHOUT ? "No" : "Yes"} />
              </div>
              <div>
                 <label style={{ fontSize: "11px", color: THEME.colors.textDim, display:"block", marginBottom:"6px", textTransform:"uppercase", fontWeight:"bold" }}>Citadel Level</label>
-                <CustomSelect 
-                   value={citadelLevel} 
-                   options={citadelKeys} 
-                   onChange={(val) => { setCitadelLevel(val); setCalcOutput(null); setResultsOpen(false); }}
-                   labelTransform={(val) => `Elven ${val}`}
-                />
+                <CustomSelect value={citadelLevel} options={citadelKeys} onChange={(val) => { setCitadelLevel(val); setCalcOutput(null); setResultsOpen(false); }} labelTransform={(val) => `Elven ${val}`} />
              </div>
           </div>
-          
-          <button onClick={resetSelections} style={{
-             width: "100%", padding: "12px", borderRadius: "8px",
-             border: `1px solid ${THEME.colors.danger}`, background: "rgba(229, 62, 62, 0.1)", color: "#ff6b6b", 
-             fontWeight: "bold", cursor: "pointer", textTransform: "uppercase", fontSize: "13px", letterSpacing: "1px"
-          }}>
-             Reset Troops Selection
-          </button>
+          <button onClick={resetSelections} style={{ width: "100%", padding: "12px", borderRadius: "8px", border: `1px solid ${THEME.colors.danger}`, background: "rgba(229, 62, 62, 0.1)", color: "#ff6b6b", fontWeight: "bold", cursor: "pointer", textTransform: "uppercase", fontSize: "13px", letterSpacing: "1px" }}>Reset Troops Selection</button>
         </GameCard>
 
         {/* WALL KILLER */}
@@ -615,13 +457,11 @@ export default function App() {
               <label style={{ fontSize: "11px", color: THEME.colors.textDim, display:"block", marginBottom:"6px", textTransform:"uppercase", fontWeight:"bold" }}>Select Troop</label>
               <CustomSelect value={wallKillerTroop} options={wallKillerPool} onChange={(v) => { setWallKillerTroop(v); setCalcOutput(null); setResultsOpen(false); }} />
            </div>
-
            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }}>
               <BonusInput label="Strength Bonus (%)" value={wallKillerBonusPct} onChange={e => { setWallKillerBonusPct(e.target.value); setCalcOutput(null); setResultsOpen(false); }} placeholder="0" />
-              
               <div style={{ background: "rgba(0,0,0,0.3)", padding: "12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                 <Row label="Effective Bonus" value={`${fmtInt(wallKiller.effBonus)}%`} theme={THEME} accent />
-                 <Row label="Required Troops" value={fmtInt(wallKiller.requiredTroops)} theme={THEME} accent />
+                 <Row label="Effective Bonus" value={`${fmtInt(wEff)}%`} theme={THEME} accent />
+                 <Row label="Required Troops" value={fmtInt(wReq)} theme={THEME} accent />
               </div>
            </div>
         </GameCard>
@@ -630,21 +470,18 @@ export default function App() {
         {perStriker.map((s) => {
            const isFirst = s.idx === 0;
            const opts = optionsForIdx(s.idx);
-           
            return (
              <GameCard key={s.idx} title={`${s.idx + 1}. ${s.label}`}>
                 <div style={{ marginBottom: "16px" }}>
                    <label style={{ fontSize: "11px", color: THEME.colors.textDim, display:"block", marginBottom:"6px", textTransform:"uppercase", fontWeight:"bold" }}>Select Troop</label>
                    <CustomSelect value={strikerTroops[s.idx]} options={opts} onChange={v => handleTroopChange(s.idx, v)} />
                 </div>
-
                 <div style={{ display: "grid", gridTemplateColumns: isFirst ? "1fr 1fr" : "1fr", gap: "16px", marginBottom: "16px" }}>
                    {isFirst && (
                       <BonusInput label="Health Bonus (%)" color="#fc8181" value={firstHealthBonusPct} onChange={e => { setFirstHealthBonusPct(e.target.value); setCalcOutput(null); setResultsOpen(false); }} placeholder="0" />
                    )}
-                   <BonusInput label="Strength Bonus (%)" color="#63b3ed" value={strikerBonusPct[s.idx]} onChange={e => setBonusAt(s.idx, e.target.value)} placeholder="0" />
+                   <BonusInput label="Strength Bonus (%)" color="#63b3ed" value={strikerBonusPct[s.idx]} onChange={e => { const next = [...strikerBonusPct]; next[s.idx] = e.target.value; setStrikerBonusPct(next); setCalcOutput(null); setResultsOpen(false); }} placeholder="0" />
                 </div>
-                
                 <div style={{ background: "rgba(0,0,0,0.3)", borderRadius:"8px", padding:"12px", border: "1px solid rgba(255,255,255,0.05)" }}>
                    <Row label="Effective Bonus" value={`${fmtInt(s.effBonus)}%`} theme={THEME} accent />
                    <Row label="Required Troops" value={fmtInt(s.requiredTroops)} theme={THEME} accent />
@@ -661,25 +498,10 @@ export default function App() {
            );
         })}
 
-        {/* BOTTOM FLOATING BAR */}
-        <div style={{ 
-           position: "fixed", bottom: 0, left: 0, right: 0, padding: "16px", 
-           background: "rgba(10, 10, 12, 0.98)", borderTop: `1px solid ${THEME.colors.goldDim}`, 
-           zIndex: 1000, backdropFilter: "blur(10px)",
-           boxShadow: "0 -10px 30px rgba(0,0,0,0.5)"
-        }}>
-           <div style={{ maxWidth: "480px", margin: "0 auto" }}>
-             <button onClick={calculate} style={{
-                width: "100%", padding: "16px", borderRadius: "10px", border: "none",
-                background: THEME.colors.btnGradient,
-                color: "#000", fontWeight: "900", fontSize: "18px", letterSpacing: "2px",
-                boxShadow: "0 0 25px rgba(197, 160, 89, 0.3), inset 0 2px 2px rgba(255,255,255,0.4)", 
-                cursor: "pointer", fontFamily: "'Cinzel', serif",
-                textShadow: "0 1px 0 rgba(255,255,255,0.4)",
-             }}
-             >
-                CALCULATE
-             </button>
+        {/* FOOTER */}
+        <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "16px", background: "rgba(10, 10, 12, 0.98)", borderTop: `1px solid ${THEME.colors.goldDim}`, zIndex: 1000, backdropFilter: "blur(10px)", boxShadow: "0 -10px 30px rgba(0,0,0,0.5)" }}>
+           <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+             <button onClick={calculate} style={{ width: "100%", padding: "16px", borderRadius: "10px", border: "none", background: THEME.colors.btnGradient, color: "#000", fontWeight: "900", fontSize: "18px", letterSpacing: "2px", boxShadow: "0 0 25px rgba(197, 160, 89, 0.3), inset 0 2px 2px rgba(255,255,255,0.4)", cursor: "pointer", fontFamily: "'Cinzel', serif", textShadow: "0 1px 0 rgba(255,255,255,0.4)" }}>CALCULATE</button>
            </div>
         </div>
 
@@ -694,19 +516,13 @@ export default function App() {
              <Row label="Mode" value={calcOutput?.modeLabel} theme={THEME} accent />
              <Row label="Citadel" value={calcOutput?.citadelLabel} theme={THEME} accent />
           </div>
-
           <button onClick={async () => {
               const list = (calcOutput?.troops || []).map(t => `${t.troop} - ${fmtInt(t.required)}`).join("\n");
               const ok = await copyToClipboard(list);
               setCopyNotice(ok ? "✅ Copied!" : "❌ Error");
               setTimeout(() => setCopyNotice(""), 2000);
-           }} style={{ 
-              width: "100%", padding: "14px", background: THEME.colors.btnGradient, color: "#000", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight:"bold", fontSize:"16px", marginBottom:"10px", display: "flex", alignItems:"center", justifyContent:"center", gap: "8px"
-           }}>
-              <span>📄</span> Copy List to Clipboard
-           </button>
+           }} style={{ width: "100%", padding: "14px", background: THEME.colors.btnGradient, color: "#000", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight:"bold", fontSize:"16px", marginBottom:"10px", display: "flex", alignItems:"center", justifyContent:"center", gap: "8px" }}><span>📄</span> Copy List to Clipboard</button>
            {copyNotice && <div style={{textAlign:"center", color: THEME.colors.gold, fontWeight:"bold", marginBottom:10}}>{copyNotice}</div>}
-
           <div style={{ display: "grid", gap: "8px" }}>
             {calcOutput?.troops.map((t, i) => (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px", background: "rgba(20, 20, 25, 0.8)", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 4px 6px rgba(0,0,0,0.2)" }}>
@@ -722,13 +538,8 @@ export default function App() {
 
         <Modal open={helpOpen} title="ℹ️ Instructions & Help" onClose={() => setHelpOpen(false)} theme={THEME}>
           <div style={{ color: "#e0e0e0", lineHeight: 1.6, fontSize: 15, display: "grid", gap: 20 }}>
-            <div>
-                <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>🎯 Goal</div>
-                <div style={{ color: "#bbb" }}>Use the correct troops and bonuses to minimize losses when attacking a Citadel. I took care of the proper troops selection.</div>
-            </div>
-            <div>
-                <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.danger }}>❗ Most Important Rule</div>
-                <div style={{ color: "#bbb", borderLeft: `4px solid ${THEME.colors.danger}`, paddingLeft: 12 }}>Maximize <b style={{ color: "#fff" }}>First Striker Health</b>. In a proper attack, the First Striker is the only troop group that should take losses. If you are losing other troops, check your bonuses or troop counts.<br /><br />The number of <b style={{ color: "#fff" }}>FIRST STRIKER</b> troops <b style={{ color: "#fff" }}> CAN</b> be higher than calculated. All other troops <b style={{ color: "#fff" }}>MUST</b> be used in the exact number as calculated.</div></div>
+            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>🎯 Goal</div><div style={{ color: "#bbb" }}>Use the correct troops and bonuses to minimize losses when attacking a Citadel. I took care of the proper troops selection.</div></div>
+            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.danger }}>❗ Most Important Rule</div><div style={{ color: "#bbb", borderLeft: `4px solid ${THEME.colors.danger}`, paddingLeft: 12 }}>Maximize <b style={{ color: "#fff" }}>First Striker Health</b>. In a proper attack, the First Striker is the only troop group that should take losses. If you are losing other troops, check your bonuses or troop counts.<br /><br />The number of <b style={{ color: "#fff" }}>FIRST STRIKER</b> troops <b style={{ color: "#fff" }}> CAN</b> be higher than calculated. All other troops <b style={{ color: "#fff" }}>MUST</b> be used in the exact number as calculated.</div></div>
             <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>🦅 First Striker</div><div style={{ color: "#bbb" }}>Must be the strongest <b style={{ color: "#fff" }}>flying Guardsmen</b>: <b style={{ color: "#fff" }}> Corax</b> or <b style={{ color: "#fff" }}> Griffin</b>.</div></div>
             <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>🦸 Captains</div><div style={{ color: "#bbb" }}>Recommended: <b style={{ color: "#fff" }}> Wu Zetian, Brunhild, Skadi, Beowulf, Aydae, Ramses, Sofia</b>.</div></div>
             <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>✨ Artifacts</div><div style={{ color: "#bbb" }}>Use artifacts that increase Health for <b style={{ color: "#fff" }}> Flying</b>, <b style={{ color: "#fff" }}> Guardsmen</b>, or the <b style={{ color: "#fff" }}> Army</b>. (e.g., <b style={{ color: "#fff" }}>Valkyrie Diadem, Medallion, Belt, Flask</b>).</div></div>
@@ -736,7 +547,6 @@ export default function App() {
             <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: THEME.colors.accent }}>❓ How to find bonuses?</div><div style={{ color: "#bbb" }}>Attack a level 10 Citadel with <b style={{ color: "#fff" }}>10 of each selected troop type</b>. Copy the bonuses from the attack report into the calculator.</div></div>
           </div>
         </Modal>
-
       </div>
     </div>
   );
