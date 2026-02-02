@@ -1043,7 +1043,7 @@ export default function App() {
         </div>
 
         <div style={{
-            position: "fixed", left: 0, right: 0, bottom: 14, padding: 16,
+            position: "fixed", left: 0, right: 0, bottom: 8, padding: 16,
             background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99
           }}>
           <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
