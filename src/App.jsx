@@ -905,7 +905,7 @@ html, body {
 
 .app-root {
   min-height: 100vh;
-  background-image: url("/assets/bg.jpg") !important;          /* mobile / portrait */
+  background-image: "url('./assets/bg.jpg')" !important;          /* mobile / portrait */
   background-repeat: no-repeat !important;
   background-size: cover !important;
   background-position: center !important;
@@ -913,7 +913,7 @@ html, body {
 
 @media (min-width: 900px) {
   .app-root {
-    background-image: url("/assets/bg-desktop.jpg") !important; /* desktop / landscape */
+    background-image: "url('./assets/bg-desktop.jpg')" !important; /* desktop / landscape */
     background-size: contain !important;
     background-position: top center !important;
   }
