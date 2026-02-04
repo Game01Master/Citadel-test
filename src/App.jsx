@@ -886,7 +886,7 @@ export default function App() {
         minHeight: "100vh",
         background: theme.pageBg,
         // DODANA POZADINA
-        backgroundImage: isDesktop ? "url(/assets/bg_desktop.jpg)" : "url('./bg.jpg')",
+        backgroundImage: isDesktop ? "url('./bg_desktop.jpg)" : "url('./bg.jpg')",
         backgroundSize: isDesktop ? "contain" : "cover",
         backgroundPosition: isDesktop ? "top center" : "center",
         backgroundAttachment: "fixed",
