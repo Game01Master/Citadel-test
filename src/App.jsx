@@ -163,7 +163,6 @@ function makeTheme(isDark) {
 function Card({ title, children, theme }) {
   return (
     <div
-      className="app-root"
       style={{
         border: `1.5px solid ${theme.border}`,
         borderRadius: 12,
@@ -853,15 +852,13 @@ export default function App() {
 
   return (
     <div
+      className="app-background"
       style={{
-        width: "100%",
-        minHeight: "100vh",
-        backgroundColor: theme.pageBg,
-        // DODANA POZADINA
-        backgroundImage: "url('./bg.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundAttachment: "fixed",
+        // width: "100%", // Prebačeno u CSS klasu
+        // minHeight: "100vh", // Prebačeno u CSS klasu
+        background: theme.pageBg, // Ovo ostavljamo kao fallback boju
+        //backgroundImage... // UKLONJENO jer je sada u klasi
+        //backgroundSize...
         color: theme.text,
         fontFamily: "'Inter', sans-serif",
       }}
@@ -874,6 +871,24 @@ export default function App() {
         #root { display: block; }
         *, *::before, *::after { box-sizing: border-box; }
         :root { color-scheme: dark; }
+
+        /* RESPONSIVE BACKGROUND */
+        .app-background {
+          background-image: url('/assets/bg.jpg'); /* Mobile image (Default) */
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          background-attachment: fixed;
+          width: 100%;
+          min-height: 100vh;
+        }
+
+        /* Desktop specific background */
+        @media (min-width: 901px) {
+          .app-background {
+            background-image: url('/assets/bg-desktop.jpg');
+          }
+        }
 
         /* Pro-gaming gold focus ring */
         input:focus, select:focus, button:focus {
@@ -898,33 +913,10 @@ export default function App() {
         }
 
         /* Scrollbar styles for modals */
-        /* Scrollbar styles for modals */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: ${theme.accent}; border-radius: 3px; }
-      
-/* ===== Background ===== */
-html, body {
-  margin: 0 !important;
-  padding: 0 !important;
-  background: #000 !important;
-}
-
-.app-root {
-  background-image: "url('./assets/bg.jpg')" !important;          /* mobile / portrait */
-  background-repeat: no-repeat !important;
-  background-size: cover !important;
-  background-position: center !important;
-}
-
-@media (min-width: 900px) {
-  .app-root {
-    background-image: "url('./assets/bg.jpg')" !important; /* desktop / landscape */
-    background-size: contain !important;
-    background-position: top center !important;
-  }
-}
-`}</style>
+      `}</style>
 
       <div style={{ width: "100%", maxWidth: 600, margin: "0 auto", padding: "20px 16px", position: "relative", zIndex: 1 }}>
         <div style={{ textAlign: "center", marginBottom: 30 }}>
