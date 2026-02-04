@@ -874,7 +874,7 @@ export default function App() {
 
         /* RESPONSIVE BACKGROUND */
         .app-background {
-          background-image: url('/assets/bg.jpg'); /* Mobile image (Default) */
+          background-image: "url('/assets/bg.jpg')"; /* Mobile image (Default) */
           background-size: cover;
           background-position: center;
           background-repeat: no-repeat;
@@ -886,7 +886,7 @@ export default function App() {
         /* Desktop specific background */
         @media (min-width: 901px) {
           .app-background {
-            background-image: url('/assets/bg-desktop.jpg');
+            background-image: "url('/assets/bg-desktop.jpg')";
           }
         }
 
