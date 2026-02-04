@@ -857,7 +857,7 @@ export default function App() {
         minHeight: "100vh",
         background: theme.pageBg,
         // DODANA POZADINA
-        backgroundImage: "url(/assets/bg.jpg)",
+        backgroundImage: "url('./assets/bg.jpg')",
         backgroundRepeat: "no-repeat",
         backgroundAttachment: "fixed",
         color: theme.text,
@@ -918,7 +918,7 @@ html, body {
 /* Desktop background (landscape) */
 @media (min-width: 900px) {
   .app-root {
-    background-image: url("/assets/bg-desktop.jpg");
+    background-image: "url('./assets/bg-desktop.jpg')";
     background-size: contain;
     background-position: top center;
   }
