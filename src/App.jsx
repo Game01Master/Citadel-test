@@ -918,9 +918,9 @@ html, body {
 /* Desktop background (landscape) */
 @media (min-width: 900px) {
   .app-root {
-    background-image: url('./assets/bg-desktop.jpg');
-    background-size: contain;
-    background-position: top center;
+    background-image: "url('./assets/bg-desktop.jpg')",
+    background-size: contain,
+    background-position: top center,
   }
 }
 `}</style>
