@@ -686,6 +686,20 @@ export default function App() {
     setResultsOpen(true);
   };
 
+  // --- ENTER KEY HANDLER ---
+  const handleEnter = (e, nextId) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const nextElement = document.getElementById(nextId);
+      if (nextElement) {
+        nextElement.focus();
+        if (nextElement.tagName === "INPUT") {
+          nextElement.select(); // Oznacava tekst za lakse prepisivanje
+        }
+      }
+    }
+  };
+
   return (
     <div
       className="app-background"
@@ -862,8 +876,12 @@ export default function App() {
               </div>
             </Card>
 
-            {/* DESKTOP CALCULATE BUTTON (Visible only on Desktop) */}
-            <button className="desktop-calc-btn" onClick={showResults} style={{
+            {/* DESKTOP CALCULATE BUTTON */}
+            <button 
+              id="btn-calculate-desktop"
+              className="desktop-calc-btn" 
+              onClick={showResults} 
+              style={{
                 width: "100%", padding: "20px", borderRadius: 12, border: "none",
                 background: theme.btnBg, color: theme.btnText,
                 fontWeight: 900, letterSpacing: 1, fontSize: 20, fontFamily: "'Cinzel', serif",
@@ -871,14 +889,14 @@ export default function App() {
                 transition: "transform 0.2s"
               }}
             >
-              CALCULATE
+              CALCULATE RESULTS
             </button>
           </div>
 
           {/* RIGHT CONTENT (Wall Killer + Striker Grid) */}
           <div className="striker-grid">
             
-            {/* WALL KILLER (Moved here) */}
+            {/* WALL KILLER */}
             <Card title="🛡️ Wall Killer" theme={theme}>
               <div style={{ display: "grid", gap: 16 }}>
                 <TroopPicker
@@ -888,8 +906,11 @@ export default function App() {
                 />
                 <label style={{ display: "grid", gap: 8 }}>
                   <span style={{ color: theme.subtext, fontWeight: 600, fontSize: 13, textTransform: "uppercase" }}>Strength Bonus (%)</span>
-                  <input type="number" step="any" inputMode="decimal" placeholder="0" value={wallKillerBonusPct}
+                  <input 
+                    id="bonus-wall"
+                    type="number" step="any" inputMode="decimal" placeholder="0" value={wallKillerBonusPct}
                     onChange={(e) => { setWallKillerBonusPct(e.target.value); setCalcOutput(null); setResultsOpen(false); }}
+                    onKeyDown={(e) => handleEnter(e, "bonus-health-0")} // Goes to First Striker Health (ID may not exist if cleanup, but handles gracefully)
                     style={inputStyle} onFocus={(e) => e.target.select()}
                   />
                 </label>
@@ -905,6 +926,7 @@ export default function App() {
               const idx = s.idx;
               const isFirst = idx === 0;
               const opts = optionsForIdx(idx);
+              const nextInputId = idx < 8 ? `bonus-str-${idx + 1}` : "btn-calculate-desktop";
 
               return (
                 <Card key={idx} title={`${idx + 1}. ${s.label}`} theme={theme}>
@@ -917,8 +939,11 @@ export default function App() {
                     {isFirst && (
                       <label style={{ display: "grid", gap: 8 }}>
                         <span style={{ color: "#ff8a8a", fontWeight: 700, fontSize: 13, textTransform: "uppercase" }}>Health Bonus (%)</span>
-                        <input type="number" step="any" inputMode="decimal" placeholder="0" value={firstHealthBonusPct}
+                        <input 
+                          id="bonus-health-0"
+                          type="number" step="any" inputMode="decimal" placeholder="0" value={firstHealthBonusPct}
                           onChange={(e) => { setFirstHealthBonusPct(e.target.value); setCalcOutput(null); setResultsOpen(false); }}
+                          onKeyDown={(e) => handleEnter(e, "bonus-str-0")}
                           style={{...inputStyle, borderColor: "rgba(255, 138, 138, 0.4)"}} onFocus={(e) => e.target.select()}
                         />
                       </label>
@@ -926,8 +951,11 @@ export default function App() {
 
                     <label style={{ display: "grid", gap: 8 }}>
                       <span style={{ color: "#80d8ff", fontWeight: 700, fontSize: 13, textTransform: "uppercase" }}>Strength Bonus (%)</span>
-                      <input type="number" step="any" inputMode="decimal" placeholder="0" value={strikerBonusPct[idx]}
+                      <input 
+                        id={`bonus-str-${idx}`}
+                        type="number" step="any" inputMode="decimal" placeholder="0" value={strikerBonusPct[idx]}
                         onChange={(e) => setBonusAt(idx, e.target.value)}
+                        onKeyDown={(e) => handleEnter(e, nextInputId)}
                         style={{...inputStyle, borderColor: "rgba(128, 216, 255, 0.4)"}} onFocus={(e) => e.target.select()}
                       />
                     </label>
@@ -956,7 +984,10 @@ export default function App() {
             background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99
           }}>
           <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
-            <button onClick={showResults} style={{
+            <button 
+              id="btn-calculate-mobile" // Optional ID just in case
+              onClick={showResults} 
+              style={{
                 width: "100%", padding: "16px", borderRadius: 12, border: "none",
                 background: theme.btnBg, color: theme.btnText,
                 fontWeight: 900, letterSpacing: 1, fontSize: 18, fontFamily: "'Cinzel', serif",
