@@ -728,12 +728,12 @@ export default function App() {
           background-attachment: fixed;
           background-size: cover;
           background-position: center;
-          background-image: url("./bg.jpg"); 
+          background-image: "url('./bg.jpg')"; 
         }
 
         @media (min-width: 768px) {
           body {
-            background-image: url("./bg-desktop.jpg");
+            background-image: "url('./bg-desktop.jpg')";
           }
         }
 
