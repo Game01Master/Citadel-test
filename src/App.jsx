@@ -360,16 +360,14 @@ export default function App() {
   const [introFinished, setIntroFinished] = useState(false);
 
   useEffect(() => {
-    // 1. OBAVEZAN RESET SCROLLA NA VRH KOD SVAKOG REFRESHA
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
     }
     window.scrollTo(0, 0);
 
-    // 2. Animacija
     const timer = setTimeout(() => {
       setIntroFinished(true);
-    }, 1200); // Malo ranije da tranzicija odradi svoje
+    }, 1200); 
     return () => clearTimeout(timer);
   }, []);
 
@@ -891,8 +889,8 @@ export default function App() {
               Citadel Calculator
             </div>
             <div style={{
-              marginTop: 6, fontSize: 12, fontWeight: 700, letterSpacing: 3,
-              textTransform: "uppercase", color: theme.subtext, opacity: 0.75, fontFamily: "'Inter', sans-serif",
+              marginTop: 6, fontSize: 12, fontWeight: 800, letterSpacing: 3,
+              textTransform: "uppercase", color: theme.accent, opacity: 1, textShadow: "0 2px 10px rgba(0,0,0,0.8)", fontFamily: "'Inter', sans-serif",
             }}>
               by GM
             </div>
@@ -1058,7 +1056,7 @@ export default function App() {
 
           {/* MOBILE BOTTOM BAR (Visible only on Mobile) */}
           <div className="mobile-bottom-bar" style={{
-              position: "fixed", left: 0, right: 0, bottom: 8, padding: 16,
+              position: "fixed", left: 0, right: 0, bottom: 9, padding: 16,
               background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99
             }}>
             <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
