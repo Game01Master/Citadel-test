@@ -360,10 +360,16 @@ export default function App() {
   const [introFinished, setIntroFinished] = useState(false);
 
   useEffect(() => {
-    // Čekaj 1.5 sekundu prije podizanja teksta
+    // 1. OBAVEZAN RESET SCROLLA NA VRH KOD SVAKOG REFRESHA
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+
+    // 2. Animacija
     const timer = setTimeout(() => {
       setIntroFinished(true);
-    }, 1500);
+    }, 1200); // Malo ranije da tranzicija odradi svoje
     return () => clearTimeout(timer);
   }, []);
 
@@ -757,13 +763,12 @@ export default function App() {
           }
         }
 
-        /* --- INTRO ANIMATION STYLES --- */
+        /* --- INTRO ANIMATION STYLES (SPORIJE) --- */
         
         /* 1. Header se miče gore */
         .header-wrapper {
-          transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+          transition: transform 2.0s cubic-bezier(0.25, 1, 0.5, 1); /* 2.0s duration */
           will-change: transform;
-          /* Osigurava da je header uvijek iznad contenta u z-index stacku */
           position: relative; 
           z-index: 10;
         }
@@ -780,8 +785,8 @@ export default function App() {
 
         /* 2. Content fade in */
         .content-wrapper {
-          /* Delay od 0.5s da header prvo krene gore */
-          transition: opacity 1s ease 0.5s, transform 1s ease 0.5s;
+          /* Delay 0.6s, trajanje 1.8s */
+          transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
           opacity: 1;
           transform: translateY(0);
         }
@@ -789,7 +794,7 @@ export default function App() {
         .app-loading .content-wrapper {
           opacity: 0;
           transform: translateY(50px);
-          pointer-events: none; /* Ne može se klikati dok se ne učita */
+          pointer-events: none; 
         }
 
         /* --- LAYOUT GRID SYSTEM --- */
