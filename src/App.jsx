@@ -307,34 +307,57 @@ function Row({ label, value, theme, accent }) {
   );
 }
 
-// 🛡️ MODAL - Modified to allow transparent backdrop
-function Modal({ open, title, onClose, children, theme, isDropdown, transparentBackdrop }) {
+// 🛡️ MODAL - Ažuriran za Sidebar prikaz i brže animacije
+function Modal({ open, title, onClose, children, theme, isDropdown, isSidebar, transparentBackdrop }) {
   if (!open) return null;
+
   return (
     <div
       onClick={onClose}
       style={{
-        position: "fixed", inset: 0, 
-        // Ako je transparentBackdrop (za rezultate), koristimo vrlo prozirnu pozadinu
+        position: "fixed", 
+        inset: 0, 
+        // Sidebar i Dropdown logika pozicioniranja
         background: transparentBackdrop ? "rgba(0,0,0,0.15)" : "rgba(0,0,0,0.45)",
-        display: "flex", alignItems: isDropdown ? "center" : "center", justifyContent: "center",
-        padding: 20, zIndex: 9999, 
-        // Blur samo ako nije transparent mode (da se pozadina bolje vidi)
+        display: "flex", 
+        // Ako je sidebar, lijepimo ga lijevo (flex-start). Inače centriramo.
+        justifyContent: isSidebar ? "flex-start" : "center", 
+        alignItems: isSidebar ? "stretch" : "center",
+        padding: isSidebar ? 0 : 20, 
+        zIndex: 9999, 
         backdropFilter: transparentBackdrop ? "none" : "blur(5px)",
-        transition: "background 0.3s ease"
+        // BRZA ANIMACIJA (0.2s)
+        transition: "background 0.2s ease-out" 
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: "100%", maxWidth: 500,
+          width: isSidebar ? "340px" : "100%", 
+          maxWidth: isSidebar ? "100%" : 500,
+          // Sidebar je pune visine
+          height: isSidebar ? "100vh" : "auto", 
+          maxHeight: isSidebar ? "100vh" : "80vh",
+          
           background: "linear-gradient(180deg, rgba(24,26,32,0.95) 0%, rgba(14,15,18,0.98) 100%)",
-          color: theme.text, borderRadius: 16,
+          color: theme.text,
+          // Sidebar ima zaobljene rubove samo desno
+          borderRadius: isSidebar ? "0 16px 16px 0" : 16, 
           border: `1px solid ${theme.accent}`,
+          borderLeft: isSidebar ? "none" : `1px solid ${theme.accent}`, // Bez lijevog ruba ako je sidebar
+          
           boxShadow: `0 0 30px rgba(197, 160, 89, 0.18), ${theme.goldGlowStrong}`,
-          maxHeight: "80vh", display: "flex", flexDirection: "column",
+          display: "flex", 
+          flexDirection: "column",
+          // Animacija ulaska
+          animation: isSidebar ? "slideInLeft 0.25s ease-out" : "fadeInScale 0.2s ease-out"
         }}
       >
+        <style>{`
+          @keyframes slideInLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+          @keyframes fadeInScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        `}</style>
+
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "rgba(197, 160, 89, 0.05)", borderBottom: `1px solid ${theme.borderSoft}` }}>
           <div style={{ fontWeight: 700, fontSize: 18, fontFamily: "'Cinzel', serif", color: theme.accent, textTransform: "uppercase" }}>{title}</div>
           <button onClick={onClose} style={{ border: "none", background: "transparent", color: theme.text, width: 32, height: 32, fontSize: 24, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
@@ -724,9 +747,9 @@ export default function App() {
           }
         }
 
-        /* --- ANIMATION FOR FOCUS MODE --- */
+        /* --- BRZA ANIMACIJA ZA FOCUS MODE (0.25s umjesto 0.6s) --- */
         .dashboard-content {
-          transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), filter 0.6s ease;
+          transition: opacity 0.25s cubic-bezier(0.25, 1, 0.5, 1), transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), filter 0.25s ease;
           opacity: 1;
           transform: scale(1);
           filter: blur(0px);
@@ -734,9 +757,9 @@ export default function App() {
         
         .dashboard-content.hidden {
           opacity: 0;
-          transform: scale(0.95);
-          filter: blur(12px);
-          pointer-events: none; /* Can't click hidden stuff */
+          transform: scale(0.98);
+          filter: blur(8px);
+          pointer-events: none;
         }
 
         /* --- LAYOUT GRID SYSTEM --- */
@@ -1011,8 +1034,15 @@ export default function App() {
           </div>
         </Modal>
 
-        {/* RESULTS MODAL - PASSING transparentBackdrop={true} */}
-        <Modal open={resultsOpen} title="📋 Calculated Results" onClose={() => setResultsOpen(false)} theme={theme} transparentBackdrop={true}>
+        {/* RESULTS MODAL - isSidebar=true */}
+        <Modal 
+            open={resultsOpen} 
+            title="📋 Calculated Results" 
+            onClose={() => setResultsOpen(false)} 
+            theme={theme} 
+            transparentBackdrop={true} 
+            isSidebar={true}
+        >
           {calcOutput ? (
             <>
               <div style={{ background: "rgba(0,0,0,0.32)", padding: 16, borderRadius: 12, marginBottom: 20, border: `1px solid ${theme.border}`, boxShadow: theme.goldGlow }}>
