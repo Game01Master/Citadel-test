@@ -765,25 +765,22 @@ export default function App() {
         
         /* 1. Header se miče gore */
         .header-wrapper {
-          transition: transform 2.0s cubic-bezier(0.25, 1, 0.5, 1); /* 2.0s duration */
+          transition: transform 2.0s cubic-bezier(0.25, 1, 0.5, 1);
           will-change: transform;
           position: relative; 
           z-index: 10;
         }
 
         .app-loading .header-wrapper {
-          /* Spušten na sredinu i povećan */
           transform: translateY(40vh) scale(1.3);
         }
 
         .app-loaded .header-wrapper {
-          /* Vraćen na početnu poziciju */
           transform: translateY(0) scale(1);
         }
 
         /* 2. Content fade in */
         .content-wrapper {
-          /* Delay 0.6s, trajanje 1.8s */
           transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
           opacity: 1;
           transform: translateY(0);
@@ -793,6 +790,18 @@ export default function App() {
           opacity: 0;
           transform: translateY(50px);
           pointer-events: none; 
+        }
+
+        /* 3. Mobile Button fade in (posebno jer je izvan content-wrapper) */
+        .mobile-bottom-bar {
+          transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .mobile-bottom-bar.hidden {
+          opacity: 0;
+          transform: translateY(20px);
+          pointer-events: none;
         }
 
         /* --- LAYOUT GRID SYSTEM --- */
@@ -812,7 +821,6 @@ export default function App() {
             padding-bottom: 40px;
           }
 
-          /* Main Grid Wrapper */
           .main-layout-grid {
             display: grid;
             grid-template-columns: 360px 1fr;
@@ -820,7 +828,6 @@ export default function App() {
             align-items: start;
           }
 
-          /* Left Sidebar (Sticky) */
           .layout-sidebar {
             position: sticky;
             top: 20px;
@@ -828,7 +835,6 @@ export default function App() {
             gap: 16px;
           }
 
-          /* Right Content (Striker Grid) */
           .striker-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -1053,26 +1059,27 @@ export default function App() {
             {/* END RIGHT CONTENT */}
           </div>
           {/* --- MAIN GRID LAYOUT END --- */}
+        </div>
+        {/* END CONTENT WRAPPER */}
 
-          {/* MOBILE BOTTOM BAR (Visible only on Mobile) */}
-          <div className="mobile-bottom-bar" style={{
-              position: "fixed", left: 0, right: 0, bottom: 9, padding: 16,
-              background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99
-            }}>
-            <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
-              <button 
-                id="btn-calculate-mobile"
-                onClick={showResults} 
-                style={{
-                  width: "100%", padding: "16px", borderRadius: 12, border: "none",
-                  background: theme.btnBg, color: theme.btnText,
-                  fontWeight: 900, letterSpacing: 1, fontSize: 18, fontFamily: "'Cinzel', serif",
-                  boxShadow: `0 0 20px rgba(197, 160, 89, 0.4)`, cursor: "pointer",
-                }}
-              >
-                CALCULATE
-              </button>
-            </div>
+        {/* MOBILE BOTTOM BAR (Visible only on Mobile) - IZVUČEN IZVAN CONTENT WRAPPERA ZA FIX POZICIJU */}
+        <div className={`mobile-bottom-bar ${introFinished ? "visible" : "hidden"}`} style={{
+            position: "fixed", left: 0, right: 0, bottom: 9, padding: 16,
+            background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99
+          }}>
+          <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
+            <button 
+              id="btn-calculate-mobile"
+              onClick={showResults} 
+              style={{
+                width: "100%", padding: "16px", borderRadius: 12, border: "none",
+                background: theme.btnBg, color: theme.btnText,
+                fontWeight: 900, letterSpacing: 1, fontSize: 18, fontFamily: "'Cinzel', serif",
+                boxShadow: `0 0 20px rgba(197, 160, 89, 0.4)`, cursor: "pointer",
+              }}
+            >
+              CALCULATE
+            </button>
           </div>
         </div>
 
