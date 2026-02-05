@@ -232,12 +232,12 @@ export default function App() {
           background-position: center !important;
           background-repeat: no-repeat !important;
           /* KORISTIMO / ZA PUBLIC MAPU */
-          background-image: "url('./bg.jpg')" !important; 
+          background-image: url("./bg.jpg") !important; 
         }
 
         @media (min-width: 768px) {
           body {
-            background-image: "url('./bg-desktop.jpg')" !important;
+            background-image: url("./bg-desktop.jpg") !important;
           }
         }
 
