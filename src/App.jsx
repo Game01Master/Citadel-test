@@ -820,7 +820,7 @@ export default function App() {
         {/* --- MAIN GRID LAYOUT START --- */}
         <div className="main-layout-grid">
           
-          {/* LEFT SIDEBAR (Setup & Wall Killer) */}
+          {/* LEFT SIDEBAR (Setup Only) */}
           <div className="layout-sidebar">
             <Card title="⚙️ Setup" theme={theme}>
               <button
@@ -862,6 +862,23 @@ export default function App() {
               </div>
             </Card>
 
+            {/* DESKTOP CALCULATE BUTTON (Visible only on Desktop) */}
+            <button className="desktop-calc-btn" onClick={showResults} style={{
+                width: "100%", padding: "20px", borderRadius: 12, border: "none",
+                background: theme.btnBg, color: theme.btnText,
+                fontWeight: 900, letterSpacing: 1, fontSize: 20, fontFamily: "'Cinzel', serif",
+                boxShadow: `0 0 25px rgba(197, 160, 89, 0.45)`, cursor: "pointer",
+                transition: "transform 0.2s"
+              }}
+            >
+              CALCULATE RESULTS
+            </button>
+          </div>
+
+          {/* RIGHT CONTENT (Wall Killer + Striker Grid) */}
+          <div className="striker-grid">
+            
+            {/* WALL KILLER (Moved here) */}
             <Card title="🛡️ Wall Killer" theme={theme}>
               <div style={{ display: "grid", gap: 16 }}>
                 <TroopPicker
@@ -883,21 +900,7 @@ export default function App() {
               </div>
             </Card>
 
-            {/* DESKTOP CALCULATE BUTTON (Visible only on Desktop) */}
-            <button className="desktop-calc-btn" onClick={showResults} style={{
-                width: "100%", padding: "20px", borderRadius: 12, border: "none",
-                background: theme.btnBg, color: theme.btnText,
-                fontWeight: 900, letterSpacing: 1, fontSize: 20, fontFamily: "'Cinzel', serif",
-                boxShadow: `0 0 25px rgba(197, 160, 89, 0.45)`, cursor: "pointer",
-                transition: "transform 0.2s"
-              }}
-            >
-              CALCULATE RESULTS
-            </button>
-          </div>
-
-          {/* RIGHT CONTENT (Strikers Grid) */}
-          <div className="striker-grid">
+            {/* STRIKERS LOOP */}
             {perStriker.map((s) => {
               const idx = s.idx;
               const isFirst = idx === 0;
@@ -934,7 +937,7 @@ export default function App() {
                         <Row label="Required Troops" value={fmtInt(s.requiredTroops)} theme={theme} accent />
                         {isFirst && (
                         <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px solid ${theme.borderSoft}` }}>
-                            <Row label="Citadel Losses" value={fmtInt(firstDeaths)} theme={theme} />
+                            <Row label="Citadel First Strike Losses" value={fmtInt(firstDeaths)} theme={theme} />
                         </div>
                         )}
                     </div>
@@ -973,9 +976,13 @@ export default function App() {
 
         <Modal open={helpOpen} title="ℹ️ Instructions & Help" onClose={() => setHelpOpen(false)} theme={theme}>
           <div style={{ color: theme.text, lineHeight: 1.6, fontSize: 15, display: "grid", gap: 20 }}>
-            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🎯 Goal</div><div style={{ color: theme.subtext }}>Use the correct troops and bonuses to minimize losses.</div></div>
-            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.danger }}>❗ Most Important Rule</div><div style={{ color: theme.subtext, borderLeft: `4px solid ${theme.danger}`, paddingLeft: 12 }}>Maximize <b style={{ color: theme.text }}>First Striker Health</b>. The First Striker is the only troop group that should take losses.<br /><br />The number of <b style={{ color: theme.text }}>FIRST STRIKER</b> troops <b style={{ color: theme.text }}> CAN</b> be higher than calculated. All other troops <b style={{ color: theme.text }}>MUST</b> be used in the exact number as calculated.</div></div>
-            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🦅 First Striker</div><div style={{ color: theme.subtext }}>Must be the strongest <b style={{ color: theme.text }}>flying Guardsmen</b> (Corax or Griffin).</div></div>
+            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🎯 Goal</div><div style={{ color: theme.subtext }}>Use the correct troops and bonuses to minimize losses when attacking a Citadel. I took care of the proper troops selection.</div></div>
+            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.danger }}>❗ Most Important Rule</div><div style={{ color: theme.subtext, borderLeft: `4px solid ${theme.danger}`, paddingLeft: 12 }}>Maximize <b style={{ color: theme.text }}>First Striker Health</b>. In a proper attack, the First Striker is the only troop group that should take losses.<br /><br />The number of <b style={{ color: theme.text }}>FIRST STRIKER</b> troops <b style={{ color: theme.text }}> CAN</b> be higher than calculated. All other troops <b style={{ color: theme.text }}>MUST</b> be used in the exact number as calculated.</div></div>
+            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🦅 First Striker</div><div style={{ color: theme.subtext }}>Must be the strongest <b style={{ color: theme.text }}>flying Guardsmen</b>: <b style={{ color: theme.text }}> Corax</b> or <b style={{ color: theme.text }}> Griffin</b>.</div></div>
+            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>⚔️ Captains</div><div style={{ color: theme.subtext }}>Recommended: <b style={{ color: theme.text }}> Wu Zetian, Brunhild, Skadi, Beowulf, Aydae, Ramses, Sofia</b>.</div></div>
+            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>✨ Artifacts</div><div style={{ color: theme.subtext }}>Use artifacts that increase Health for <b style={{ color: theme.text }}> Flying</b>, <b style={{ color: theme.text }}> Guardsmen</b>, or the <b style={{ color: theme.text }}> Army</b>.</div></div>
+            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🔄 Recalculate</div><div style={{ color: theme.subtext }}>After ANY strength bonus change, enter new bonuses and press <b style={{ color: theme.text }}> Calculate</b> again. Small changes matter!</div></div>
+            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>❓ How to find bonuses?</div><div style={{ color: theme.subtext }}>Attack a level 10 Citadel with <b style={{ color: theme.text }}>10 of each selected troop type</b>. Copy the bonuses from the attack report into the calculator.</div></div>
           </div>
         </Modal>
 
