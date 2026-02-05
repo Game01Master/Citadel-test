@@ -181,20 +181,30 @@ function Card({ title, children, theme, className }) {
   );
 }
 
-// 🛡️ PICKER
-function TroopPicker({ label, value, options, onChange, theme, inputStyle }) {
+// 🛡️ PICKER - Modificiran za "Locked" stanje umjesto "Disabled"
+function TroopPicker({ label, value, options, onChange, theme, inputStyle, locked, onLockedClick }) {
   const [open, setOpen] = useState(false);
   const display = value ? value : "— Select —";
+
+  // Klik handler
+  const handleClick = () => {
+    if (locked) {
+      if (onLockedClick) onLockedClick();
+    } else {
+      setOpen((v) => !v);
+    }
+  };
 
   return (
     <div style={{ display: "grid", gap: 6 }}>
       <span style={{ color: theme.subtext, fontSize: 12, textTransform: "uppercase", fontWeight: 600 }}>{label}</span>
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={handleClick}
         style={{
           ...inputStyle,
-          textAlign: "left", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, cursor: "pointer",
+          textAlign: "left", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, 
+          cursor: "pointer", // Uvijek pointer da se vidi da je klikabilno
           background: "linear-gradient(180deg, rgba(28,30,38,0.9) 0%, rgba(14,15,18,0.95) 100%)",
           boxShadow: `inset 0 0 0 1px rgba(197,160,89,0.12), 0 10px 22px rgba(0,0,0,0.55)`
         }}
@@ -365,6 +375,7 @@ export default function App() {
   const [strikerBonusPct, setStrikerBonusPct] = useState(() => Array(9).fill(""));
   const [firstHealthBonusPct, setFirstHealthBonusPct] = useState("");
   const [warningMsg, setWarningMsg] = useState("");
+  const [orderWarningMsg, setOrderWarningMsg] = useState(false); // NOVO: Upozorenje za redoslijed
 
   const GROUP_KEYS = useMemo(() => (["CORAX","PHOENIX","PHH_SPEAR","DUEL_HK_SW","VULTURE","ROYAL_LION","GRIFFIN"]), []);
   const [groupBonusPct, setGroupBonusPct] = useState(() => ({
@@ -910,7 +921,7 @@ export default function App() {
                     id="bonus-wall"
                     type="number" step="any" inputMode="decimal" placeholder="0" value={wallKillerBonusPct}
                     onChange={(e) => { setWallKillerBonusPct(e.target.value); setCalcOutput(null); setResultsOpen(false); }}
-                    onKeyDown={(e) => handleEnter(e, "bonus-health-0")} // Goes to First Striker Health (ID may not exist if cleanup, but handles gracefully)
+                    onKeyDown={(e) => handleEnter(e, "bonus-health-0")}
                     style={inputStyle} onFocus={(e) => e.target.select()}
                   />
                 </label>
@@ -928,12 +939,18 @@ export default function App() {
               const opts = optionsForIdx(idx);
               const nextInputId = idx < 8 ? `bonus-str-${idx + 1}` : "btn-calculate-desktop";
 
+              // 🛡️ LOGIKA ZA LOCKED: Ako nije First Striker, a First Striker je prazan -> LOCKED
+              const isFirstStrikerSelected = !!strikerTroops[0];
+              const isLocked = !isFirst && !isFirstStrikerSelected;
+
               return (
                 <Card key={idx} title={`${idx + 1}. ${s.label}`} theme={theme}>
                   <div style={{ display: "grid", gap: 16 }}>
                     <TroopPicker
                       label="Select Troop" value={strikerTroops[idx]} options={opts}
                       onChange={(v) => handleTroopChange(idx, v)} theme={theme} inputStyle={inputStyle}
+                      locked={isLocked} // <--- LOCKED UMJESTO DISABLED
+                      onLockedClick={() => setOrderWarningMsg(true)} // <--- OTVORI POPUP
                     />
 
                     {isFirst && (
@@ -956,6 +973,8 @@ export default function App() {
                         type="number" step="any" inputMode="decimal" placeholder="0" value={strikerBonusPct[idx]}
                         onChange={(e) => setBonusAt(idx, e.target.value)}
                         onKeyDown={(e) => handleEnter(e, nextInputId)}
+                        readOnly={isLocked} // <--- READONLY UMJESTO DISABLED
+                        onClick={() => isLocked && setOrderWarningMsg(true)} // <--- KLIK OTVARA POPUP
                         style={{...inputStyle, borderColor: "rgba(128, 216, 255, 0.4)"}} onFocus={(e) => e.target.select()}
                       />
                     </label>
@@ -985,7 +1004,7 @@ export default function App() {
           }}>
           <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
             <button 
-              id="btn-calculate-mobile" // Optional ID just in case
+              id="btn-calculate-mobile"
               onClick={showResults} 
               style={{
                 width: "100%", padding: "16px", borderRadius: 12, border: "none",
@@ -1003,6 +1022,14 @@ export default function App() {
         <Modal open={!!warningMsg} title="⚠️ Invalid Striker Order" onClose={() => setWarningMsg("")} theme={theme}>
           <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6, color: theme.text, fontSize: 16 }}>{warningMsg}</div>
           <button onClick={() => setWarningMsg("")} style={{ width: "100%", marginTop: 24, padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>OK</button>
+        </Modal>
+
+        {/* --- NOVI POPUP ZA REDOSLIJED --- */}
+        <Modal open={orderWarningMsg} title="⛔ Action Required" onClose={() => setOrderWarningMsg(false)} theme={theme}>
+          <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6, color: theme.text, fontSize: 16 }}>
+            You must select the <b style={{color: theme.accent}}>First Striker</b> before selecting other troops.
+          </div>
+          <button onClick={() => setOrderWarningMsg(false)} style={{ width: "100%", marginTop: 24, padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>OK</button>
         </Modal>
 
         <Modal open={helpOpen} title="ℹ️ Instructions & Help" onClose={() => setHelpOpen(false)} theme={theme}>
