@@ -166,7 +166,7 @@ function Card({ title, children, theme, className }) {
         background: theme.cardBg,
         boxShadow: `${theme.cardShadow}, ${theme.goldGlow}`,
         position: "relative",
-        height: "100%", 
+        height: "100%", // Da se kartice rastegnu u gridu
       }}
     >
       <div style={{position: "absolute", left: 0, top: 16, bottom: 16, width: 3, background: theme.accent, borderRadius: "0 2px 2px 0"}}></div>
@@ -307,57 +307,29 @@ function Row({ label, value, theme, accent }) {
   );
 }
 
-// 🛡️ MODAL - Ažuriran za Sidebar prikaz i brže animacije
-function Modal({ open, title, onClose, children, theme, isDropdown, isSidebar, transparentBackdrop }) {
+// 🛡️ MODAL
+function Modal({ open, title, onClose, children, theme, isDropdown }) {
   if (!open) return null;
-
   return (
     <div
       onClick={onClose}
       style={{
-        position: "fixed", 
-        inset: 0, 
-        // Sidebar i Dropdown logika pozicioniranja
-        background: transparentBackdrop ? "rgba(0,0,0,0.15)" : "rgba(0,0,0,0.45)",
-        display: "flex", 
-        // Ako je sidebar, lijepimo ga lijevo (flex-start). Inače centriramo.
-        justifyContent: isSidebar ? "flex-start" : "center", 
-        alignItems: isSidebar ? "stretch" : "center",
-        padding: isSidebar ? 0 : 20, 
-        zIndex: 9999, 
-        backdropFilter: transparentBackdrop ? "none" : "blur(5px)",
-        // BRZA ANIMACIJA (0.2s)
-        transition: "background 0.2s ease-out" 
+        position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)",
+        display: "flex", alignItems: isDropdown ? "center" : "center", justifyContent: "center",
+        padding: 20, zIndex: 9999, backdropFilter: "blur(5px)",
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: isSidebar ? "340px" : "100%", 
-          maxWidth: isSidebar ? "100%" : 500,
-          // Sidebar je pune visine
-          height: isSidebar ? "100vh" : "auto", 
-          maxHeight: isSidebar ? "100vh" : "80vh",
-          
+          width: "100%", maxWidth: 500,
           background: "linear-gradient(180deg, rgba(24,26,32,0.95) 0%, rgba(14,15,18,0.98) 100%)",
-          color: theme.text,
-          // Sidebar ima zaobljene rubove samo desno
-          borderRadius: isSidebar ? "0 16px 16px 0" : 16, 
+          color: theme.text, borderRadius: 16,
           border: `1px solid ${theme.accent}`,
-          borderLeft: isSidebar ? "none" : `1px solid ${theme.accent}`, // Bez lijevog ruba ako je sidebar
-          
           boxShadow: `0 0 30px rgba(197, 160, 89, 0.18), ${theme.goldGlowStrong}`,
-          display: "flex", 
-          flexDirection: "column",
-          // Animacija ulaska
-          animation: isSidebar ? "slideInLeft 0.25s ease-out" : "fadeInScale 0.2s ease-out"
+          maxHeight: "80vh", display: "flex", flexDirection: "column",
         }}
       >
-        <style>{`
-          @keyframes slideInLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }
-          @keyframes fadeInScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        `}</style>
-
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "rgba(197, 160, 89, 0.05)", borderBottom: `1px solid ${theme.borderSoft}` }}>
           <div style={{ fontWeight: 700, fontSize: 18, fontFamily: "'Cinzel', serif", color: theme.accent, textTransform: "uppercase" }}>{title}</div>
           <button onClick={onClose} style={{ border: "none", background: "transparent", color: theme.text, width: 32, height: 32, fontSize: 24, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
@@ -747,21 +719,6 @@ export default function App() {
           }
         }
 
-        /* --- BRZA ANIMACIJA ZA FOCUS MODE (0.25s umjesto 0.6s) --- */
-        .dashboard-content {
-          transition: opacity 0.25s cubic-bezier(0.25, 1, 0.5, 1), transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), filter 0.25s ease;
-          opacity: 1;
-          transform: scale(1);
-          filter: blur(0px);
-        }
-        
-        .dashboard-content.hidden {
-          opacity: 0;
-          transform: scale(0.98);
-          filter: blur(8px);
-          pointer-events: none;
-        }
-
         /* --- LAYOUT GRID SYSTEM --- */
         .app-container {
           width: 100%;
@@ -842,179 +799,174 @@ export default function App() {
       `}</style>
 
       <div className="app-container">
-        
-        {/* WRAPPER ZA SKRIVANJE KAD SU REZULTATI OTVORENI */}
-        <div className={`dashboard-content ${resultsOpen ? "hidden" : ""}`}>
-          <div style={{ textAlign: "center", marginBottom: 30 }}>
-            <div style={{ 
-              fontWeight: 800, fontSize: 32, textAlign: "center", 
-              background: `linear-gradient(to bottom, #fff, ${theme.accent})`, 
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-              fontFamily: "'Cinzel', serif", textTransform: "uppercase", letterSpacing: 2,
-              filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))"
-            }}>
-              Citadel Calculator
-            </div>
-            <div style={{
-              marginTop: 6, fontSize: 12, fontWeight: 700, letterSpacing: 3,
-              textTransform: "uppercase", color: theme.subtext, opacity: 0.75, fontFamily: "'Inter', sans-serif",
-            }}>
-              by GM
-            </div>
+        <div style={{ textAlign: "center", marginBottom: 30 }}>
+          <div style={{ 
+            fontWeight: 800, fontSize: 32, textAlign: "center", 
+            background: `linear-gradient(to bottom, #fff, ${theme.accent})`, 
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            fontFamily: "'Cinzel', serif", textTransform: "uppercase", letterSpacing: 2,
+            filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))"
+          }}>
+            Citadel Calculator
           </div>
-
-          {/* --- MAIN GRID LAYOUT START --- */}
-          <div className="main-layout-grid">
-            
-            {/* LEFT SIDEBAR (Setup Only) */}
-            <div className="layout-sidebar">
-              <Card title="⚙️ Setup" theme={theme}>
-                <button
-                  onClick={() => setHelpOpen(true)}
-                  style={{
-                    width: "100%", padding: "12px 16px", borderRadius: 10,
-                    border: `1px solid ${theme.border}`, background: theme.btnGhostBg,
-                    color: theme.text, fontWeight: 700, fontSize: 15, marginBottom: 16,
-                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                  }}
-                >
-                  <span>ℹ️</span> Instructions
-                </button>
-
-                <div style={{ display: "grid", gap: 16 }}>
-                  <OptionPicker
-                    label="Do you have M8/M9 troops?"
-                    value={mode}
-                    options={[{ value: MODE_WITHOUT, label: "No" }, { value: MODE_WITH, label: "Yes" }]}
-                    onChange={(v) => handleModeChange(v)}
-                    theme={theme} inputStyle={inputStyle}
-                  />
-                  <OptionPicker
-                    label="Citadel Level"
-                    value={citadelLevel}
-                    options={citadelKeys.map((lvl) => ({ value: lvl, label: `Elven ${lvl}` }))}
-                    onChange={(v) => { setCitadelLevel(v); setCalcOutput(null); setResultsOpen(false); }}
-                    theme={theme} inputStyle={inputStyle}
-                  />
-                  <button onClick={resetSelections}
-                    style={{
-                      width: "100%", padding: "12px 16px", borderRadius: 10,
-                      border: `1px solid ${theme.danger}`, background: "rgba(255, 77, 77, 0.15)",
-                      color: "#ff6b6b", fontWeight: 700, fontSize: 14, cursor: "pointer", marginTop: 8,
-                    }}
-                  >
-                    Reset Troops Selection
-                  </button>
-                </div>
-              </Card>
-
-              {/* DESKTOP CALCULATE BUTTON (Visible only on Desktop) */}
-              <button className="desktop-calc-btn" onClick={showResults} style={{
-                  width: "100%", padding: "20px", borderRadius: 12, border: "none",
-                  background: theme.btnBg, color: theme.btnText,
-                  fontWeight: 900, letterSpacing: 1, fontSize: 20, fontFamily: "'Cinzel', serif",
-                  boxShadow: `0 0 25px rgba(197, 160, 89, 0.45)`, cursor: "pointer",
-                  transition: "transform 0.2s"
-                }}
-              >
-                CALCULATE RESULTS
-              </button>
-            </div>
-
-            {/* RIGHT CONTENT (Wall Killer + Striker Grid) */}
-            <div className="striker-grid">
-              
-              {/* WALL KILLER (Moved here) */}
-              <Card title="🛡️ Wall Killer" theme={theme}>
-                <div style={{ display: "grid", gap: 16 }}>
-                  <TroopPicker
-                    label="Select Troop" value={wallKillerTroop} options={wallKillerPool}
-                    onChange={(v) => { setWallKillerTroop(v); setCalcOutput(null); setResultsOpen(false); }}
-                    theme={theme} inputStyle={inputStyle}
-                  />
-                  <label style={{ display: "grid", gap: 8 }}>
-                    <span style={{ color: theme.subtext, fontWeight: 600, fontSize: 13, textTransform: "uppercase" }}>Strength Bonus (%)</span>
-                    <input type="number" step="any" inputMode="decimal" placeholder="0" value={wallKillerBonusPct}
-                      onChange={(e) => { setWallKillerBonusPct(e.target.value); setCalcOutput(null); setResultsOpen(false); }}
-                      style={inputStyle} onFocus={(e) => e.target.select()}
-                    />
-                  </label>
-                  <div style={{ background: "rgba(0,0,0,0.42)", padding: "12px 16px", borderRadius: 10, border: `1px solid ${theme.border}`, boxShadow: theme.goldGlow }}>
-                      <Row label="Effective Bonus" value={`${fmtInt(wallKiller.effBonus)}%`} theme={theme} accent />
-                      <Row label="Required Troops" value={fmtInt(wallKiller.requiredTroops)} theme={theme} accent />
-                  </div>
-                </div>
-              </Card>
-
-              {/* STRIKERS LOOP */}
-              {perStriker.map((s) => {
-                const idx = s.idx;
-                const isFirst = idx === 0;
-                const opts = optionsForIdx(idx);
-
-                return (
-                  <Card key={idx} title={`${idx + 1}. ${s.label}`} theme={theme}>
-                    <div style={{ display: "grid", gap: 16 }}>
-                      <TroopPicker
-                        label="Select Troop" value={strikerTroops[idx]} options={opts}
-                        onChange={(v) => handleTroopChange(idx, v)} theme={theme} inputStyle={inputStyle}
-                      />
-
-                      {isFirst && (
-                        <label style={{ display: "grid", gap: 8 }}>
-                          <span style={{ color: "#ff8a8a", fontWeight: 700, fontSize: 13, textTransform: "uppercase" }}>Health Bonus (%)</span>
-                          <input type="number" step="any" inputMode="decimal" placeholder="0" value={firstHealthBonusPct}
-                            onChange={(e) => { setFirstHealthBonusPct(e.target.value); setCalcOutput(null); setResultsOpen(false); }}
-                            style={{...inputStyle, borderColor: "rgba(255, 138, 138, 0.4)"}} onFocus={(e) => e.target.select()}
-                          />
-                        </label>
-                      )}
-
-                      <label style={{ display: "grid", gap: 8 }}>
-                        <span style={{ color: "#80d8ff", fontWeight: 700, fontSize: 13, textTransform: "uppercase" }}>Strength Bonus (%)</span>
-                        <input type="number" step="any" inputMode="decimal" placeholder="0" value={strikerBonusPct[idx]}
-                          onChange={(e) => setBonusAt(idx, e.target.value)}
-                          style={{...inputStyle, borderColor: "rgba(128, 216, 255, 0.4)"}} onFocus={(e) => e.target.select()}
-                        />
-                      </label>
-
-                      <div style={{ background: "rgba(0,0,0,0.42)", padding: "12px 16px", borderRadius: 10, border: `1px solid ${theme.border}`, boxShadow: theme.goldGlow }}>
-                          <Row label="Effective Bonus" value={`${fmtInt(s.effBonus)}%`} theme={theme} accent />
-                          <Row label="Required Troops" value={fmtInt(s.requiredTroops)} theme={theme} accent />
-                          {isFirst && (
-                          <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px solid ${theme.borderSoft}` }}>
-                              <Row label="Citadel First Strike Losses" value={fmtInt(firstDeaths)} theme={theme} />
-                          </div>
-                          )}
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-            {/* END RIGHT CONTENT */}
-          </div>
-          {/* --- MAIN GRID LAYOUT END --- */}
-
-          {/* MOBILE BOTTOM BAR (Visible only on Mobile) */}
-          <div className="mobile-bottom-bar" style={{
-              position: "fixed", left: 0, right: 0, bottom: 8, padding: 16,
-              background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99
-            }}>
-            <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
-              <button onClick={showResults} style={{
-                  width: "100%", padding: "16px", borderRadius: 12, border: "none",
-                  background: theme.btnBg, color: theme.btnText,
-                  fontWeight: 900, letterSpacing: 1, fontSize: 18, fontFamily: "'Cinzel', serif",
-                  boxShadow: `0 0 20px rgba(197, 160, 89, 0.4)`, cursor: "pointer",
-                }}
-              >
-                CALCULATE
-              </button>
-            </div>
+          <div style={{
+            marginTop: 6, fontSize: 12, fontWeight: 700, letterSpacing: 3,
+            textTransform: "uppercase", color: theme.subtext, opacity: 0.75, fontFamily: "'Inter', sans-serif",
+          }}>
+            by GM
           </div>
         </div>
-        {/* END DASHBOARD CONTENT WRAPPER */}
+
+        {/* --- MAIN GRID LAYOUT START --- */}
+        <div className="main-layout-grid">
+          
+          {/* LEFT SIDEBAR (Setup Only) */}
+          <div className="layout-sidebar">
+            <Card title="⚙️ Setup" theme={theme}>
+              <button
+                onClick={() => setHelpOpen(true)}
+                style={{
+                  width: "100%", padding: "12px 16px", borderRadius: 10,
+                  border: `1px solid ${theme.border}`, background: theme.btnGhostBg,
+                  color: theme.text, fontWeight: 700, fontSize: 15, marginBottom: 16,
+                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                }}
+              >
+                <span>ℹ️</span> Instructions
+              </button>
+
+              <div style={{ display: "grid", gap: 16 }}>
+                <OptionPicker
+                  label="Do you have M8/M9 troops?"
+                  value={mode}
+                  options={[{ value: MODE_WITHOUT, label: "No" }, { value: MODE_WITH, label: "Yes" }]}
+                  onChange={(v) => handleModeChange(v)}
+                  theme={theme} inputStyle={inputStyle}
+                />
+                <OptionPicker
+                  label="Citadel Level"
+                  value={citadelLevel}
+                  options={citadelKeys.map((lvl) => ({ value: lvl, label: `Elven ${lvl}` }))}
+                  onChange={(v) => { setCitadelLevel(v); setCalcOutput(null); setResultsOpen(false); }}
+                  theme={theme} inputStyle={inputStyle}
+                />
+                <button onClick={resetSelections}
+                  style={{
+                    width: "100%", padding: "12px 16px", borderRadius: 10,
+                    border: `1px solid ${theme.danger}`, background: "rgba(255, 77, 77, 0.15)",
+                    color: "#ff6b6b", fontWeight: 700, fontSize: 14, cursor: "pointer", marginTop: 8,
+                  }}
+                >
+                  Reset Troops Selection
+                </button>
+              </div>
+            </Card>
+
+            {/* DESKTOP CALCULATE BUTTON (Visible only on Desktop) */}
+            <button className="desktop-calc-btn" onClick={showResults} style={{
+                width: "100%", padding: "20px", borderRadius: 12, border: "none",
+                background: theme.btnBg, color: theme.btnText,
+                fontWeight: 900, letterSpacing: 1, fontSize: 20, fontFamily: "'Cinzel', serif",
+                boxShadow: `0 0 25px rgba(197, 160, 89, 0.45)`, cursor: "pointer",
+                transition: "transform 0.2s"
+              }}
+            >
+              CALCULATE
+            </button>
+          </div>
+
+          {/* RIGHT CONTENT (Wall Killer + Striker Grid) */}
+          <div className="striker-grid">
+            
+            {/* WALL KILLER (Moved here) */}
+            <Card title="🛡️ Wall Killer" theme={theme}>
+              <div style={{ display: "grid", gap: 16 }}>
+                <TroopPicker
+                  label="Select Troop" value={wallKillerTroop} options={wallKillerPool}
+                  onChange={(v) => { setWallKillerTroop(v); setCalcOutput(null); setResultsOpen(false); }}
+                  theme={theme} inputStyle={inputStyle}
+                />
+                <label style={{ display: "grid", gap: 8 }}>
+                  <span style={{ color: theme.subtext, fontWeight: 600, fontSize: 13, textTransform: "uppercase" }}>Strength Bonus (%)</span>
+                  <input type="number" step="any" inputMode="decimal" placeholder="0" value={wallKillerBonusPct}
+                    onChange={(e) => { setWallKillerBonusPct(e.target.value); setCalcOutput(null); setResultsOpen(false); }}
+                    style={inputStyle} onFocus={(e) => e.target.select()}
+                  />
+                </label>
+                <div style={{ background: "rgba(0,0,0,0.42)", padding: "12px 16px", borderRadius: 10, border: `1px solid ${theme.border}`, boxShadow: theme.goldGlow }}>
+                    <Row label="Effective Bonus" value={`${fmtInt(wallKiller.effBonus)}%`} theme={theme} accent />
+                    <Row label="Required Troops" value={fmtInt(wallKiller.requiredTroops)} theme={theme} accent />
+                </div>
+              </div>
+            </Card>
+
+            {/* STRIKERS LOOP */}
+            {perStriker.map((s) => {
+              const idx = s.idx;
+              const isFirst = idx === 0;
+              const opts = optionsForIdx(idx);
+
+              return (
+                <Card key={idx} title={`${idx + 1}. ${s.label}`} theme={theme}>
+                  <div style={{ display: "grid", gap: 16 }}>
+                    <TroopPicker
+                      label="Select Troop" value={strikerTroops[idx]} options={opts}
+                      onChange={(v) => handleTroopChange(idx, v)} theme={theme} inputStyle={inputStyle}
+                    />
+
+                    {isFirst && (
+                      <label style={{ display: "grid", gap: 8 }}>
+                        <span style={{ color: "#ff8a8a", fontWeight: 700, fontSize: 13, textTransform: "uppercase" }}>Health Bonus (%)</span>
+                        <input type="number" step="any" inputMode="decimal" placeholder="0" value={firstHealthBonusPct}
+                          onChange={(e) => { setFirstHealthBonusPct(e.target.value); setCalcOutput(null); setResultsOpen(false); }}
+                          style={{...inputStyle, borderColor: "rgba(255, 138, 138, 0.4)"}} onFocus={(e) => e.target.select()}
+                        />
+                      </label>
+                    )}
+
+                    <label style={{ display: "grid", gap: 8 }}>
+                      <span style={{ color: "#80d8ff", fontWeight: 700, fontSize: 13, textTransform: "uppercase" }}>Strength Bonus (%)</span>
+                      <input type="number" step="any" inputMode="decimal" placeholder="0" value={strikerBonusPct[idx]}
+                        onChange={(e) => setBonusAt(idx, e.target.value)}
+                        style={{...inputStyle, borderColor: "rgba(128, 216, 255, 0.4)"}} onFocus={(e) => e.target.select()}
+                      />
+                    </label>
+
+                    <div style={{ background: "rgba(0,0,0,0.42)", padding: "12px 16px", borderRadius: 10, border: `1px solid ${theme.border}`, boxShadow: theme.goldGlow }}>
+                        <Row label="Effective Bonus" value={`${fmtInt(s.effBonus)}%`} theme={theme} accent />
+                        <Row label="Required Troops" value={fmtInt(s.requiredTroops)} theme={theme} accent />
+                        {isFirst && (
+                        <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px solid ${theme.borderSoft}` }}>
+                            <Row label="Citadel First Strike Losses" value={fmtInt(firstDeaths)} theme={theme} />
+                        </div>
+                        )}
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+          {/* END RIGHT CONTENT */}
+        </div>
+        {/* --- MAIN GRID LAYOUT END --- */}
+
+        {/* MOBILE BOTTOM BAR (Visible only on Mobile) */}
+        <div className="mobile-bottom-bar" style={{
+            position: "fixed", left: 0, right: 0, bottom: 8, padding: 16,
+            background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99
+          }}>
+          <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
+            <button onClick={showResults} style={{
+                width: "100%", padding: "16px", borderRadius: 12, border: "none",
+                background: theme.btnBg, color: theme.btnText,
+                fontWeight: 900, letterSpacing: 1, fontSize: 18, fontFamily: "'Cinzel', serif",
+                boxShadow: `0 0 20px rgba(197, 160, 89, 0.4)`, cursor: "pointer",
+              }}
+            >
+              CALCULATE
+            </button>
+          </div>
+        </div>
 
         {/* MODALS */}
         <Modal open={!!warningMsg} title="⚠️ Invalid Striker Order" onClose={() => setWarningMsg("")} theme={theme}>
@@ -1034,15 +986,7 @@ export default function App() {
           </div>
         </Modal>
 
-        {/* RESULTS MODAL - isSidebar=true */}
-        <Modal 
-            open={resultsOpen} 
-            title="📋 Calculated Results" 
-            onClose={() => setResultsOpen(false)} 
-            theme={theme} 
-            transparentBackdrop={true} 
-            isSidebar={true}
-        >
+        <Modal open={resultsOpen} title="📋 Calculated Results" onClose={() => setResultsOpen(false)} theme={theme}>
           {calcOutput ? (
             <>
               <div style={{ background: "rgba(0,0,0,0.32)", padding: 16, borderRadius: 12, marginBottom: 20, border: `1px solid ${theme.border}`, boxShadow: theme.goldGlow }}>
