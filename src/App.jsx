@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
+import { createPortal } from "react-dom"; // BITNO: Dodan import za Portal
 import TB from "./tb_data.json";
 
 // --- GAMING FONTOVI ---
@@ -166,7 +167,7 @@ function Card({ title, children, theme, className }) {
         background: theme.cardBg,
         boxShadow: `${theme.cardShadow}, ${theme.goldGlow}`,
         position: "relative",
-        height: "100%", // Da se kartice rastegnu u gridu
+        height: "100%", 
       }}
     >
       <div style={{position: "absolute", left: 0, top: 16, bottom: 16, width: 3, background: theme.accent, borderRadius: "0 2px 2px 0"}}></div>
@@ -317,16 +318,19 @@ function Row({ label, value, theme, accent }) {
   );
 }
 
-// 🛡️ MODAL
+// 🛡️ MODAL - SADA KORISTI REACT PORTAL 🛡️
 function Modal({ open, title, onClose, children, theme, isDropdown }) {
   if (!open) return null;
-  return (
+  
+  // Koristimo createPortal da modal "pobjegne" iz svog roditeljskog containera
+  // i renderira se direktno u body elementu. Tako je uvijek na vrhu (z-index radi ispravno).
+  return createPortal(
     <div
       onClick={onClose}
       style={{
         position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)",
         display: "flex", alignItems: isDropdown ? "center" : "center", justifyContent: "center",
-        padding: 20, zIndex: 9999, backdropFilter: "blur(5px)",
+        padding: 20, zIndex: 99999, backdropFilter: "blur(5px)", // Povećan Z-Index
       }}
     >
       <div
@@ -346,7 +350,8 @@ function Modal({ open, title, onClose, children, theme, isDropdown }) {
         </div>
         <div style={{ padding: 16, overflowY: "auto", flex: 1 }}>{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -375,7 +380,7 @@ export default function App() {
   const [strikerBonusPct, setStrikerBonusPct] = useState(() => Array(9).fill(""));
   const [firstHealthBonusPct, setFirstHealthBonusPct] = useState("");
   const [warningMsg, setWarningMsg] = useState("");
-  const [orderWarningMsg, setOrderWarningMsg] = useState(false); // NOVO: Upozorenje za redoslijed
+  const [orderWarningMsg, setOrderWarningMsg] = useState(false);
 
   const GROUP_KEYS = useMemo(() => (["CORAX","PHOENIX","PHH_SPEAR","DUEL_HK_SW","VULTURE","ROYAL_LION","GRIFFIN"]), []);
   const [groupBonusPct, setGroupBonusPct] = useState(() => ({
@@ -900,7 +905,7 @@ export default function App() {
                 transition: "transform 0.2s"
               }}
             >
-              CALCULATE
+              CALCULATE RESULTS
             </button>
           </div>
 
