@@ -742,7 +742,7 @@ export default function App() {
       <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", zIndex: 0, pointerEvents: "none" }} />
 
       <style>{`
-        html, body, #root { width: 100%; max-width: 100%; margin: 0; padding: 0; }
+        html, body, #root { width: 100%; max-width: 100%; margin: 0; padding: 0; overflow-x: hidden; }
         #root { display: block; }
         *, *::before, *::after { box-sizing: border-box; }
         :root { color-scheme: dark; }
@@ -792,11 +792,12 @@ export default function App() {
           pointer-events: none; 
         }
 
-        /* 3. Mobile Button fade in (posebno jer je izvan content-wrapper) */
+        /* 3. Mobile Button fade in */
         .mobile-bottom-bar {
           transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
           opacity: 1;
           transform: translateY(0);
+          box-sizing: border-box; /* OBAVEZNO */
         }
         .mobile-bottom-bar.hidden {
           opacity: 0;
@@ -1064,7 +1065,7 @@ export default function App() {
 
         {/* MOBILE BOTTOM BAR (Visible only on Mobile) - IZVUČEN IZVAN CONTENT WRAPPERA ZA FIX POZICIJU */}
         <div className={`mobile-bottom-bar ${introFinished ? "visible" : "hidden"}`} style={{
-            position: "fixed", left: 0, right: 0, bottom: 9, padding: 16,
+            position: "fixed", left: 0, width: "100%", bottom: 9, padding: 16, // FIX: width 100% instead of right:0
             background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99
           }}>
           <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
