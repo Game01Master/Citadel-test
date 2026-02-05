@@ -905,7 +905,7 @@ export default function App() {
                 transition: "transform 0.2s"
               }}
             >
-              CALCULATE RESULTS
+              CALCULATE
             </button>
           </div>
 
