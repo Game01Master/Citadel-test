@@ -871,8 +871,7 @@ export default function App() {
         @media (min-width: 768px) {
           body {
             background-image: url("/bg-desktop.jpg") !important;
-          }
-        }
+       }}
     >
       {/* Overlay za čitljivost */}
       <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", zIndex: 0, pointerEvents: "none" }} />
