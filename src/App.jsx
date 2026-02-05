@@ -850,19 +850,29 @@ export default function App() {
   };
 
   return (
-    <div
-      style={{
-        width: "100%",
-        minHeight: "100vh",
-        background: theme.pageBg,
-        // DODANA POZADINA
-        backgroundImage: "url('./bg.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundAttachment: "fixed",
-        color: theme.text,
-        fontFamily: "'Inter', sans-serif",
-      }}
+    <div style={{ width: "100%", minHeight: "100vh", color: theme.text, fontFamily: "'Inter', sans-serif", position: "relative" }}>
+      <style>{`
+        html, body { 
+          margin: 0; 
+          padding: 0; 
+          min-height: 100vh;
+          background-color: #050505 !important; /* Sigurnosna boja */
+        }
+
+        body {
+          background-attachment: fixed !important;
+          background-size: cover !important;
+          background-position: center !important;
+          background-repeat: no-repeat !important;
+          /* KORISTIMO / ZA PUBLIC MAPU */
+          background-image: url("/bg.jpg") !important; 
+        }
+
+        @media (min-width: 768px) {
+          body {
+            background-image: url("/bg-desktop.jpg") !important;
+          }
+        }
     >
       {/* Overlay za čitljivost */}
       <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", zIndex: 0, pointerEvents: "none" }} />
