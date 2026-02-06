@@ -194,7 +194,6 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle, locke
       if (onLockedClick) onLockedClick();
     } else {
       if (buttonRef.current) {
-        // Capture rect for positioning
         setAnchorRect(buttonRef.current.getBoundingClientRect());
       }
       setOpen((v) => !v);
@@ -335,32 +334,51 @@ function Row({ label, value, theme, accent }) {
   );
 }
 
-// 🛡️ MODAL / POPOVER
+// 🛡️ MODAL - SA PAMETNIM POZICIONIRANJEM (Flip Up/Down)
 function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }) {
   if (!open) return null;
   
   const isPopover = !!anchorRect;
+  let popoverStyle = {};
 
-  // Izračunaj poziciju na temelju gumba i scrolla stranice
-  // SADA: Width je isti kao gumb, pozicija je točno ispod njega.
-  const popoverStyle = isPopover ? {
-      position: "absolute",
-      top: anchorRect.bottom + window.scrollY + 8, 
-      left: anchorRect.left + window.scrollX,
-      width: anchorRect.width,  // <-- ISTA ŠIRINA KAO GUMB
-      minWidth: "200px", // Backup
-      maxWidth: "none",
-      maxHeight: "350px",
-      margin: 0,
-      transform: "none",
-      zIndex: 99999,
-  } : {
-      // Default Centered Style (za rezultate)
-      position: "relative",
-      width: "100%", 
-      maxWidth: 500,
-      maxHeight: "80vh",
-  };
+  if (isPopover) {
+      // 📐 LOGIKA: Ima li mjesta dolje?
+      const spaceBelow = window.innerHeight - anchorRect.bottom;
+      const neededHeight = 350; // Max visina drop-downa
+      const openUpwards = spaceBelow < neededHeight && anchorRect.top > spaceBelow;
+
+      if (openUpwards) {
+          // OTVORI PREMA GORE (Above)
+          popoverStyle = {
+              position: "absolute",
+              bottom: window.innerHeight - anchorRect.top + 8, // +8 razmaka
+              left: anchorRect.left + window.scrollX,
+              width: anchorRect.width, 
+              minWidth: "200px",
+              maxHeight: "350px",
+              zIndex: 99999,
+          };
+      } else {
+          // OTVORI PREMA DOLJE (Below)
+          popoverStyle = {
+              position: "absolute",
+              top: anchorRect.bottom + window.scrollY + 8, 
+              left: anchorRect.left + window.scrollX,
+              width: anchorRect.width, 
+              minWidth: "200px",
+              maxHeight: Math.min(350, spaceBelow - 20) + "px", // Ograniči da ne ode van ekrana
+              zIndex: 99999,
+          };
+      }
+  } else {
+      // STANDARD CENTRIRANI MODAL (Rezultati, Instrukcije)
+      popoverStyle = {
+          position: "relative",
+          width: "100%", 
+          maxWidth: 500,
+          maxHeight: "80vh",
+      };
+  }
 
   return createPortal(
     <div
@@ -368,7 +386,7 @@ function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }
       style={{
         position: isPopover ? "absolute" : "fixed", 
         inset: 0, 
-        height: isPopover ? "100%" : "100vh", // Full height dokumenta za absolute
+        height: isPopover ? "100%" : "100vh", 
         background: isPopover ? "transparent" : "rgba(0,0,0,0.7)",
         display: isPopover ? "block" : "flex",
         alignItems: "center", justifyContent: "center",
@@ -408,7 +426,8 @@ export default function App() {
   const theme = useMemo(() => makeTheme(isDark), [isDark]);
 
   const [introFinished, setIntroFinished] = useState(false);
-  const [instructionsAnchor, setInstructionsAnchor] = useState(null);
+  // UKLONIO SAM anchor state za instrukcije
+  // const [instructionsAnchor, setInstructionsAnchor] = useState(null); 
 
   useEffect(() => {
     if ('scrollRestoration' in window.history) {
@@ -779,10 +798,8 @@ export default function App() {
     }
   };
 
-  // Handler za otvaranje instrukcija (da budu pozicionirane)
+  // 1. POPRAVAK ZA HELP (Nema sidra, standardni modal)
   const handleInstructionsOpen = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setInstructionsAnchor(rect);
     setHelpOpen(true);
   };
 
@@ -1162,8 +1179,8 @@ export default function App() {
           <button onClick={() => setOrderWarningMsg(false)} style={{ width: "100%", marginTop: 24, padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>OK</button>
         </Modal>
 
-        {/* --- INSTRUCTIONS MODAL (WITH ANCHOR) --- */}
-        <Modal open={helpOpen} title="ℹ️ Instructions & Help" onClose={() => setHelpOpen(false)} theme={theme} anchorRect={instructionsAnchor}>
+        {/* --- INSTRUCTIONS MODAL (VRAĆEN NA STANDARD) --- */}
+        <Modal open={helpOpen} title="ℹ️ Instructions & Help" onClose={() => setHelpOpen(false)} theme={theme}>
           <div style={{ color: theme.text, lineHeight: 1.6, fontSize: 15, display: "grid", gap: 20 }}>
             <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🎯 Goal</div><div style={{ color: theme.subtext }}>Use the correct troops and bonuses to minimize losses when attacking a Citadel. I took care of the proper troops selection.</div></div>
             <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.danger }}>❗ Most Important Rule</div><div style={{ color: theme.subtext, borderLeft: `4px solid ${theme.danger}`, paddingLeft: 12 }}>Maximize <b style={{ color: theme.text }}>First Striker Health</b>. In a proper attack, the First Striker is the only troop group that should take losses.<br /><br />The number of <b style={{ color: theme.text }}>FIRST STRIKER</b> troops <b style={{ color: theme.text }}> CAN</b> be higher than calculated. All other troops <b style={{ color: theme.text }}>MUST</b> be used in the exact number as calculated.</div></div>
