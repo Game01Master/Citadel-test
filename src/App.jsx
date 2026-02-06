@@ -852,6 +852,7 @@ export default function App() {
     }
   };
 
+  // Handler za otvaranje instrukcija (da budu pozicionirane)
   const handleInstructionsOpen = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setInstructionsAnchor(rect);
@@ -872,18 +873,19 @@ export default function App() {
       <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", zIndex: 0, pointerEvents: "none" }} />
 
       <style>{`
-        /* --- 1. POPRAVAK ZA MOBILNI HORIZONTALNI SCROLL --- */
+        /* --- 1. GLOBALNO FIX ZA MOBILNI SCROLL (Ali samo na html/body) --- */
         html, body {
           width: 100%;
           max-width: 100%;
           margin: 0;
           padding: 0;
-          overflow-x: hidden; /* KLJUČNO: Samo ovdje, ne na #root */
+          overflow-x: hidden; /* KLJUČNO ZA MOBILNI FIX */
         }
         
         #root { 
           display: block; 
           width: 100%;
+          /* Ovdje NEMA overflow: hidden da ne pokvari sticky na desktopu */
         }
         
         *, *::before, *::after { box-sizing: border-box; }
@@ -897,6 +899,7 @@ export default function App() {
           background-attachment: fixed;
           transition: background-image 0.3s ease-in-out;
           min-height: 100vh;
+          /* Ovdje NEMA overflow: hidden */
         }
         @media (min-width: 768px) {
           .app-background {
@@ -904,28 +907,26 @@ export default function App() {
           }
         }
 
-        /* --- INTRO ANIMATION STYLES (UKLONJEN SCALE) --- */
+        /* --- INTRO ANIMATION STYLES (BEZ SCALE) --- */
         
-        /* 1. Header se miče gore */
         .header-wrapper {
           transition: transform 2.0s cubic-bezier(0.25, 1, 0.5, 1);
           will-change: transform;
           position: relative; 
           z-index: 10;
           width: 100%;
-          max-width: 100vw; /* Osiguranje */
+          max-width: 100vw;
         }
 
         .app-loading .header-wrapper {
-          /* FIX: Uklonjen scale(1.3) jer je širio ekran */
-          transform: translateY(40vh); 
+          /* UKLONJEN SCALE(1.3) DA NE ŠIRI EKRAN */
+          transform: translateY(40vh);
         }
 
         .app-loaded .header-wrapper {
           transform: translateY(0);
         }
 
-        /* 2. Content fade in */
         .content-wrapper {
           transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
           opacity: 1;
@@ -939,7 +940,6 @@ export default function App() {
           pointer-events: none; 
         }
 
-        /* 3. Mobile Button fade in */
         .mobile-bottom-bar {
           transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
           opacity: 1;
@@ -957,7 +957,7 @@ export default function App() {
           width: 100%;
           max-width: 600px;
           margin: 0 auto;
-          /* FIX: Padding dolje 100px na mobitelu da se vidi licenca iznad gumba */
+          /* FIX: Veći padding dolje (100px) da gumb ne prekrije footer */
           padding: 20px 16px 100px 16px; 
           position: relative;
           z-index: 1;
@@ -974,10 +974,9 @@ export default function App() {
             display: grid;
             grid-template-columns: 360px 1fr;
             gap: 24px;
-            align-items: start; /* KLJUČNO ZA STICKY SIDEBAR */
+            align-items: start; 
           }
 
-          /* --- STICKY SIDEBAR (RADI JER NEMA OVERFLOW HIDDEN NA PARENTU) --- */
           .layout-sidebar {
             position: sticky;
             top: 20px;
@@ -994,18 +993,15 @@ export default function App() {
             gap: 16px;
           }
 
-          /* Hide Mobile Bottom Bar on Desktop */
           .mobile-bottom-bar {
             display: none !important;
           }
 
-          /* Show Desktop Calculate Button */
           .desktop-calc-btn {
             display: block !important;
           }
         }
 
-        /* Mobile specific adjustments */
         @media (max-width: 1099px) {
           .main-layout-grid {
             display: flex;
@@ -1215,9 +1211,9 @@ export default function App() {
         </div>
         {/* END CONTENT WRAPPER */}
 
-        {/* MOBILE BOTTOM BAR (Visible only on Mobile) */}
+        {/* MOBILE BOTTOM BAR (Visible only on Mobile) - FIX: width auto, left/right 0 */}
         <div className={`mobile-bottom-bar ${introFinished ? "visible" : "hidden"}`} style={{
-            position: "fixed", left: 0, right: 0, width: "auto", bottom: 9, padding: "0 16px", // FIX: width auto, left/right 0
+            position: "fixed", left: 0, right: 0, width: "auto", bottom: 9, padding: "0 16px", 
             background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99,
             boxSizing: "border-box"
           }}>
