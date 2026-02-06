@@ -182,14 +182,14 @@ function Card({ title, children, theme, className }) {
   );
 }
 
-// 🛡️ PICKER - SADA ŠALJE POZICIJU GUMBA
+// 🛡️ PICKER
 function TroopPicker({ label, value, options, onChange, theme, inputStyle, locked, onLockedClick }) {
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState(null);
   const buttonRef = useRef(null);
   const display = value ? value : "— Select —";
 
-  const handleClick = (e) => {
+  const handleClick = () => {
     if (locked) {
       if (onLockedClick) onLockedClick();
     } else {
@@ -230,7 +230,6 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle, locke
         <span style={{ color: theme.accent, fontSize: 14 }}>▼</span>
       </button>
       
-      {/* PREDSTAVLJAMO ANCHOR RECT MODALU */}
       <Modal open={open} title={`Select ${label}`} onClose={() => setOpen(false)} theme={theme} isDropdown={true} anchorRect={anchorRect}>
         <div style={{ display: "grid", gap: 6 }}>
           {options.map((opt) => {
@@ -273,6 +272,7 @@ function OptionPicker({ label, value, options, onChange, theme, inputStyle }) {
   const selected = options.find((o) => o.value === value);
   const display = selected ? selected.label : "— Select —";
 
+  // --- POPRAVAK: SADA ISPRAVNO UZIMA POZICIJU GUMBA ---
   const handleClick = () => {
     if (buttonRef.current) {
         setAnchorRect(buttonRef.current.getBoundingClientRect());
@@ -286,7 +286,7 @@ function OptionPicker({ label, value, options, onChange, theme, inputStyle }) {
       <button
         ref={buttonRef}
         type="button"
-        onClick={handleClick}
+        onClick={handleClick} // <--- POPRAVLJENO
         style={{
           ...inputStyle,
           textAlign: "left", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, cursor: "pointer",
@@ -339,23 +339,22 @@ function Row({ label, value, theme, accent }) {
 function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }) {
   if (!open) return null;
   
-  // Ako imamo anchorRect, prikazujemo modal točno iznad/na elementu
   const isPopover = !!anchorRect;
 
-  // Izračun pozicije ako je popover
+  // --- POPRAVAK: UKLONJENO window.scrollY/scrollX jer je position: fixed ---
   const popoverStyle = isPopover ? {
       position: "absolute",
-      top: window.scrollY + anchorRect.bottom + 8, // Malo ispod gumba
-      left: window.scrollX + anchorRect.left,
-      width: anchorRect.width, // Iste širine kao gumb
+      top: anchorRect.bottom + 8, // viewport coordinates
+      left: anchorRect.left,      // viewport coordinates
+      width: anchorRect.width, 
       maxWidth: "none",
       maxHeight: "300px",
       margin: 0,
       transform: "none",
       zIndex: 99999,
   } : {
-      // Default Centered Style (za rezultate ili ako nema anchora)
-      position: "relative", // Unutar flex containera
+      // Default Centered Style
+      position: "relative",
       width: "100%", 
       maxWidth: 500,
       maxHeight: "80vh",
@@ -366,8 +365,8 @@ function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }
       onClick={onClose}
       style={{
         position: "fixed", inset: 0, 
-        background: isPopover ? "transparent" : "rgba(0,0,0,0.6)", // Prozirno za popover, tamno za modal
-        display: isPopover ? "block" : "flex", // Block za absolute positioning, Flex za centriranje
+        background: isPopover ? "transparent" : "rgba(0,0,0,0.6)",
+        display: isPopover ? "block" : "flex",
         alignItems: "center", justifyContent: "center",
         padding: isPopover ? 0 : 20, 
         zIndex: 99999, 
@@ -386,7 +385,6 @@ function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }
           overflow: "hidden"
         }}
       >
-        {/* Header samo ako NIJE popover (dropdown ne treba veliki header) */}
         {!isPopover && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "rgba(197, 160, 89, 0.05)", borderBottom: `1px solid ${theme.borderSoft}` }}>
             <div style={{ fontWeight: 700, fontSize: 18, fontFamily: "'Cinzel', serif", color: theme.accent, textTransform: "uppercase" }}>{title}</div>
@@ -405,10 +403,7 @@ export default function App() {
   const isDark = usePrefersDark();
   const theme = useMemo(() => makeTheme(isDark), [isDark]);
 
-  // --- INTRO ANIMATION STATE ---
   const [introFinished, setIntroFinished] = useState(false);
-
-  // REFS ZA INSTRUCTIJE
   const setupCardRef = useRef(null);
   const [instructionsAnchor, setInstructionsAnchor] = useState(null);
 
@@ -1126,7 +1121,7 @@ export default function App() {
 
         {/* MOBILE BOTTOM BAR (Visible only on Mobile) - IZVUČEN IZVAN CONTENT WRAPPERA ZA FIX POZICIJU */}
         <div className={`mobile-bottom-bar ${introFinished ? "visible" : "hidden"}`} style={{
-            position: "fixed", left: 0, width: "100%", bottom: 9, padding: 16, 
+            position: "fixed", left: 0, width: "100%", bottom: 9, padding: 16, // FIX: width 100% instead of right:0
             background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99
           }}>
           <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
