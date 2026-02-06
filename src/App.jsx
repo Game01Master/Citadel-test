@@ -182,7 +182,7 @@ function Card({ title, children, theme, className }) {
   );
 }
 
-// 🛡️ PICKER (CENTERED VERTICALLY, ALIGNED HORIZONTALLY)
+// 🛡️ PICKER (TROOPS - POPUP CENTERED)
 function TroopPicker({ label, value, options, onChange, theme, inputStyle, locked, onLockedClick }) {
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState(null);
@@ -194,7 +194,6 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle, locke
       if (onLockedClick) onLockedClick();
     } else {
       if (buttonRef.current) {
-        // Capture rect for horizontal positioning
         setAnchorRect(buttonRef.current.getBoundingClientRect());
       }
       setOpen((v) => !v);
@@ -231,7 +230,8 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle, locke
         <span style={{ color: theme.accent, fontSize: 14 }}>▼</span>
       </button>
       
-      <Modal open={open} title={`Select ${label}`} onClose={() => setOpen(false)} theme={theme} isDropdown={true} anchorRect={anchorRect}>
+      {/* MODE = TROOP (Centrirano vertikalno, poravnato horizontalno) */}
+      <Modal open={open} title={`Select ${label}`} onClose={() => setOpen(false)} theme={theme} mode="troop" anchorRect={anchorRect}>
         <div style={{ display: "grid", gap: 6 }}>
           {options.map((opt) => {
             const isBlank = opt === "";
@@ -265,7 +265,7 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle, locke
   );
 }
 
-// 🛡️ OPTION PICKER (CENTERED VERTICALLY, ALIGNED HORIZONTALLY)
+// 🛡️ OPTION PICKER (SETUP - DROPDOWN STYLE)
 function OptionPicker({ label, value, options, onChange, theme, inputStyle }) {
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState(null);
@@ -299,7 +299,9 @@ function OptionPicker({ label, value, options, onChange, theme, inputStyle }) {
         </span>
         <span style={{ color: theme.accent, fontSize: 14 }}>▼</span>
       </button>
-      <Modal open={open} title={label} onClose={() => setOpen(false)} theme={theme} isDropdown={true} anchorRect={anchorRect}>
+
+      {/* MODE = DROPDOWN (Ispod gumba) */}
+      <Modal open={open} title={label} onClose={() => setOpen(false)} theme={theme} mode="dropdown" anchorRect={anchorRect}>
         <div style={{ display: "grid", gap: 6 }}>
           {options.map((opt) => {
             const isSelected = opt.value === value;
@@ -335,31 +337,44 @@ function Row({ label, value, theme, accent }) {
   );
 }
 
-// 🛡️ MODAL - POPRAVLJEN ZA CENTRIRANI POPUP NA SREDINI EKRANA
-function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }) {
+// 🛡️ MODAL - UNIVERZALNI (3 NAČINA RADA)
+function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
   if (!open) return null;
   
-  const isPopover = !!anchorRect;
+  // mode: "dropdown" | "troop" | undefined (center)
+  
   let popoverStyle = {};
 
-  if (isPopover) {
-      // 📐 LOGIKA: 
-      // 1. Vertikalno: Sredina ekrana (Fixed 50%)
-      // 2. Horizontalno: Poravnato s gumbom (Left = anchor.left)
+  if (mode === "dropdown" && anchorRect) {
+      // 1. DROPDOWN STYLE (Za Setup) - Ispod gumba
+      popoverStyle = {
+          position: "fixed",
+          top: anchorRect.bottom + 6,
+          left: anchorRect.left,
+          width: anchorRect.width,
+          minWidth: "200px",
+          maxHeight: "350px",
+          zIndex: 99999,
+          margin: 0,
+      };
+
+  } else if (mode === "troop" && anchorRect) {
+      // 2. TROOP STYLE (Za Grid) - Vertikalno centrirano, Horizontalno poravnato
       popoverStyle = {
           position: "fixed",
           top: "50%", 
           left: anchorRect.left,
           width: anchorRect.width, 
-          minWidth: "250px", // Backup ako je gumb preuzak
+          minWidth: "250px", // Backup
           maxWidth: "400px",
-          transform: "translateY(-50%)", // Ključno za vertikalno centriranje
+          transform: "translateY(-50%)", // Vertikalno centriranje
           maxHeight: "80vh",
           zIndex: 99999,
           margin: 0,
       };
+
   } else {
-      // STANDARD CENTRIRANI MODAL (Rezultati, Instrukcije)
+      // 3. STANDARD CENTER (Results, Instructions)
       popoverStyle = {
           position: "relative",
           width: "100%", 
@@ -368,19 +383,22 @@ function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }
       };
   }
 
+  const isOverlay = !mode; // Samo standard modal ima full screen overlay
+  // Ako je dropdown/troop, koristimo nevidljivi overlay ili prozirni da uhvatimo klik vani
+
   return createPortal(
     <div
       onClick={onClose}
       style={{
         position: "fixed",
         inset: 0, 
-        // Ako je popover, i dalje želimo tamnu pozadinu da fokusiramo pažnju, ali možda prozirniju
-        background: "rgba(0,0,0,0.6)", 
-        display: isPopover ? "block" : "flex",
+        // Ako je standard modal -> taman. Ako je dropdown/troop -> proziran (samo za close on click outside)
+        background: isOverlay ? "rgba(0,0,0,0.7)" : "transparent",
+        display: isOverlay ? "flex" : "block", // Flex za centriranje standardnog modala
         alignItems: "center", justifyContent: "center",
-        padding: isPopover ? 0 : 20, 
+        padding: isOverlay ? 20 : 0, 
         zIndex: 99990, 
-        backdropFilter: "blur(3px)", // Blur za fokus
+        backdropFilter: isOverlay ? "blur(5px)" : "none",
       }}
     >
       <div
@@ -395,13 +413,15 @@ function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }
           overflow: "hidden"
         }}
       >
-        {/* HEADER JE SADA UVIJEK VIDLJIV (i za Dropdown i za Modal) */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "rgba(197, 160, 89, 0.05)", borderBottom: `1px solid ${theme.borderSoft}` }}>
+        {/* HEADER */}
+        {mode !== "dropdown" && ( // Dropdown obično nema "X" header, ali trupe i modal imaju
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "rgba(197, 160, 89, 0.05)", borderBottom: `1px solid ${theme.borderSoft}` }}>
             <div style={{ fontWeight: 700, fontSize: 18, fontFamily: "'Cinzel', serif", color: theme.accent, textTransform: "uppercase" }}>{title}</div>
             <button onClick={onClose} style={{ border: "none", background: "transparent", color: theme.text, width: 32, height: 32, fontSize: 24, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
-        </div>
+            </div>
+        )}
         
-        <div style={{ padding: 16, overflowY: "auto", flex: 1 }}>{children}</div>
+        <div style={{ padding: mode === "dropdown" ? 6 : 16, overflowY: "auto", flex: 1 }}>{children}</div>
       </div>
     </div>,
     document.body
