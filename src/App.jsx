@@ -2,46 +2,6 @@ import React, { useMemo, useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import TB from "./tb_data.json";
 
-// ==========================================
-// 1. IMPORT ASSETS (SLIKE I IKONE)
-// ==========================================
-
-import bgMobile from "./assets/bg.webp";
-import bgDesktop from "./assets/bg-desktop.webp";
-
-import iconCorax2 from "./assets/icons/Corax II.png";
-import iconCorax1 from "./assets/icons/Corax I.png";
-import iconGriffin7 from "./assets/icons/Griffin VII.png";
-import iconGriffin6 from "./assets/icons/Griffin VI.png";
-import iconGriffin5 from "./assets/icons/Griffin V.png";
-import iconWyvern from "./assets/icons/Wyvern.png";
-import iconWarregal from "./assets/icons/Warregal.png";
-import iconJago from "./assets/icons/Jago.png";
-import iconEpicMonsterHunter from "./assets/icons/Epic Monster Hunter.png";
-import iconRoyalLion2 from "./assets/icons/Royal Lion II.png";
-import iconRoyalLion1 from "./assets/icons/Royal Lion I.png";
-import iconVulture7 from "./assets/icons/Vulture VII.png";
-import iconVulture6 from "./assets/icons/Vulture VI.png";
-import iconVulture5 from "./assets/icons/Vulture V.png";
-import iconFirePhoenix2 from "./assets/icons/Fire Phoenix II.png";
-import iconFirePhoenix1 from "./assets/icons/Fire Phoenix I.png";
-import iconManticore from "./assets/icons/Manticore.png";
-import iconAriel from "./assets/icons/Ariel.png";
-import iconJosephine2 from "./assets/icons/Josephine II.png";
-import iconJosephine1 from "./assets/icons/Josephine I.png";
-import iconSiege7 from "./assets/icons/Siege Ballistae VII.png";
-import iconSiege6 from "./assets/icons/Siege Ballistae VI.png";
-import iconCatapult5 from "./assets/icons/Catapult V.png";
-import iconCatapult4 from "./assets/icons/Catapult IV.png";
-import iconPunisher1 from "./assets/icons/Punisher I.png";
-import iconHeavyHalb7 from "./assets/icons/Heavy Halberdier VII.png";
-import iconHeavyHalb6 from "./assets/icons/Heavy Halberdier VI.png";
-import iconSpearmen5 from "./assets/icons/Spearmen V.png";
-import iconDuelist1 from "./assets/icons/Duelist I.png";
-import iconHeavyKnight7 from "./assets/icons/Heavy Knight VII.png";
-import iconHeavyKnight6 from "./assets/icons/Heavy Knight VI.png";
-import iconSwordsmen5 from "./assets/icons/Swordsmen V.png";
-
 // --- GAMING FONTOVI ---
 const fontLink = document.createElement("link");
 fontLink.href = "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Inter:wght@300;400;600;800&display=swap";
@@ -107,44 +67,26 @@ function normName(s) {
   return String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
 }
 
-const ICON_MAP = {
-  "Corax II": iconCorax2,
-  "Corax I": iconCorax1,
-  "Griffin VII": iconGriffin7,
-  "Griffin VI": iconGriffin6,
-  "Griffin V": iconGriffin5,
-  "Wyvern": iconWyvern,
-  "Warregal": iconWarregal,
-  "Jago": iconJago,
-  "Epic Monster Hunter": iconEpicMonsterHunter,
-  "Royal Lion II": iconRoyalLion2,
-  "Royal Lion I": iconRoyalLion1,
-  "Vulture VII": iconVulture7,
-  "Vulture VI": iconVulture6,
-  "Vulture V": iconVulture5,
-  "Fire Phoenix II": iconFirePhoenix2,
-  "Fire Phoenix I": iconFirePhoenix1,
-  "Manticore": iconManticore,
-  "Ariel": iconAriel,
-  "Josephine II": iconJosephine2,
-  "Josephine I": iconJosephine1,
-  "Siege Ballistae VII": iconSiege7,
-  "Siege Ballistae VI": iconSiege6,
-  "Catapult V": iconCatapult5,
-  "Catapult IV": iconCatapult4,
-  "Punisher I": iconPunisher1,
-  "Heavy Halberdier VII": iconHeavyHalb7,
-  "Heavy Halberdier VI": iconHeavyHalb6,
-  "Spearmen V": iconSpearmen5,
-  "Duelist I": iconDuelist1,
-  "Heavy Knight VII": iconHeavyKnight7,
-  "Heavy Knight VI": iconHeavyKnight6,
-  "Swordsmen V": iconSwordsmen5,
+const ICON_FILE_MAP = {
+  "Corax II": "Corax II.png", "Corax I": "Corax I.png", "Griffin VII": "Griffin VII.png",
+  "Griffin VI": "Griffin VI.png", "Griffin V": "Griffin V.png", "Wyvern": "Wyvern.png",
+  "Warregal": "Warregal.png", "Jago": "Jago.png", "Epic Monster Hunter": "Epic Monster Hunter.png",
+  "Royal Lion II": "Royal Lion II.png", "Royal Lion I": "Royal Lion I.png", "Vulture VII": "Vulture VII.png",
+  "Vulture VI": "Vulture VI.png", "Vulture V": "Vulture V.png", "Fire Phoenix II": "Fire Phoenix II.png",
+  "Fire Phoenix I": "Fire Phoenix I.png", "Manticore": "Manticore.png", "Ariel": "Ariel.png",
+  "Josephine II": "Josephine II.png", "Josephine I": "Josephine I.png", "Siege Ballistae VII": "Siege Ballistae VII.png",
+  "Siege Ballistae VI": "Siege Ballistae VI.png", "Catapult V": "Catapult V.png", "Catapult IV": "Catapult IV.png",
+  "Punisher I": "Punisher I.png", "Heavy Halberdier VII": "Heavy Halberdier VII.png", "Heavy Halberdier VI": "Heavy Halberdier VI.png",
+  "Spearmen V": "Spearmen V.png", "Duelist I": "Duelist I.png", "Heavy Knight VII": "Heavy Knight VII.png",
+  "Heavy Knight VI": "Heavy Knight VI.png", "Swordsmen V": "Swordsmen V.png",
 };
 
+const ICON_BASE = (import.meta && import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL : "/";
+
 function iconSrcForTroop(name) {
-  if (!name) return null;
-  return ICON_MAP[name] || null;
+  const file = ICON_FILE_MAP[name];
+  if (!file) return null;
+  return `${ICON_BASE}icons/${encodeURIComponent(file)}`;
 }
 
 async function copyToClipboard(text) {
@@ -167,7 +109,7 @@ async function copyToClipboard(text) {
 }
 
 /* =========================
-   THEME SETUP
+   THEME SETUP (GAMING LOOK)
 ========================= */
 function usePrefersDark() {
   const [isDark, setIsDark] = useState(() => {
@@ -240,7 +182,7 @@ function Card({ title, children, theme, className }) {
   );
 }
 
-// 🛡️ PICKER
+// 🛡️ PICKER (TROOPS - POPUP CENTERED)
 function TroopPicker({ label, value, options, onChange, theme, inputStyle, locked, onLockedClick }) {
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState(null);
@@ -288,6 +230,7 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle, locke
         <span style={{ color: theme.accent, fontSize: 14 }}>▼</span>
       </button>
       
+      {/* MODE = TROOP (Centrirano vertikalno, poravnato horizontalno) */}
       <Modal open={open} title={`Select ${label}`} onClose={() => setOpen(false)} theme={theme} mode="troop" anchorRect={anchorRect}>
         <div style={{ display: "grid", gap: 6 }}>
           {options.map((opt) => {
@@ -322,7 +265,7 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle, locke
   );
 }
 
-// 🛡️ OPTION PICKER
+// 🛡️ OPTION PICKER (SETUP - DROPDOWN STYLE)
 function OptionPicker({ label, value, options, onChange, theme, inputStyle }) {
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState(null);
@@ -357,6 +300,7 @@ function OptionPicker({ label, value, options, onChange, theme, inputStyle }) {
         <span style={{ color: theme.accent, fontSize: 14 }}>▼</span>
       </button>
 
+      {/* MODE = DROPDOWN (Ispod gumba) */}
       <Modal open={open} title={label} onClose={() => setOpen(false)} theme={theme} mode="dropdown" anchorRect={anchorRect}>
         <div style={{ display: "grid", gap: 6 }}>
           {options.map((opt) => {
@@ -393,13 +337,16 @@ function Row({ label, value, theme, accent }) {
   );
 }
 
-// 🛡️ MODAL
+// 🛡️ MODAL - UNIVERZALNI (3 NAČINA RADA)
 function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
   if (!open) return null;
+  
+  // mode: "dropdown" | "troop" | undefined (center)
   
   let popoverStyle = {};
 
   if (mode === "dropdown" && anchorRect) {
+      // 1. DROPDOWN STYLE (Za Setup) - Ispod gumba
       popoverStyle = {
           position: "fixed",
           top: anchorRect.bottom + 6,
@@ -412,20 +359,22 @@ function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
       };
 
   } else if (mode === "troop" && anchorRect) {
+      // 2. TROOP STYLE (Za Grid) - Vertikalno centrirano, Horizontalno poravnato
       popoverStyle = {
           position: "fixed",
           top: "50%", 
           left: anchorRect.left,
           width: anchorRect.width, 
-          minWidth: "250px",
+          minWidth: "250px", // Backup
           maxWidth: "400px",
-          transform: "translateY(-50%)",
+          transform: "translateY(-50%)", // Vertikalno centriranje
           maxHeight: "80vh",
           zIndex: 99999,
           margin: 0,
       };
 
   } else {
+      // 3. STANDARD CENTER (Results, Instructions)
       popoverStyle = {
           position: "relative",
           width: "100%", 
@@ -434,7 +383,8 @@ function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
       };
   }
 
-  const isOverlay = !mode;
+  const isOverlay = !mode; // Samo standard modal ima full screen overlay
+  // Ako je dropdown/troop, koristimo nevidljivi overlay ili prozirni da uhvatimo klik vani
 
   return createPortal(
     <div
@@ -442,8 +392,9 @@ function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
       style={{
         position: "fixed",
         inset: 0, 
+        // Ako je standard modal -> taman. Ako je dropdown/troop -> proziran (samo za close on click outside)
         background: isOverlay ? "rgba(0,0,0,0.7)" : "transparent",
-        display: isOverlay ? "flex" : "block", 
+        display: isOverlay ? "flex" : "block", // Flex za centriranje standardnog modala
         alignItems: "center", justifyContent: "center",
         padding: isOverlay ? 20 : 0, 
         zIndex: 99990, 
@@ -462,7 +413,8 @@ function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
           overflow: "hidden"
         }}
       >
-        {mode !== "dropdown" && (
+        {/* HEADER */}
+        {mode !== "dropdown" && ( // Dropdown obično nema "X" header, ali trupe i modal imaju
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "rgba(197, 160, 89, 0.05)", borderBottom: `1px solid ${theme.borderSoft}` }}>
             <div style={{ fontWeight: 700, fontSize: 18, fontFamily: "'Cinzel', serif", color: theme.accent, textTransform: "uppercase" }}>{title}</div>
             <button onClick={onClose} style={{ border: "none", background: "transparent", color: theme.text, width: 32, height: 32, fontSize: 24, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
@@ -481,7 +433,6 @@ export default function App() {
   const theme = useMemo(() => makeTheme(isDark), [isDark]);
 
   const [introFinished, setIntroFinished] = useState(false);
-  const [instructionsAnchor, setInstructionsAnchor] = useState(null);
 
   useEffect(() => {
     if ('scrollRestoration' in window.history) {
@@ -852,10 +803,7 @@ export default function App() {
     }
   };
 
-  // Handler za otvaranje instrukcija (da budu pozicionirane)
   const handleInstructionsOpen = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setInstructionsAnchor(rect);
     setHelpOpen(true);
   };
 
@@ -873,65 +821,48 @@ export default function App() {
       <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", zIndex: 0, pointerEvents: "none" }} />
 
       <style>{`
-        /* --- 1. GLOBALNO FIX ZA MOBILNI SCROLL (Ali samo na html/body) --- */
-        html, body {
-          width: 100%;
-          max-width: 100%;
-          margin: 0;
-          padding: 0;
-          overflow-x: hidden; /* KLJUČNO ZA MOBILNI FIX */
-        }
-        
-        #root { 
-          display: block; 
-          width: 100%;
-          /* Ovdje NEMA overflow: hidden da ne pokvari sticky na desktopu */
-        }
-        
+        html, body, #root { width: 100%; max-width: 100%; margin: 0; padding: 0; }
+        #root { display: block; }
         *, *::before, *::after { box-sizing: border-box; }
         :root { color-scheme: dark; }
 
         /* --- BACKGROUND LOGIC --- */
         .app-background {
-          background-image: url('${bgMobile}');
+          background-image: url('./bg.jpg');
           background-size: cover;
           background-position: center;
           background-attachment: fixed;
           transition: background-image 0.3s ease-in-out;
-          min-height: 100vh;
-          /* Ovdje NEMA overflow: hidden */
         }
         @media (min-width: 768px) {
           .app-background {
-            background-image: url('${bgDesktop}');
+            background-image: url('./bg-desktop.jpg');
           }
         }
 
-        /* --- INTRO ANIMATION STYLES (BEZ SCALE) --- */
+        /* --- INTRO ANIMATION STYLES (SPORIJE) --- */
         
+        /* 1. Header se miče gore */
         .header-wrapper {
           transition: transform 2.0s cubic-bezier(0.25, 1, 0.5, 1);
           will-change: transform;
           position: relative; 
           z-index: 10;
-          width: 100%;
-          max-width: 100vw;
         }
 
         .app-loading .header-wrapper {
-          /* UKLONJEN SCALE(1.3) DA NE ŠIRI EKRAN */
-          transform: translateY(40vh);
+          transform: translateY(40vh) scale(1.3);
         }
 
         .app-loaded .header-wrapper {
-          transform: translateY(0);
+          transform: translateY(0) scale(1);
         }
 
+        /* 2. Content fade in */
         .content-wrapper {
           transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
           opacity: 1;
           transform: translateY(0);
-          width: 100%; 
         }
 
         .app-loading .content-wrapper {
@@ -940,6 +871,7 @@ export default function App() {
           pointer-events: none; 
         }
 
+        /* 3. Mobile Button fade in */
         .mobile-bottom-bar {
           transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
           opacity: 1;
@@ -957,8 +889,7 @@ export default function App() {
           width: 100%;
           max-width: 600px;
           margin: 0 auto;
-          /* FIX: Veći padding dolje (100px) da gumb ne prekrije footer */
-          padding: 20px 16px 100px 16px; 
+          padding: 20px 16px 100px 16px; /* 100px bottom for mobile button */
           position: relative;
           z-index: 1;
         }
@@ -974,17 +905,19 @@ export default function App() {
             display: grid;
             grid-template-columns: 360px 1fr;
             gap: 24px;
-            align-items: start; 
+            align-items: start; /* KLJUČNO ZA STICKY SIDEBAR */
           }
 
+          /* --- POPRAVAK ZA STICKY SIDEBAR --- */
           .layout-sidebar {
             position: sticky;
             top: 20px;
-            display: grid;
-            gap: 16px;
             align-self: start; 
-            z-index: 50; 
-            height: fit-content; 
+            z-index: 100; /* Iznad kartica ako dođe do scrolla */
+            height: fit-content;
+            max-height: calc(100vh - 40px); /* Da ne bude viši od ekrana */
+            overflow-y: auto; /* Scroll unutar sidebara ako je prevelik */
+            padding-right: 4px; /* Prostor za scrollbar */
           }
 
           .striker-grid {
@@ -993,15 +926,18 @@ export default function App() {
             gap: 16px;
           }
 
+          /* Hide Mobile Bottom Bar on Desktop */
           .mobile-bottom-bar {
             display: none !important;
           }
 
+          /* Show Desktop Calculate Button */
           .desktop-calc-btn {
             display: block !important;
           }
         }
 
+        /* Mobile specific adjustments */
         @media (max-width: 1099px) {
           .main-layout-grid {
             display: flex;
@@ -1109,7 +1045,8 @@ export default function App() {
                   background: theme.btnBg, color: theme.btnText,
                   fontWeight: 900, letterSpacing: 1, fontSize: 20, fontFamily: "'Cinzel', serif",
                   boxShadow: `0 0 25px rgba(197, 160, 89, 0.45)`, cursor: "pointer",
-                  transition: "transform 0.2s"
+                  transition: "transform 0.2s",
+                  marginTop: 16,
                 }}
               >
                 CALCULATE
@@ -1211,11 +1148,10 @@ export default function App() {
         </div>
         {/* END CONTENT WRAPPER */}
 
-        {/* MOBILE BOTTOM BAR (Visible only on Mobile) - FIX: width auto, left/right 0 */}
+        {/* MOBILE BOTTOM BAR (Visible only on Mobile) - IZVUČEN IZVAN CONTENT WRAPPERA ZA FIX POZICIJU */}
         <div className={`mobile-bottom-bar ${introFinished ? "visible" : "hidden"}`} style={{
-            position: "fixed", left: 0, right: 0, width: "auto", bottom: 9, padding: "0 16px", 
-            background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99,
-            boxSizing: "border-box"
+            position: "fixed", left: 0, width: "100%", bottom: 9, padding: 16, // FIX: width 100% instead of right:0
+            background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99
           }}>
           <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
             <button 
@@ -1247,8 +1183,8 @@ export default function App() {
           <button onClick={() => setOrderWarningMsg(false)} style={{ width: "100%", marginTop: 24, padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>OK</button>
         </Modal>
 
-        {/* --- INSTRUCTIONS MODAL (WITH ANCHOR) --- */}
-        <Modal open={helpOpen} title="ℹ️ Instructions & Help" onClose={() => setHelpOpen(false)} theme={theme} anchorRect={instructionsAnchor}>
+        {/* --- INSTRUCTIONS MODAL (VRAĆEN NA STANDARD) --- */}
+        <Modal open={helpOpen} title="ℹ️ Instructions & Help" onClose={() => setHelpOpen(false)} theme={theme}>
           <div style={{ color: theme.text, lineHeight: 1.6, fontSize: 15, display: "grid", gap: 20 }}>
             <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🎯 Goal</div><div style={{ color: theme.subtext }}>Use the correct troops and bonuses to minimize losses when attacking a Citadel. I took care of the proper troops selection.</div></div>
             <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.danger }}>❗ Most Important Rule</div><div style={{ color: theme.subtext, borderLeft: `4px solid ${theme.danger}`, paddingLeft: 12 }}>Maximize <b style={{ color: theme.text }}>First Striker Health</b>. In a proper attack, the First Striker is the only troop group that should take losses.<br /><br />The number of <b style={{ color: theme.text }}>FIRST STRIKER</b> troops <b style={{ color: theme.text }}> CAN</b> be higher than calculated. All other troops <b style={{ color: theme.text }}>MUST</b> be used in the exact number as calculated.</div></div>
