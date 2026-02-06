@@ -230,7 +230,6 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle, locke
         <span style={{ color: theme.accent, fontSize: 14 }}>▼</span>
       </button>
       
-      {/* MODE = TROOP (Centrirano vertikalno, poravnato horizontalno) */}
       <Modal open={open} title={`Select ${label}`} onClose={() => setOpen(false)} theme={theme} mode="troop" anchorRect={anchorRect}>
         <div style={{ display: "grid", gap: 6 }}>
           {options.map((opt) => {
@@ -300,7 +299,6 @@ function OptionPicker({ label, value, options, onChange, theme, inputStyle }) {
         <span style={{ color: theme.accent, fontSize: 14 }}>▼</span>
       </button>
 
-      {/* MODE = DROPDOWN (Ispod gumba) */}
       <Modal open={open} title={label} onClose={() => setOpen(false)} theme={theme} mode="dropdown" anchorRect={anchorRect}>
         <div style={{ display: "grid", gap: 6 }}>
           {options.map((opt) => {
@@ -337,16 +335,13 @@ function Row({ label, value, theme, accent }) {
   );
 }
 
-// 🛡️ MODAL - UNIVERZALNI (3 NAČINA RADA)
+// 🛡️ MODAL - UNIVERZALNI
 function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
   if (!open) return null;
-  
-  // mode: "dropdown" | "troop" | undefined (center)
   
   let popoverStyle = {};
 
   if (mode === "dropdown" && anchorRect) {
-      // 1. DROPDOWN STYLE (Za Setup) - Ispod gumba
       popoverStyle = {
           position: "fixed",
           top: anchorRect.bottom + 6,
@@ -359,22 +354,20 @@ function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
       };
 
   } else if (mode === "troop" && anchorRect) {
-      // 2. TROOP STYLE (Za Grid) - Vertikalno centrirano, Horizontalno poravnato
       popoverStyle = {
           position: "fixed",
           top: "50%", 
           left: anchorRect.left,
           width: anchorRect.width, 
-          minWidth: "250px", // Backup
+          minWidth: "250px",
           maxWidth: "400px",
-          transform: "translateY(-50%)", // Vertikalno centriranje
+          transform: "translateY(-50%)",
           maxHeight: "80vh",
           zIndex: 99999,
           margin: 0,
       };
 
   } else {
-      // 3. STANDARD CENTER (Results, Instructions)
       popoverStyle = {
           position: "relative",
           width: "100%", 
@@ -383,8 +376,7 @@ function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
       };
   }
 
-  const isOverlay = !mode; // Samo standard modal ima full screen overlay
-  // Ako je dropdown/troop, koristimo nevidljivi overlay ili prozirni da uhvatimo klik vani
+  const isOverlay = !mode;
 
   return createPortal(
     <div
@@ -392,9 +384,8 @@ function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
       style={{
         position: "fixed",
         inset: 0, 
-        // Ako je standard modal -> taman. Ako je dropdown/troop -> proziran (samo za close on click outside)
         background: isOverlay ? "rgba(0,0,0,0.7)" : "transparent",
-        display: isOverlay ? "flex" : "block", // Flex za centriranje standardnog modala
+        display: isOverlay ? "flex" : "block", 
         alignItems: "center", justifyContent: "center",
         padding: isOverlay ? 20 : 0, 
         zIndex: 99990, 
@@ -413,8 +404,7 @@ function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
           overflow: "hidden"
         }}
       >
-        {/* HEADER */}
-        {mode !== "dropdown" && ( // Dropdown obično nema "X" header, ali trupe i modal imaju
+        {mode !== "dropdown" && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "rgba(197, 160, 89, 0.05)", borderBottom: `1px solid ${theme.borderSoft}` }}>
             <div style={{ fontWeight: 700, fontSize: 18, fontFamily: "'Cinzel', serif", color: theme.accent, textTransform: "uppercase" }}>{title}</div>
             <button onClick={onClose} style={{ border: "none", background: "transparent", color: theme.text, width: 32, height: 32, fontSize: 24, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
@@ -431,7 +421,6 @@ function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
 export default function App() {
   const isDark = usePrefersDark();
   const theme = useMemo(() => makeTheme(isDark), [isDark]);
-
   const [introFinished, setIntroFinished] = useState(false);
 
   useEffect(() => {
@@ -439,10 +428,7 @@ export default function App() {
       window.history.scrollRestoration = 'manual';
     }
     window.scrollTo(0, 0);
-
-    const timer = setTimeout(() => {
-      setIntroFinished(true);
-    }, 1200); 
+    const timer = setTimeout(() => { setIntroFinished(true); }, 1200); 
     return () => clearTimeout(timer);
   }, []);
 
@@ -469,7 +455,6 @@ export default function App() {
   const [warningMsg, setWarningMsg] = useState("");
   const [orderWarningMsg, setOrderWarningMsg] = useState(false);
 
-  const GROUP_KEYS = useMemo(() => (["CORAX","PHOENIX","PHH_SPEAR","DUEL_HK_SW","VULTURE","ROYAL_LION","GRIFFIN"]), []);
   const [groupBonusPct, setGroupBonusPct] = useState(() => ({
     CORAX: "", PHOENIX: "", PHH_SPEAR: "", DUEL_HK_SW: "", VULTURE: "", ROYAL_LION: "", GRIFFIN: "",
   }));
@@ -510,8 +495,7 @@ export default function App() {
     const exact = canon.get(normName(troopName)) || troopName;
     const list = mode === MODE_WITH ? (firstStrikerAllowed.WITH || []) : (firstStrikerAllowed.WITHOUT || []);
     for (const n of list) {
-      const nn = canon.get(normName(n)) || n;
-      if (nn === exact) return true;
+      if ((canon.get(normName(n)) || n) === exact) return true;
     }
     return false;
   };
@@ -532,84 +516,50 @@ export default function App() {
       background: theme.inputBg, color: theme.text, outline: "none",
       WebkitAppearance: "none", appearance: "none", width: "100%", boxSizing: "border-box",
       fontSize: 16, fontWeight: 500, fontFamily: "'Inter', sans-serif", transition: "border-color 0.2s, box-shadow 0.2s",
-    }),
-    [theme]
+    }), [theme]
   );
 
   const poolAll = useMemo(() => {
     const raw = mode === MODE_WITH ? TROOPS_WITH_M8_RAW : TROOPS_WITHOUT_M8_RAW;
-    const out = [];
-    for (const r of raw) {
-      const c = canon.get(normName(r));
-      if (c) out.push(c);
-    }
     const seen = new Set();
-    return out.filter((n) => {
-      const k = normName(n);
-      if (seen.has(k)) return false;
-      seen.add(k);
-      return true;
-    });
+    return raw.map(r => canon.get(normName(r))).filter(n => n && !seen.has(normName(n)) && seen.add(normName(n)));
   }, [mode, canon]);
 
   const wallKillerPool = useMemo(() => {
-    const out = [];
-    for (const r of WALL_KILLER_NAMES_RAW) {
-      const c = canon.get(normName(r));
-      if (c) out.push(c);
-    }
     const seen = new Set();
-    return out.filter((n) => {
-      const k = normName(n);
-      if (seen.has(k)) return false;
-      seen.add(k);
-      return true;
-    });
+    return WALL_KILLER_NAMES_RAW.map(r => canon.get(normName(r))).filter(n => n && !seen.has(normName(n)) && seen.add(normName(n)));
   }, [canon]);
 
   const secondAllowed = useMemo(() => {
     const manticore = canon.get(normName("Manticore"));
     const fp1 = canon.get(normName("Fire Phoenix I"));
     const fp2 = canon.get(normName("Fire Phoenix II"));
-    if (mode === MODE_WITHOUT) return manticore ? [manticore] : [];
-    return [fp2, fp1].filter(Boolean);
+    return mode === MODE_WITHOUT ? [manticore].filter(Boolean) : [fp2, fp1].filter(Boolean);
   }, [mode, canon]);
 
   const nonWallPool = useMemo(() => {
     const wallSet = new Set(wallKillerPool.map(normName));
-    return poolAll.filter((n) => !wallSet.has(normName(n)));
+    return poolAll.filter(n => !wallSet.has(normName(n)));
   }, [poolAll, wallKillerPool]);
 
   const firstAllowed = useMemo(() => {
     const rawList = mode === MODE_WITH ? firstStrikerAllowed.WITH ?? [] : firstStrikerAllowed.WITHOUT ?? [];
     const allowedSet = new Set(nonWallPool.map(normName));
-    const out = [];
-    for (const r of rawList) {
-      const c = canon.get(normName(r));
-      if (!c) continue;
-      if (allowedSet.has(normName(c))) out.push(c);
-    }
     const seen = new Set();
-    return out.filter((n) => {
-      const k = normName(n);
-      if (seen.has(k)) return false;
-      seen.add(k);
-      return true;
-    });
+    return rawList.map(r => canon.get(normName(r))).filter(c => c && allowedSet.has(normName(c)) && !seen.has(normName(c)) && seen.add(normName(c)));
   }, [mode, firstStrikerAllowed, nonWallPool, canon]);
 
   const normalize = (current) => {
     const next = [...current];
-    const secFallback = secondAllowed[0] ?? "";
-    next[1] = secondAllowed.includes(next[1]) ? next[1] : secFallback;
-    if (next[0] && !firstAllowed.map(normName).includes(normName(next[0]))) next[0] = "";
+    next[1] = secondAllowed.includes(next[1]) ? next[1] : (secondAllowed[0] ?? "");
+    if (next[0] && !firstAllowed.some(n => normName(n) === normName(next[0]))) next[0] = "";
     for (let i = 2; i < 9; i++) {
-      if (next[i] && !nonWallPool.map(normName).includes(normName(next[i]))) next[i] = "";
+      if (next[i] && !nonWallPool.some(n => normName(n) === normName(next[i]))) next[i] = "";
     }
     const seen = new Set();
     for (let i = 0; i < 9; i++) {
-      const v = next[i]; if (!v) continue; const k = normName(v);
-      if (seen.has(k)) next[i] = ""; else seen.add(k);
+      if (!next[i]) continue;
+      if (seen.has(normName(next[i]))) next[i] = ""; else seen.add(normName(next[i]));
     }
     const wallSet = new Set(wallKillerPool.map(normName));
     for (let i = 0; i < 9; i++) {
@@ -621,13 +571,11 @@ export default function App() {
   const [wallKillerTroop, setWallKillerTroop] = useState("");
   const [wallKillerBonusPct, setWallKillerBonusPct] = useState("");
 
-  useEffect(() => {
-    if (!wallKillerTroop) setWallKillerTroop(wallKillerPool[0] ?? "");
-  }, [wallKillerTroop, wallKillerPool]);
+  useEffect(() => { if (!wallKillerTroop) setWallKillerTroop(wallKillerPool[0] ?? ""); }, [wallKillerTroop, wallKillerPool]);
 
   const handleModeChange = (newMode) => {
     setMode(newMode);
-    setStrikerTroops((prev) => normalize(["", prev[1], "", "", "", "", "", "", ""]));
+    setStrikerTroops(prev => normalize(["", prev[1], "", "", "", "", "", "", ""]));
     setStrikerBonusPct(() => Array(9).fill(""));
     setFirstHealthBonusPct("");
     setGroupBonusPct({ CORAX: "", PHOENIX: "", PHH_SPEAR: "", DUEL_HK_SW: "", VULTURE: "", ROYAL_LION: "", GRIFFIN: "" });
@@ -636,36 +584,30 @@ export default function App() {
   };
 
   useEffect(() => {
-    setStrikerTroops((prev) => normalize(prev));
+    setStrikerTroops(prev => normalize(prev));
     setCalcOutput(null);
     setResultsOpen(false);
   }, [mode, citadelLevel, poolAll.join("|"), wallKillerPool.join("|"), firstAllowed.join("|")]);
 
   const optionsForIdx = (idx) => {
-    const taken = new Set(strikerTroops.filter((_, i) => i !== idx).filter(Boolean).map(normName));
-    let pool;
-    if (idx === 0) pool = firstAllowed;
-    else if (idx === 1) pool = secondAllowed;
-    else pool = nonWallPool;
-    const filtered = pool.filter((n) => !taken.has(normName(n)));
-    if (mode === MODE_WITH && idx === 2) {
-      return ["", ...filtered.filter((n) => normName(n) !== normName("Manticore"))];
-    }
-    if (idx !== 1) return ["", ...filtered];
-    return filtered;
+    const taken = new Set(strikerTroops.filter((_, i) => i !== idx && _).map(normName));
+    let pool = idx === 0 ? firstAllowed : (idx === 1 ? secondAllowed : nonWallPool);
+    const filtered = pool.filter(n => !taken.has(normName(n)));
+    if (mode === MODE_WITH && idx === 2) return ["", ...filtered.filter(n => normName(n) !== normName("Manticore"))];
+    return idx !== 1 ? ["", ...filtered] : filtered;
   };
 
   const setTroopAt = (idx, name) => {
-    setStrikerTroops((prev) => normalize(prev.map((v, i) => (i === idx ? name : v))));
+    setStrikerTroops(prev => normalize(prev.map((v, i) => (i === idx ? name : v))));
     const g = getBonusGroup(name);
     if (g) {
-      setStrikerBonusPct((prev) => {
+      setStrikerBonusPct(prev => {
         const next = [...prev];
         next[idx] = groupBonusPct[g] ?? "";
         return next;
       });
     } else if (!name) {
-      setStrikerBonusPct((prev) => { const next = [...prev]; next[idx] = ""; return next; });
+      setStrikerBonusPct(prev => { const next = [...prev]; next[idx] = ""; return next; });
     }
     setCalcOutput(null);
     setResultsOpen(false);
@@ -675,13 +617,9 @@ export default function App() {
     if (idx >= 2) {
       const first = strikerTroops[0];
       if (first && picked && isFirstStrikerTroop(picked)) {
-        const firstS = getBaseStrength(first); const firstH = getBaseHealth(first);
-        const pickedS = getBaseStrength(picked); const pickedH = getBaseHealth(picked);
-        if (pickedS > firstS || pickedH > firstH) {
-          const label = STRIKER_LABELS[idx] || "Striker";
-          setWarningMsg(`${label} (${picked}) has higher BASE strength (${fmtInt(pickedS)}) and BASE health (${fmtInt(pickedH)}) than your First striker (${first}, ${fmtInt(firstS)} / ${fmtInt(firstH)}).\n\nChoose a stronger First striker troops!!`);
+        if (getBaseStrength(picked) > getBaseStrength(first) || getBaseHealth(picked) > getBaseHealth(first)) {
+          setWarningMsg(`${STRIKER_LABELS[idx]} (${picked}) is stronger than First striker (${first}).\n\nChoose a stronger First striker!`);
           setTroopAt(idx, "");
-          setStrikerBonusPct((prev) => { const next = [...prev]; next[idx] = ""; return next; });
           return;
         }
       }
@@ -690,175 +628,98 @@ export default function App() {
   };
 
   const setBonusAt = (idx, v) => {
-    const raw = v;
     const troopName = strikerTroops[idx];
     const g = getBonusGroup(troopName);
     if (g) {
-      setGroupBonusPct((prev) => ({ ...prev, [g]: raw }));
-      setStrikerBonusPct((prev) => {
-        const next = [...prev];
-        for (let i = 0; i < strikerTroops.length; i++) { if (getBonusGroup(strikerTroops[i]) === g) next[i] = raw; }
-        return next;
-      });
+      setGroupBonusPct(prev => ({ ...prev, [g]: v }));
+      setStrikerBonusPct(prev => prev.map((val, i) => getBonusGroup(strikerTroops[i]) === g ? v : val));
     } else {
-      setStrikerBonusPct((prev) => { const next = [...prev]; next[idx] = raw; return next; });
+      setStrikerBonusPct(prev => { const next = [...prev]; next[idx] = v; return next; });
     }
-    setCalcOutput(null);
-    setResultsOpen(false);
-  };
-
-  const resetSelections = () => {
-    const current = normalize(strikerTroops);
-    const keepSecond = current[1];
-    setStrikerTroops(() => normalize(["", keepSecond, "", "", "", "", "", "", ""]));
-    setStrikerBonusPct(() => Array(9).fill(""));
-    setFirstHealthBonusPct("");
-    setGroupBonusPct({ CORAX: "", PHOENIX: "", PHH_SPEAR: "", DUEL_HK_SW: "", VULTURE: "", ROYAL_LION: "", GRIFFIN: "" });
-    setWallKillerTroop(wallKillerPool[0] ?? "");
-    setWallKillerBonusPct("");
     setCalcOutput(null);
     setResultsOpen(false);
   };
 
   const firstDeaths = useMemo(() => {
     if (!cit) return 0;
-    const troop = troopByName.get(strikerTroops[0]);
-    const baseHealth = troop ? toNum(troop.health) : 0;
+    const baseHealth = getBaseHealth(strikerTroops[0]);
     const effHealth = baseHealth * (1 + toNum(firstHealthBonusPct) / 100);
-    const dmg = toNum(cit.firstStrikeDamage);
-    if (effHealth <= 0) return 0;
-    return Math.floor(dmg / effHealth);
-  }, [cit, troopByName, strikerTroops, firstHealthBonusPct]);
+    return effHealth <= 0 ? 0 : Math.floor(toNum(cit.firstStrikeDamage) / effHealth);
+  }, [cit, strikerTroops, firstHealthBonusPct]);
 
   const wallKiller = useMemo(() => {
     if (!cit) return { effBonus: 0, requiredTroops: 0 };
     const troop = troopByName.get(wallKillerTroop);
-    const baseStrength = troop ? toNum(troop.strength) : 0;
-    const fort = troop?.fortBonus !== undefined && troop?.fortBonus !== null ? toNum(troop.fortBonus) : 0;
-    const effBonus = toNum(wallKillerBonusPct) + fort;
-    const dmgPerTroop = baseStrength * (1 + effBonus / 100) * 20;
-    const wallHP = toNum(cit.wallHP);
-    const requiredTroops = dmgPerTroop > 0 ? (Math.ceil(wallHP / dmgPerTroop) + 2) : 0;
-    return { effBonus, requiredTroops };
+    const effBonus = toNum(wallKillerBonusPct) + (troop?.fortBonus ? toNum(troop.fortBonus) : 0);
+    const dmgPerTroop = getBaseStrength(wallKillerTroop) * (1 + effBonus / 100) * 20;
+    return { effBonus, requiredTroops: dmgPerTroop > 0 ? (Math.ceil(toNum(cit.wallHP) / dmgPerTroop) + 2) : 0 };
   }, [cit, wallKillerTroop, wallKillerBonusPct, troopByName]);
 
   const perStriker = useMemo(() => {
     if (!cit || !targets || targets.length !== 9) return [];
     return STRIKER_LABELS.map((label, idx) => {
       const troopName = strikerTroops[idx];
-      const troop = troopByName.get(troopName);
-      let effBonus = toNum(strikerBonusPct[idx]);
-      if (troopName && additionalBonus[troopName] !== undefined) effBonus += toNum(additionalBonus[troopName]);
-      if (troopName && mode === MODE_WITH && idx === 1 && phoenixExtra[troopName] !== undefined) effBonus += toNum(phoenixExtra[troopName]);
-      const baseStrength = troop ? toNum(troop.strength) : 0;
-      const dmgPerTroop = baseStrength * (1 + effBonus / 100);
-      const targetHP = toNum(targets[idx]);
-      let required = dmgPerTroop > 0 ? Math.floor(targetHP / dmgPerTroop) : 0;
+      let effBonus = toNum(strikerBonusPct[idx]) + (additionalBonus[troopName] ? toNum(additionalBonus[troopName]) : 0);
+      if (troopName && mode === MODE_WITH && idx === 1 && phoenixExtra[troopName]) effBonus += toNum(phoenixExtra[troopName]);
+      const dmgPerTroop = getBaseStrength(troopName) * (1 + effBonus / 100);
+      let required = dmgPerTroop > 0 ? Math.floor(toNum(targets[idx]) / dmgPerTroop) : 0;
       if (idx === 0 && dmgPerTroop > 0) required += firstDeaths + 10;
       return { idx, label, troopName, effBonus, requiredTroops: required };
     });
-  }, [cit, targets, strikerTroops, strikerBonusPct, troopByName, additionalBonus, phoenixExtra, mode, firstDeaths]);
+  }, [cit, targets, strikerTroops, strikerBonusPct, additionalBonus, phoenixExtra, mode, firstDeaths]);
 
   const showResults = () => {
     const counts = new Map();
-    const add = (name, n) => {
-      if (!name || !Number.isFinite(n)) return;
-      const k = normName(name);
-      counts.set(k, (counts.get(k) || 0) + Math.floor(n));
-    };
-    if (wallKillerTroop && wallKiller?.requiredTroops) {
-      add(wallKillerTroop, wallKiller.requiredTroops);
-    }
-    for (const s of perStriker) {
-      if (s?.troopName && s?.requiredTroops) {
-        add(s.troopName, s.requiredTroops);
-      }
-    }
-    const ordered = [];
-    for (const name of RESULT_ORDER) {
-      const k = normName(name);
-      if (counts.has(k)) {
-        ordered.push({ troop: name, required: counts.get(k) });
-      }
-    }
+    const add = (name, n) => { if (name && Number.isFinite(n)) counts.set(normName(name), (counts.get(normName(name)) || 0) + Math.floor(n)); };
+    if (wallKillerTroop) add(wallKillerTroop, wallKiller.requiredTroops);
+    perStriker.forEach(s => add(s.troopName, s.requiredTroops));
     setCalcOutput({
       modeLabel: mode === MODE_WITH ? "With M8/M9" : "Without M8/M9",
       citadelLabel: `Elven ${citadelLevel}`,
-      troops: ordered,
+      troops: RESULT_ORDER.filter(n => counts.has(normName(n))).map(n => ({ troop: n, required: counts.get(normName(n)) }))
     });
     setResultsOpen(true);
   };
 
-  // --- ENTER KEY HANDLER ---
-  const handleEnter = (e, nextId) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      const nextElement = document.getElementById(nextId);
-      if (nextElement) {
-        nextElement.focus();
-        if (nextElement.tagName === "INPUT") {
-          nextElement.select(); // Oznacava tekst za lakse prepisivanje
-        }
-      }
-    }
-  };
-
-  const handleInstructionsOpen = (e) => {
-    setHelpOpen(true);
-  };
+  const handleEnter = (e, nextId) => { if (e.key === "Enter") { e.preventDefault(); const n = document.getElementById(nextId); if (n) { n.focus(); if (n.tagName === "INPUT") n.select(); } } };
 
   return (
-    <div
-      className={`app-background ${introFinished ? "app-loaded" : "app-loading"}`}
-      style={{
-        width: "100%",
-        minHeight: "100vh",
-        backgroundColor: theme.pageBg,
-        color: theme.text,
-        fontFamily: "'Inter', sans-serif",
-      }}
-    >
+    <div className={`app-background ${introFinished ? "app-loaded" : "app-loading"}`} style={{ width: "100%", minHeight: "100vh", backgroundColor: theme.pageBg, color: theme.text, fontFamily: "'Inter', sans-serif" }}>
       <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", zIndex: 0, pointerEvents: "none" }} />
 
       <style>{`
-        html, body, #root { width: 100%; max-width: 100%; margin: 0; padding: 0; }
-        #root { display: block; }
+        html, body { 
+          max-width: 100%; 
+          overflow-x: hidden; 
+          position: relative; 
+          margin: 0; padding: 0;
+        }
+        #root { display: block; width: 100%; }
         *, *::before, *::after { box-sizing: border-box; }
         :root { color-scheme: dark; }
 
-        /* --- BACKGROUND LOGIC --- */
         .app-background {
           background-image: url('./bg.jpg');
           background-size: cover;
           background-position: center;
           background-attachment: fixed;
           transition: background-image 0.3s ease-in-out;
+          width: 100%;
+          overflow-x: hidden; /* Prevent scaling issue */
         }
-        @media (min-width: 768px) {
-          .app-background {
-            background-image: url('./bg-desktop.jpg');
-          }
-        }
+        @media (min-width: 768px) { .app-background { background-image: url('./bg-desktop.jpg'); } }
 
-        /* --- INTRO ANIMATION STYLES (SPORIJE) --- */
-        
-        /* 1. Header se miče gore */
         .header-wrapper {
           transition: transform 2.0s cubic-bezier(0.25, 1, 0.5, 1);
           will-change: transform;
           position: relative; 
           z-index: 10;
+          max-width: 100%;
         }
 
-        .app-loading .header-wrapper {
-          transform: translateY(40vh) scale(1.3);
-        }
+        .app-loading .header-wrapper { transform: translateY(40vh) scale(1.15); }
+        .app-loaded .header-wrapper { transform: translateY(0) scale(1); }
 
-        .app-loaded .header-wrapper {
-          transform: translateY(0) scale(1);
-        }
-
-        /* 2. Content fade in */
         .content-wrapper {
           transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
           opacity: 1;
@@ -871,208 +732,73 @@ export default function App() {
           pointer-events: none; 
         }
 
-        /* 3. Mobile Button fade in */
         .mobile-bottom-bar {
           transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
           opacity: 1;
           transform: translateY(0);
           box-sizing: border-box; 
         }
-        .mobile-bottom-bar.hidden {
-          opacity: 0;
-          transform: translateY(20px);
-          pointer-events: none;
-        }
+        .mobile-bottom-bar.hidden { opacity: 0; transform: translateY(20px); pointer-events: none; }
 
-        /* --- LAYOUT GRID SYSTEM --- */
         .app-container {
           width: 100%;
           max-width: 600px;
           margin: 0 auto;
-          padding: 20px 16px 100px 16px; /* 100px bottom for mobile button */
+          padding: 20px 16px 100px 16px;
           position: relative;
           z-index: 1;
+          overflow-x: hidden;
         }
 
-        /* Desktop specific layout */
         @media (min-width: 1100px) {
-          .app-container {
-            max-width: 1300px;
-            padding-bottom: 40px;
-          }
-
-          .main-layout-grid {
-            display: grid;
-            grid-template-columns: 360px 1fr;
-            gap: 24px;
-            align-items: start; /* KLJUČNO ZA STICKY SIDEBAR */
-          }
-
-          /* --- POPRAVAK ZA STICKY SIDEBAR --- */
-          .layout-sidebar {
-            position: sticky;
-            top: 20px;
-            align-self: start; 
-            z-index: 100; /* Iznad kartica ako dođe do scrolla */
-            height: fit-content;
-            max-height: calc(100vh - 40px); /* Da ne bude viši od ekrana */
-            overflow-y: auto; /* Scroll unutar sidebara ako je prevelik */
-            padding-right: 4px; /* Prostor za scrollbar */
-          }
-
-          .striker-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 16px;
-          }
-
-          /* Hide Mobile Bottom Bar on Desktop */
-          .mobile-bottom-bar {
-            display: none !important;
-          }
-
-          /* Show Desktop Calculate Button */
-          .desktop-calc-btn {
-            display: block !important;
-          }
+          .app-container { max-width: 1300px; padding-bottom: 40px; }
+          .main-layout-grid { display: grid; grid-template-columns: 360px 1fr; gap: 24px; align-items: start; }
+          .layout-sidebar { position: sticky; top: 20px; align-self: start; z-index: 100; height: fit-content; max-height: calc(100vh - 40px); overflow-y: auto; padding-right: 4px; }
+          .striker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+          .mobile-bottom-bar { display: none !important; }
+          .desktop-calc-btn { display: block !important; }
         }
 
-        /* Mobile specific adjustments */
         @media (max-width: 1099px) {
-          .main-layout-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-          }
-          .striker-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-          }
-          .desktop-calc-btn {
-            display: none !important;
-          }
+          .main-layout-grid { display: flex; flex-direction: column; gap: 16px; }
+          .striker-grid { display: flex; flex-direction: column; gap: 16px; }
+          .desktop-calc-btn { display: none !important; }
         }
 
-        input:focus, select:focus, button:focus {
-          outline: none !important;
-          border-color: rgba(197,160,89,0.85) !important;
-          box-shadow: 0 0 0 2px rgba(197,160,89,0.35), 0 0 22px rgba(197,160,89,0.12) !important;
-        }
-
+        input:focus, select:focus, button:focus { outline: none !important; border-color: rgba(197,160,89,0.85) !important; box-shadow: 0 0 0 2px rgba(197,160,89,0.35), 0 0 22px rgba(197,160,89,0.12) !important; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: ${theme.accent}; border-radius: 3px; }
       `}</style>
 
       <div className="app-container">
-        
-        {/* HEADER WRAPPER ZA ANIMACIJU */}
         <div className="header-wrapper">
           <div style={{ textAlign: "center", marginBottom: 30 }}>
-            <div style={{ 
-              fontWeight: 800, fontSize: 32, textAlign: "center", 
-              background: `linear-gradient(to bottom, #fff, ${theme.accent})`, 
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-              fontFamily: "'Cinzel', serif", textTransform: "uppercase", letterSpacing: 2,
-              filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))"
-            }}>
-              Citadel Calculator
-            </div>
-            <div style={{
-              marginTop: 6, fontSize: 12, fontWeight: 800, letterSpacing: 3,
-              textTransform: "uppercase", color: theme.accent, opacity: 1, textShadow: "0 2px 10px rgba(0,0,0,0.8)", fontFamily: "'Inter', sans-serif",
-            }}>
-              by GM
-            </div>
+            <div style={{ fontWeight: 800, fontSize: 32, textAlign: "center", background: `linear-gradient(to bottom, #fff, ${theme.accent})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontFamily: "'Cinzel', serif", textTransform: "uppercase", letterSpacing: 2, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))" }}>Citadel Calculator</div>
+            <div style={{ marginTop: 6, fontSize: 12, fontWeight: 800, letterSpacing: 3, textTransform: "uppercase", color: theme.accent, textShadow: "0 2px 10px rgba(0,0,0,0.8)", fontFamily: "'Inter', sans-serif" }}>by GM</div>
           </div>
         </div>
 
-        {/* CONTENT WRAPPER ZA FADE IN */}
         <div className="content-wrapper">
-          {/* --- MAIN GRID LAYOUT START --- */}
           <div className="main-layout-grid">
-            
-            {/* LEFT SIDEBAR (Setup Only) - SADA JE STICKY */}
             <div className="layout-sidebar">
               <Card title="⚙️ Setup" theme={theme}>
-                <button
-                  onClick={handleInstructionsOpen}
-                  style={{
-                    width: "100%", padding: "12px 16px", borderRadius: 10,
-                    border: `1px solid ${theme.border}`, background: theme.btnGhostBg,
-                    color: theme.text, fontWeight: 700, fontSize: 15, marginBottom: 16,
-                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                  }}
-                >
-                  <span>ℹ️</span> Instructions
-                </button>
-
+                <button onClick={() => setHelpOpen(true)} style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: `1px solid ${theme.border}`, background: theme.btnGhostBg, color: theme.text, fontWeight: 700, fontSize: 15, marginBottom: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}><span>ℹ️</span> Instructions</button>
                 <div style={{ display: "grid", gap: 16 }}>
-                  <OptionPicker
-                    label="Do you have M8/M9 troops?"
-                    value={mode}
-                    options={[{ value: MODE_WITHOUT, label: "No" }, { value: MODE_WITH, label: "Yes" }]}
-                    onChange={(v) => handleModeChange(v)}
-                    theme={theme} inputStyle={inputStyle}
-                  />
-                  <OptionPicker
-                    label="Citadel Level"
-                    value={citadelLevel}
-                    options={citadelKeys.map((lvl) => ({ value: lvl, label: `Elven ${lvl}` }))}
-                    onChange={(v) => { setCitadelLevel(v); setCalcOutput(null); setResultsOpen(false); }}
-                    theme={theme} inputStyle={inputStyle}
-                  />
-                  <button onClick={resetSelections}
-                    style={{
-                      width: "100%", padding: "12px 16px", borderRadius: 10,
-                      border: `1px solid ${theme.danger}`, background: "rgba(255, 77, 77, 0.15)",
-                      color: "#ff6b6b", fontWeight: 700, fontSize: 14, cursor: "pointer", marginTop: 8,
-                    }}
-                  >
-                    Reset Troops Selection
-                  </button>
+                  <OptionPicker label="Do you have M8/M9 troops?" value={mode} options={[{ value: MODE_WITHOUT, label: "No" }, { value: MODE_WITH, label: "Yes" }]} onChange={handleModeChange} theme={theme} inputStyle={inputStyle} />
+                  <OptionPicker label="Citadel Level" value={citadelLevel} options={citadelKeys.map((lvl) => ({ value: lvl, label: `Elven ${lvl}` }))} onChange={(v) => { setCitadelLevel(v); setCalcOutput(null); setResultsOpen(false); }} theme={theme} inputStyle={inputStyle} />
+                  <button onClick={() => { setStrikerTroops(normalize(["", strikerTroops[1], "", "", "", "", "", "", ""])); setStrikerBonusPct(Array(9).fill("")); setFirstHealthBonusPct(""); setGroupBonusPct({ CORAX: "", PHOENIX: "", PHH_SPEAR: "", DUEL_HK_SW: "", VULTURE: "", ROYAL_LION: "", GRIFFIN: "" }); setCalcOutput(null); }} style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: `1px solid ${theme.danger}`, background: "rgba(255, 77, 77, 0.15)", color: "#ff6b6b", fontWeight: 700, fontSize: 14, cursor: "pointer", marginTop: 8 }}>Reset Troops Selection</button>
                 </div>
               </Card>
-
-              {/* DESKTOP CALCULATE BUTTON - STICKY ZAJEDNO SA SETUPOM */}
-              <button 
-                id="btn-calculate-desktop"
-                className="desktop-calc-btn" 
-                onClick={showResults} 
-                style={{
-                  width: "100%", padding: "20px", borderRadius: 12, border: "none",
-                  background: theme.btnBg, color: theme.btnText,
-                  fontWeight: 900, letterSpacing: 1, fontSize: 20, fontFamily: "'Cinzel', serif",
-                  boxShadow: `0 0 25px rgba(197, 160, 89, 0.45)`, cursor: "pointer",
-                  transition: "transform 0.2s",
-                  marginTop: 16,
-                }}
-              >
-                CALCULATE
-              </button>
+              <button className="desktop-calc-btn" onClick={showResults} style={{ width: "100%", padding: "20px", borderRadius: 12, border: "none", background: theme.btnBg, color: theme.btnText, fontWeight: 900, letterSpacing: 1, fontSize: 20, fontFamily: "'Cinzel', serif", boxShadow: `0 0 25px rgba(197, 160, 89, 0.45)`, cursor: "pointer", transition: "transform 0.2s", marginTop: 16 }}>CALCULATE</button>
             </div>
 
-            {/* RIGHT CONTENT (Wall Killer + Striker Grid) */}
             <div className="striker-grid">
-              
-              {/* WALL KILLER */}
               <Card title="🛡️ Wall Killer" theme={theme}>
                 <div style={{ display: "grid", gap: 16 }}>
-                  <TroopPicker
-                    label="Select Troop" value={wallKillerTroop} options={wallKillerPool}
-                    onChange={(v) => { setWallKillerTroop(v); setCalcOutput(null); setResultsOpen(false); }}
-                    theme={theme} inputStyle={inputStyle}
-                  />
-                  <label style={{ display: "grid", gap: 8 }}>
-                    <span style={{ color: theme.subtext, fontWeight: 600, fontSize: 13, textTransform: "uppercase" }}>Strength Bonus (%)</span>
-                    <input 
-                      id="bonus-wall"
-                      type="number" step="any" inputMode="decimal" placeholder="0" value={wallKillerBonusPct}
-                      onChange={(e) => { setWallKillerBonusPct(e.target.value); setCalcOutput(null); setResultsOpen(false); }}
-                      onKeyDown={(e) => handleEnter(e, "bonus-health-0")}
-                      style={inputStyle} onFocus={(e) => e.target.select()}
-                    />
+                  <TroopPicker label="Select Troop" value={wallKillerTroop} options={wallKillerPool} onChange={(v) => { setWallKillerTroop(v); setCalcOutput(null); }} theme={theme} inputStyle={inputStyle} />
+                  <label style={{ display: "grid", gap: 8 }}><span style={{ color: theme.subtext, fontWeight: 600, fontSize: 13, textTransform: "uppercase" }}>Strength Bonus (%)</span>
+                    <input id="bonus-wall" type="number" step="any" inputMode="decimal" placeholder="0" value={wallKillerBonusPct} onChange={(e) => { setWallKillerBonusPct(e.target.value); setCalcOutput(null); }} onKeyDown={(e) => handleEnter(e, "bonus-health-0")} style={inputStyle} onFocus={(e) => e.target.select()} />
                   </label>
                   <div style={{ background: "rgba(0,0,0,0.42)", padding: "12px 16px", borderRadius: 10, border: `1px solid ${theme.border}`, boxShadow: theme.goldGlow }}>
                       <Row label="Effective Bonus" value={`${fmtInt(wallKiller.effBonus)}%`} theme={theme} accent />
@@ -1081,158 +807,66 @@ export default function App() {
                 </div>
               </Card>
 
-              {/* STRIKERS LOOP */}
               {perStriker.map((s) => {
                 const idx = s.idx;
                 const isFirst = idx === 0;
-                const opts = optionsForIdx(idx);
-                const nextInputId = idx < 8 ? `bonus-str-${idx + 1}` : "btn-calculate-desktop";
-
-                // 🛡️ LOGIKA ZA LOCKED: Ako nije First Striker, a First Striker je prazan -> LOCKED
-                const isFirstStrikerSelected = !!strikerTroops[0];
-                const isLocked = !isFirst && !isFirstStrikerSelected;
-
+                const isLocked = !isFirst && !strikerTroops[0];
                 return (
                   <Card key={idx} title={`${idx + 1}. ${s.label}`} theme={theme}>
                     <div style={{ display: "grid", gap: 16 }}>
-                      <TroopPicker
-                        label="Select Troop" value={strikerTroops[idx]} options={opts}
-                        onChange={(v) => handleTroopChange(idx, v)} theme={theme} inputStyle={inputStyle}
-                        locked={isLocked} // <--- LOCKED UMJESTO DISABLED
-                        onLockedClick={() => setOrderWarningMsg(true)} // <--- OTVORI POPUP
-                      />
-
+                      <TroopPicker label="Select Troop" value={strikerTroops[idx]} options={optionsForIdx(idx)} onChange={(v) => handleTroopChange(idx, v)} theme={theme} inputStyle={inputStyle} locked={isLocked} onLockedClick={() => setOrderWarningMsg(true)} />
                       {isFirst && (
-                        <label style={{ display: "grid", gap: 8 }}>
-                          <span style={{ color: "#ff8a8a", fontWeight: 700, fontSize: 13, textTransform: "uppercase" }}>Health Bonus (%)</span>
-                          <input 
-                            id="bonus-health-0"
-                            type="number" step="any" inputMode="decimal" placeholder="0" value={firstHealthBonusPct}
-                            onChange={(e) => { setFirstHealthBonusPct(e.target.value); setCalcOutput(null); setResultsOpen(false); }}
-                            onKeyDown={(e) => handleEnter(e, "bonus-str-0")}
-                            style={{...inputStyle, borderColor: "rgba(255, 138, 138, 0.4)"}} onFocus={(e) => e.target.select()}
-                          />
+                        <label style={{ display: "grid", gap: 8 }}><span style={{ color: "#ff8a8a", fontWeight: 700, fontSize: 13, textTransform: "uppercase" }}>Health Bonus (%)</span>
+                          <input id="bonus-health-0" type="number" step="any" inputMode="decimal" placeholder="0" value={firstHealthBonusPct} onChange={(e) => { setFirstHealthBonusPct(e.target.value); setCalcOutput(null); }} onKeyDown={(e) => handleEnter(e, "bonus-str-0")} style={{...inputStyle, borderColor: "rgba(255, 138, 138, 0.4)"}} onFocus={(e) => e.target.select()} />
                         </label>
                       )}
-
-                      <label style={{ display: "grid", gap: 8 }}>
-                        <span style={{ color: "#80d8ff", fontWeight: 700, fontSize: 13, textTransform: "uppercase" }}>Strength Bonus (%)</span>
-                        <input 
-                          id={`bonus-str-${idx}`}
-                          type="number" step="any" inputMode="decimal" placeholder="0" value={strikerBonusPct[idx]}
-                          onChange={(e) => setBonusAt(idx, e.target.value)}
-                          onKeyDown={(e) => handleEnter(e, nextInputId)}
-                          readOnly={isLocked} // <--- READONLY UMJESTO DISABLED
-                          onClick={() => isLocked && setOrderWarningMsg(true)} // <--- KLIK OTVARA POPUP
-                          style={{...inputStyle, borderColor: "rgba(128, 216, 255, 0.4)"}} onFocus={(e) => e.target.select()}
-                        />
+                      <label style={{ display: "grid", gap: 8 }}><span style={{ color: "#80d8ff", fontWeight: 700, fontSize: 13, textTransform: "uppercase" }}>Strength Bonus (%)</span>
+                        <input id={`bonus-str-${idx}`} type="number" step="any" inputMode="decimal" placeholder="0" value={strikerBonusPct[idx]} onChange={(e) => setBonusAt(idx, e.target.value)} onKeyDown={(e) => handleEnter(e, idx < 8 ? `bonus-str-${idx + 1}` : "btn-calculate-desktop")} readOnly={isLocked} onClick={() => isLocked && setOrderWarningMsg(true)} style={{...inputStyle, borderColor: "rgba(128, 216, 255, 0.4)"}} onFocus={(e) => e.target.select()} />
                       </label>
-
                       <div style={{ background: "rgba(0,0,0,0.42)", padding: "12px 16px", borderRadius: 10, border: `1px solid ${theme.border}`, boxShadow: theme.goldGlow }}>
                           <Row label="Effective Bonus" value={`${fmtInt(s.effBonus)}%`} theme={theme} accent />
                           <Row label="Required Troops" value={fmtInt(s.requiredTroops)} theme={theme} accent />
-                          {isFirst && (
-                          <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px solid ${theme.borderSoft}` }}>
-                              <Row label="Citadel First Strike Losses" value={fmtInt(firstDeaths)} theme={theme} />
-                          </div>
-                          )}
+                          {isFirst && <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px solid ${theme.borderSoft}` }}><Row label="Citadel First Strike Losses" value={fmtInt(firstDeaths)} theme={theme} /></div>}
                       </div>
                     </div>
                   </Card>
                 );
               })}
             </div>
-            {/* END RIGHT CONTENT */}
           </div>
-          {/* --- MAIN GRID LAYOUT END --- */}
         </div>
-        {/* END CONTENT WRAPPER */}
 
-        {/* MOBILE BOTTOM BAR (Visible only on Mobile) - IZVUČEN IZVAN CONTENT WRAPPERA ZA FIX POZICIJU */}
-        <div className={`mobile-bottom-bar ${introFinished ? "visible" : "hidden"}`} style={{
-            position: "fixed", left: 0, width: "100%", bottom: 9, padding: 16, // FIX: width 100% instead of right:0
-            background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99
-          }}>
+        <div className={`mobile-bottom-bar ${introFinished ? "visible" : "hidden"}`} style={{ position: "fixed", left: 0, width: "100%", bottom: 9, padding: 16, zIndex: 99 }}>
           <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
-            <button 
-              id="btn-calculate-mobile"
-              onClick={showResults} 
-              style={{
-                width: "100%", padding: "16px", borderRadius: 12, border: "none",
-                background: theme.btnBg, color: theme.btnText,
-                fontWeight: 900, letterSpacing: 1, fontSize: 18, fontFamily: "'Cinzel', serif",
-                boxShadow: `0 0 20px rgba(197, 160, 89, 0.4)`, cursor: "pointer",
-              }}
-            >
-              CALCULATE
-            </button>
+            <button onClick={showResults} style={{ width: "100%", padding: "16px", borderRadius: 12, border: "none", background: theme.btnBg, color: theme.btnText, fontWeight: 900, letterSpacing: 1, fontSize: 18, fontFamily: "'Cinzel', serif", boxShadow: `0 0 20px rgba(197, 160, 89, 0.4)`, cursor: "pointer" }}>CALCULATE</button>
           </div>
         </div>
 
-        {/* MODALS */}
-        <Modal open={!!warningMsg} title="⚠️ Invalid Striker Order" onClose={() => setWarningMsg("")} theme={theme}>
-          <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6, color: theme.text, fontSize: 16 }}>{warningMsg}</div>
-          <button onClick={() => setWarningMsg("")} style={{ width: "100%", marginTop: 24, padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>OK</button>
-        </Modal>
-
-        {/* --- NOVI POPUP ZA REDOSLIJED --- */}
-        <Modal open={orderWarningMsg} title="⛔ Action Required" onClose={() => setOrderWarningMsg(false)} theme={theme}>
-          <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6, color: theme.text, fontSize: 16 }}>
-            You must select the <b style={{color: theme.accent}}>First Striker</b> before selecting other troops.
-          </div>
-          <button onClick={() => setOrderWarningMsg(false)} style={{ width: "100%", marginTop: 24, padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>OK</button>
-        </Modal>
-
-        {/* --- INSTRUCTIONS MODAL (VRAĆEN NA STANDARD) --- */}
+        <Modal open={!!warningMsg} title="⚠️ Invalid Striker Order" onClose={() => setWarningMsg("")} theme={theme}><div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6, color: theme.text, fontSize: 16 }}>{warningMsg}</div><button onClick={() => setWarningMsg("")} style={{ width: "100%", marginTop: 24, padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>OK</button></Modal>
+        <Modal open={orderWarningMsg} title="⛔ Action Required" onClose={() => setOrderWarningMsg(false)} theme={theme}><div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6, color: theme.text, fontSize: 16 }}>You must select the <b style={{color: theme.accent}}>First Striker</b> before selecting other troops.</div><button onClick={() => setOrderWarningMsg(false)} style={{ width: "100%", marginTop: 24, padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>OK</button></Modal>
+        
         <Modal open={helpOpen} title="ℹ️ Instructions & Help" onClose={() => setHelpOpen(false)} theme={theme}>
           <div style={{ color: theme.text, lineHeight: 1.6, fontSize: 15, display: "grid", gap: 20 }}>
-            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🎯 Goal</div><div style={{ color: theme.subtext }}>Use the correct troops and bonuses to minimize losses when attacking a Citadel. I took care of the proper troops selection.</div></div>
-            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.danger }}>❗ Most Important Rule</div><div style={{ color: theme.subtext, borderLeft: `4px solid ${theme.danger}`, paddingLeft: 12 }}>Maximize <b style={{ color: theme.text }}>First Striker Health</b>. In a proper attack, the First Striker is the only troop group that should take losses.<br /><br />The number of <b style={{ color: theme.text }}>FIRST STRIKER</b> troops <b style={{ color: theme.text }}> CAN</b> be higher than calculated. All other troops <b style={{ color: theme.text }}>MUST</b> be used in the exact number as calculated.</div></div>
-            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🦅 First Striker</div><div style={{ color: theme.subtext }}>Must be the strongest <b style={{ color: theme.text }}>flying Guardsmen</b>: <b style={{ color: theme.text }}> Corax</b> or <b style={{ color: theme.text }}> Griffin</b>.</div></div>
-            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>⚔️ Captains</div><div style={{ color: theme.subtext }}>Recommended: <b style={{ color: theme.text }}> Wu Zetian, Brunhild, Skadi, Beowulf, Aydae, Ramses, Sofia</b>.</div></div>
-            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>✨ Artifacts</div><div style={{ color: theme.subtext }}>Use artifacts that increase Health for <b style={{ color: theme.text }}> Flying</b>, <b style={{ color: theme.text }}> Guardsmen</b>, or the <b style={{ color: theme.text }}> Army</b>.</div></div>
-            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🔄 Recalculate</div><div style={{ color: theme.subtext }}>After ANY strength bonus change, enter new bonuses and press <b style={{ color: theme.text }}> Calculate</b> again. Small changes matter!</div></div>
-            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>❓ How to find bonuses?</div><div style={{ color: theme.subtext }}>Attack a level 10 Citadel with <b style={{ color: theme.text }}>10 of each selected troop type</b>. Copy the bonuses from the attack report into the calculator.</div></div>
+            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🎯 Goal</div><div style={{ color: theme.subtext }}>Use the correct troops and bonuses to minimize losses.</div></div>
+            <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.danger }}>❗ Important Rule</div><div style={{ color: theme.subtext, borderLeft: `4px solid ${theme.danger}`, paddingLeft: 12 }}>Maximize <b style={{ color: theme.text }}>First Striker Health</b>. The First Striker is the only group that should take losses.</div></div>
           </div>
         </Modal>
 
         <Modal open={resultsOpen} title="📋 Calculated Results" onClose={() => setResultsOpen(false)} theme={theme}>
           {calcOutput ? (
             <>
-              <div style={{ background: "rgba(0,0,0,0.32)", padding: 16, borderRadius: 12, marginBottom: 20, border: `1px solid ${theme.border}`, boxShadow: theme.goldGlow }}>
-                  <Row label="Mode" value={calcOutput.modeLabel} theme={theme} accent />
-                  <Row label="Citadel" value={calcOutput.citadelLabel} theme={theme} accent />
-              </div>
-              <button onClick={async () => {
-                  const list = (calcOutput.lines || calcOutput.troops || []).map((t) => `${t.troop} - ${fmtInt(t.required)}`).join("\n");
-                  const ok = await copyToClipboard(list);
-                  setCopyNotice(ok ? "✅ Copied!" : "❌ Copy failed");
-                  window.setTimeout(() => setCopyNotice(""), 1500);
-                }}
-                style={{ width: "100%", padding: "14px", borderRadius: 12, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, marginBottom: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
-              >
-                <span>📄</span> Copy List to Clipboard
-              </button>
-              {copyNotice ? <div style={{ textAlign: "center", marginBottom: 16, color: theme.accent, fontWeight: 700 }}>{copyNotice}</div> : null}
-              <div style={{ display: "grid", gap: 8 }}>
-              {calcOutput.troops.map((l, i) => (
-                <div key={i} style={{ padding: "12px 16px", background: theme.cardBg, borderRadius: 12, border: `1px solid ${theme.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: `${theme.shadow}, ${theme.goldGlow}` }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    {iconSrcForTroop(l.troop) ? <img src={iconSrcForTroop(l.troop)} alt={l.troop} width={44} height={44} style={{ borderRadius: 8, flexShrink: 0, border: "1px solid #333" }} loading="lazy" /> : null}
-                    <span style={{ fontWeight: 700, color: theme.text, fontSize: 16 }}>{l.troop}</span>
-                  </div>
+              <div style={{ background: "rgba(0,0,0,0.32)", padding: 16, borderRadius: 12, marginBottom: 20, border: `1px solid ${theme.border}`, boxShadow: theme.goldGlow }}><Row label="Mode" value={calcOutput.modeLabel} theme={theme} accent /><Row label="Citadel" value={calcOutput.citadelLabel} theme={theme} accent /></div>
+              <button onClick={async () => { const list = (calcOutput.troops || []).map(t => `${t.troop} - ${fmtInt(t.required)}`).join("\n"); const ok = await copyToClipboard(list); setCopyNotice(ok ? "✅ Copied!" : "❌ Failed"); setTimeout(() => setCopyNotice(""), 1500); }} style={{ width: "100%", padding: "14px", borderRadius: 12, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, marginBottom: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}><span>📄</span> Copy List</button>
+              {copyNotice && <div style={{ textAlign: "center", marginBottom: 16, color: theme.accent, fontWeight: 700 }}>{copyNotice}</div>}
+              <div style={{ display: "grid", gap: 8 }}>{calcOutput.troops.map((l, i) => (<div key={i} style={{ padding: "12px 16px", background: theme.cardBg, borderRadius: 12, border: `1px solid ${theme.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: theme.goldGlow }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>{iconSrcForTroop(l.troop) && <img src={iconSrcForTroop(l.troop)} alt={l.troop} width={44} height={44} style={{ borderRadius: 8, border: "1px solid #333" }} />}<span style={{ fontWeight: 700, color: theme.text, fontSize: 16 }}>{l.troop}</span></div>
                   <span style={{ fontWeight: 800, color: theme.accent, fontSize: 20 }}>{fmtInt(l.required)}</span>
-                </div>
-              ))}
-              </div>
+                </div>))}</div>
             </>
-          ) : (<div style={{ color: theme.subtext, textAlign: "center", padding: 20 }}>No results to display.</div>)}
+          ) : <div style={{ color: theme.subtext, textAlign: "center", padding: 20 }}>No results to display.</div>}
         </Modal>
       </div>
-    
-      <footer className="app-footer">
-        © 2026 Game01Master · Non-commercial license
-      </footer>
+      <footer style={{ textAlign: "center", padding: "20px", fontSize: "12px", color: theme.subtext, opacity: 0.6 }}>© 2026 Game01Master · Non-commercial license</footer>
     </div>
   );
 }
