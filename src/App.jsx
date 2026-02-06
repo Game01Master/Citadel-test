@@ -869,22 +869,20 @@ export default function App() {
       <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", zIndex: 0, pointerEvents: "none" }} />
 
       <style>{`
-        /* --- GLOBALNI RESET --- */
-        html, body { 
-          width: 100%; 
-          max-width: 100%; 
-          margin: 0; 
-          padding: 0; 
-          overflow-x: hidden !important; 
-          position: relative;
-        }
-
-        #root { 
-          display: block; 
+        /* --- GLOBALNI SCROLL FIX --- */
+        html, body {
           width: 100%;
           max-width: 100%;
+          margin: 0;
+          padding: 0;
+          overflow-x: hidden; /* KLJUČNO: Samo ovdje! */
         }
         
+        #root {
+          display: block; 
+          width: 100%;
+        }
+
         *, *::before, *::after { box-sizing: border-box; }
         :root { color-scheme: dark; }
 
@@ -903,15 +901,16 @@ export default function App() {
           }
         }
 
-        /* --- INTRO ANIMATION STYLES --- */
+        /* --- INTRO ANIMATION STYLES (SPORIJE) --- */
         
+        /* 1. Header se miče gore */
         .header-wrapper {
           transition: transform 2.0s cubic-bezier(0.25, 1, 0.5, 1);
           will-change: transform;
           position: relative; 
           z-index: 10;
           width: 100%;
-          max-width: 100vw; 
+          max-width: 100vw; /* Spriječava širenje izvan ekrana */
         }
 
         .app-loading .header-wrapper {
@@ -922,11 +921,12 @@ export default function App() {
           transform: translateY(0) scale(1);
         }
 
+        /* 2. Content fade in */
         .content-wrapper {
           transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
           opacity: 1;
-          transform: none; /* POPRAVAK: Bez trajnog transforma, sticky radi! */
-          width: 100%; 
+          transform: translateY(0);
+          width: 100%;
         }
 
         .app-loading .content-wrapper {
@@ -935,6 +935,7 @@ export default function App() {
           pointer-events: none; 
         }
 
+        /* 3. Mobile Button fade in */
         .mobile-bottom-bar {
           transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
           opacity: 1;
@@ -952,8 +953,8 @@ export default function App() {
           width: 100%;
           max-width: 600px;
           margin: 0 auto;
-          /* POPRAVAK: Ogroman padding dolje na mobitelu (180px) da se vidi footer */
-          padding: 20px 16px 180px 16px; 
+          /* FIX: Veliki padding na dnu (120px) kako bi sadržaj (licenca) bio iznad gumba */
+          padding: 20px 16px 120px 16px; 
           position: relative;
           z-index: 1;
         }
@@ -969,18 +970,17 @@ export default function App() {
             display: grid;
             grid-template-columns: 360px 1fr;
             gap: 24px;
-            align-items: start; 
+            align-items: start; /* KLJUČNO ZA STICKY SIDEBAR */
           }
 
           .layout-sidebar {
             position: sticky;
             top: 20px;
+            display: grid;
+            gap: 16px;
             align-self: start; 
-            z-index: 100;
-            height: fit-content;
-            max-height: calc(100vh - 40px);
-            overflow-y: auto; 
-            padding-right: 4px;
+            z-index: 50; 
+            height: fit-content; 
           }
 
           .striker-grid {
@@ -989,15 +989,18 @@ export default function App() {
             gap: 16px;
           }
 
+          /* Hide Mobile Bottom Bar on Desktop */
           .mobile-bottom-bar {
             display: none !important;
           }
 
+          /* Show Desktop Calculate Button */
           .desktop-calc-btn {
             display: block !important;
           }
         }
 
+        /* Mobile specific adjustments */
         @media (max-width: 1099px) {
           .main-layout-grid {
             display: flex;
@@ -1027,6 +1030,7 @@ export default function App() {
 
       <div className="app-container">
         
+        {/* HEADER WRAPPER ZA ANIMACIJU */}
         <div className="header-wrapper">
           <div style={{ textAlign: "center", marginBottom: 30 }}>
             <div style={{ 
@@ -1047,10 +1051,12 @@ export default function App() {
           </div>
         </div>
 
+        {/* CONTENT WRAPPER ZA FADE IN */}
         <div className="content-wrapper">
+          {/* --- MAIN GRID LAYOUT START --- */}
           <div className="main-layout-grid">
             
-            {/* LEFT SIDEBAR */}
+            {/* LEFT SIDEBAR (Setup Only) */}
             <div className="layout-sidebar">
               <Card title="⚙️ Setup" theme={theme}>
                 <button
@@ -1092,7 +1098,7 @@ export default function App() {
                 </div>
               </Card>
 
-              {/* DESKTOP BUTTON */}
+              {/* DESKTOP CALCULATE BUTTON */}
               <button 
                 id="btn-calculate-desktop"
                 className="desktop-calc-btn" 
@@ -1102,16 +1108,17 @@ export default function App() {
                   background: theme.btnBg, color: theme.btnText,
                   fontWeight: 900, letterSpacing: 1, fontSize: 20, fontFamily: "'Cinzel', serif",
                   boxShadow: `0 0 25px rgba(197, 160, 89, 0.45)`, cursor: "pointer",
-                  transition: "transform 0.2s",
-                  marginTop: 16,
+                  transition: "transform 0.2s"
                 }}
               >
                 CALCULATE
               </button>
             </div>
 
-            {/* RIGHT CONTENT */}
+            {/* RIGHT CONTENT (Wall Killer + Striker Grid) */}
             <div className="striker-grid">
+              
+              {/* WALL KILLER */}
               <Card title="🛡️ Wall Killer" theme={theme}>
                 <div style={{ display: "grid", gap: 16 }}>
                   <TroopPicker
@@ -1136,11 +1143,14 @@ export default function App() {
                 </div>
               </Card>
 
+              {/* STRIKERS LOOP */}
               {perStriker.map((s) => {
                 const idx = s.idx;
                 const isFirst = idx === 0;
                 const opts = optionsForIdx(idx);
                 const nextInputId = idx < 8 ? `bonus-str-${idx + 1}` : "btn-calculate-desktop";
+
+                // 🛡️ LOGIKA ZA LOCKED
                 const isFirstStrikerSelected = !!strikerTroops[0];
                 const isLocked = !isFirst && !isFirstStrikerSelected;
 
@@ -1150,8 +1160,8 @@ export default function App() {
                       <TroopPicker
                         label="Select Troop" value={strikerTroops[idx]} options={opts}
                         onChange={(v) => handleTroopChange(idx, v)} theme={theme} inputStyle={inputStyle}
-                        locked={isLocked}
-                        onLockedClick={() => setOrderWarningMsg(true)}
+                        locked={isLocked} // <--- LOCKED UMJESTO DISABLED
+                        onLockedClick={() => setOrderWarningMsg(true)} // <--- OTVORI POPUP
                       />
 
                       {isFirst && (
@@ -1174,8 +1184,8 @@ export default function App() {
                           type="number" step="any" inputMode="decimal" placeholder="0" value={strikerBonusPct[idx]}
                           onChange={(e) => setBonusAt(idx, e.target.value)}
                           onKeyDown={(e) => handleEnter(e, nextInputId)}
-                          readOnly={isLocked}
-                          onClick={() => isLocked && setOrderWarningMsg(true)}
+                          readOnly={isLocked} // <--- READONLY UMJESTO DISABLED
+                          onClick={() => isLocked && setOrderWarningMsg(true)} // <--- KLIK OTVARA POPUP
                           style={{...inputStyle, borderColor: "rgba(128, 216, 255, 0.4)"}} onFocus={(e) => e.target.select()}
                         />
                       </label>
@@ -1194,25 +1204,21 @@ export default function App() {
                 );
               })}
             </div>
+            {/* END RIGHT CONTENT */}
           </div>
+          {/* --- MAIN GRID LAYOUT END --- */}
           
+          {/* FOOTER - Sada unutar scrollabilnog dijela */}
           <footer className="app-footer" style={{ textAlign: "center", paddingTop: "20px", color: theme.subtext, fontSize: 12 }}>
             © 2026 Game01Master · Non-commercial license
           </footer>
         </div>
+        {/* END CONTENT WRAPPER */}
 
-        {/* MOBILE BUTTON */}
+        {/* MOBILE BOTTOM BAR - FIX: left:0, right:0, auto width da ne probija ekran */}
         <div className={`mobile-bottom-bar ${introFinished ? "visible" : "hidden"}`} style={{
-            position: "fixed", 
-            left: 0, 
-            right: 0,
-            width: "auto",
-            bottom: 0, 
-            padding: "16px 16px 24px 16px",
-            background: "linear-gradient(to top, rgba(5,5,5,0.95) 20%, rgba(5,5,5,0) 100%)",
-            borderTop: "none", 
-            backdropFilter: "none", 
-            zIndex: 99,
+            position: "fixed", left: 0, right: 0, width: "auto", bottom: 9, padding: "0 16px", 
+            background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99,
             boxSizing: "border-box"
           }}>
           <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
@@ -1223,7 +1229,7 @@ export default function App() {
                 width: "100%", padding: "16px", borderRadius: 12, border: "none",
                 background: theme.btnBg, color: theme.btnText,
                 fontWeight: 900, letterSpacing: 1, fontSize: 18, fontFamily: "'Cinzel', serif",
-                boxShadow: `0 4px 20px rgba(197, 160, 89, 0.4)`, cursor: "pointer",
+                boxShadow: `0 0 20px rgba(197, 160, 89, 0.4)`, cursor: "pointer",
               }}
             >
               CALCULATE
@@ -1237,6 +1243,7 @@ export default function App() {
           <button onClick={() => setWarningMsg("")} style={{ width: "100%", marginTop: 24, padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>OK</button>
         </Modal>
 
+        {/* --- NOVI POPUP ZA REDOSLIJED --- */}
         <Modal open={orderWarningMsg} title="⛔ Action Required" onClose={() => setOrderWarningMsg(false)} theme={theme}>
           <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6, color: theme.text, fontSize: 16 }}>
             You must select the <b style={{color: theme.accent}}>First Striker</b> before selecting other troops.
@@ -1244,7 +1251,8 @@ export default function App() {
           <button onClick={() => setOrderWarningMsg(false)} style={{ width: "100%", marginTop: 24, padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>OK</button>
         </Modal>
 
-        <Modal open={helpOpen} title="ℹ️ Instructions & Help" onClose={() => setHelpOpen(false)} theme={theme}>
+        {/* --- INSTRUCTIONS MODAL (WITH ANCHOR) --- */}
+        <Modal open={helpOpen} title="ℹ️ Instructions & Help" onClose={() => setHelpOpen(false)} theme={theme} anchorRect={instructionsAnchor}>
           <div style={{ color: theme.text, lineHeight: 1.6, fontSize: 15, display: "grid", gap: 20 }}>
             <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🎯 Goal</div><div style={{ color: theme.subtext }}>Use the correct troops and bonuses to minimize losses when attacking a Citadel. I took care of the proper troops selection.</div></div>
             <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.danger }}>❗ Most Important Rule</div><div style={{ color: theme.subtext, borderLeft: `4px solid ${theme.danger}`, paddingLeft: 12 }}>Maximize <b style={{ color: theme.text }}>First Striker Health</b>. In a proper attack, the First Striker is the only troop group that should take losses.<br /><br />The number of <b style={{ color: theme.text }}>FIRST STRIKER</b> troops <b style={{ color: theme.text }}> CAN</b> be higher than calculated. All other troops <b style={{ color: theme.text }}>MUST</b> be used in the exact number as calculated.</div></div>
@@ -1289,6 +1297,7 @@ export default function App() {
           ) : (<div style={{ color: theme.subtext, textAlign: "center", padding: 20 }}>No results to display.</div>)}
         </Modal>
       </div>
+    
     </div>
   );
 }
