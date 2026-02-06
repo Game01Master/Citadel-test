@@ -182,7 +182,7 @@ function Card({ title, children, theme, className }) {
   );
 }
 
-// 🛡️ PICKER (DROPDOWN MODIFIED)
+// 🛡️ PICKER (CENTERED VERTICALLY, ALIGNED HORIZONTALLY)
 function TroopPicker({ label, value, options, onChange, theme, inputStyle, locked, onLockedClick }) {
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState(null);
@@ -194,6 +194,7 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle, locke
       if (onLockedClick) onLockedClick();
     } else {
       if (buttonRef.current) {
+        // Capture rect for horizontal positioning
         setAnchorRect(buttonRef.current.getBoundingClientRect());
       }
       setOpen((v) => !v);
@@ -264,7 +265,7 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle, locke
   );
 }
 
-// 🛡️ OPTION PICKER (DROPDOWN MODIFIED)
+// 🛡️ OPTION PICKER (CENTERED VERTICALLY, ALIGNED HORIZONTALLY)
 function OptionPicker({ label, value, options, onChange, theme, inputStyle }) {
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState(null);
@@ -334,7 +335,7 @@ function Row({ label, value, theme, accent }) {
   );
 }
 
-// 🛡️ MODAL - SA PAMETNIM POZICIONIRANJEM (Flip Up/Down)
+// 🛡️ MODAL - POPRAVLJEN ZA CENTRIRANI POPUP NA SREDINI EKRANA
 function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }) {
   if (!open) return null;
   
@@ -342,34 +343,21 @@ function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }
   let popoverStyle = {};
 
   if (isPopover) {
-      // 📐 LOGIKA: Ima li mjesta dolje?
-      const spaceBelow = window.innerHeight - anchorRect.bottom;
-      const neededHeight = 350; // Max visina drop-downa
-      const openUpwards = spaceBelow < neededHeight && anchorRect.top > spaceBelow;
-
-      if (openUpwards) {
-          // OTVORI PREMA GORE (Above)
-          popoverStyle = {
-              position: "absolute",
-              bottom: window.innerHeight - anchorRect.top + 8, // +8 razmaka
-              left: anchorRect.left + window.scrollX,
-              width: anchorRect.width, 
-              minWidth: "200px",
-              maxHeight: "350px",
-              zIndex: 99999,
-          };
-      } else {
-          // OTVORI PREMA DOLJE (Below)
-          popoverStyle = {
-              position: "absolute",
-              top: anchorRect.bottom + window.scrollY + 8, 
-              left: anchorRect.left + window.scrollX,
-              width: anchorRect.width, 
-              minWidth: "200px",
-              maxHeight: Math.min(350, spaceBelow - 20) + "px", // Ograniči da ne ode van ekrana
-              zIndex: 99999,
-          };
-      }
+      // 📐 LOGIKA: 
+      // 1. Vertikalno: Sredina ekrana (Fixed 50%)
+      // 2. Horizontalno: Poravnato s gumbom (Left = anchor.left)
+      popoverStyle = {
+          position: "fixed",
+          top: "50%", 
+          left: anchorRect.left,
+          width: anchorRect.width, 
+          minWidth: "250px", // Backup ako je gumb preuzak
+          maxWidth: "400px",
+          transform: "translateY(-50%)", // Ključno za vertikalno centriranje
+          maxHeight: "80vh",
+          zIndex: 99999,
+          margin: 0,
+      };
   } else {
       // STANDARD CENTRIRANI MODAL (Rezultati, Instrukcije)
       popoverStyle = {
@@ -384,15 +372,15 @@ function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }
     <div
       onClick={onClose}
       style={{
-        position: isPopover ? "absolute" : "fixed", 
+        position: "fixed",
         inset: 0, 
-        height: isPopover ? "100%" : "100vh", 
-        background: isPopover ? "transparent" : "rgba(0,0,0,0.7)",
+        // Ako je popover, i dalje želimo tamnu pozadinu da fokusiramo pažnju, ali možda prozirniju
+        background: "rgba(0,0,0,0.6)", 
         display: isPopover ? "block" : "flex",
         alignItems: "center", justifyContent: "center",
         padding: isPopover ? 0 : 20, 
         zIndex: 99990, 
-        backdropFilter: isPopover ? "none" : "blur(5px)",
+        backdropFilter: "blur(3px)", // Blur za fokus
       }}
     >
       <div
@@ -407,14 +395,13 @@ function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }
           overflow: "hidden"
         }}
       >
-        {!isPopover && (
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "rgba(197, 160, 89, 0.05)", borderBottom: `1px solid ${theme.borderSoft}` }}>
+        {/* HEADER JE SADA UVIJEK VIDLJIV (i za Dropdown i za Modal) */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "rgba(197, 160, 89, 0.05)", borderBottom: `1px solid ${theme.borderSoft}` }}>
             <div style={{ fontWeight: 700, fontSize: 18, fontFamily: "'Cinzel', serif", color: theme.accent, textTransform: "uppercase" }}>{title}</div>
             <button onClick={onClose} style={{ border: "none", background: "transparent", color: theme.text, width: 32, height: 32, fontSize: 24, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
-            </div>
-        )}
+        </div>
         
-        <div style={{ padding: isPopover ? 6 : 16, overflowY: "auto", flex: 1 }}>{children}</div>
+        <div style={{ padding: 16, overflowY: "auto", flex: 1 }}>{children}</div>
       </div>
     </div>,
     document.body
@@ -426,8 +413,6 @@ export default function App() {
   const theme = useMemo(() => makeTheme(isDark), [isDark]);
 
   const [introFinished, setIntroFinished] = useState(false);
-  // UKLONIO SAM anchor state za instrukcije
-  // const [instructionsAnchor, setInstructionsAnchor] = useState(null); 
 
   useEffect(() => {
     if ('scrollRestoration' in window.history) {
@@ -798,7 +783,6 @@ export default function App() {
     }
   };
 
-  // 1. POPRAVAK ZA HELP (Nema sidra, standardni modal)
   const handleInstructionsOpen = (e) => {
     setHelpOpen(true);
   };
