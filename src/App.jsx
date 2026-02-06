@@ -895,8 +895,7 @@ export default function App() {
           background-position: center;
           background-attachment: fixed;
           transition: background-image 0.3s ease-in-out;
-          min-height: 100vh; /* Osigurava visinu */
-          /* UKLONJEN OVERFLOW: HIDDEN koji je lomio sticky */
+          min-height: 100vh;
         }
         @media (min-width: 768px) {
           .app-background {
@@ -926,7 +925,7 @@ export default function App() {
         .content-wrapper {
           transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
           opacity: 1;
-          transform: translateY(0);
+          transform: none; /* POPRAVAK: Bez trajnog transforma, sticky radi! */
           width: 100%; 
         }
 
@@ -953,8 +952,8 @@ export default function App() {
           width: 100%;
           max-width: 600px;
           margin: 0 auto;
-          /* KLJUČNO: Veliki padding na dnu za mobitele da se vidi footer iznad gumba */
-          padding: 20px 16px 140px 16px; 
+          /* POPRAVAK: Ogroman padding dolje na mobitelu (180px) da se vidi footer */
+          padding: 20px 16px 180px 16px; 
           position: relative;
           z-index: 1;
         }
@@ -1197,7 +1196,6 @@ export default function App() {
             </div>
           </div>
           
-          {/* FOOTER je sada unutar content-wrappera, na dnu liste */}
           <footer className="app-footer" style={{ textAlign: "center", paddingTop: "20px", color: theme.subtext, fontSize: 12 }}>
             © 2026 Game01Master · Non-commercial license
           </footer>
