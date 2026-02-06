@@ -182,7 +182,7 @@ function Card({ title, children, theme, className }) {
   );
 }
 
-// 🛡️ PICKER
+// 🛡️ PICKER (DROPDOWN MODIFIED)
 function TroopPicker({ label, value, options, onChange, theme, inputStyle, locked, onLockedClick }) {
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState(null);
@@ -194,6 +194,7 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle, locke
       if (onLockedClick) onLockedClick();
     } else {
       if (buttonRef.current) {
+        // Capture rect for positioning
         setAnchorRect(buttonRef.current.getBoundingClientRect());
       }
       setOpen((v) => !v);
@@ -264,7 +265,7 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle, locke
   );
 }
 
-// 🛡️ OPTION PICKER
+// 🛡️ OPTION PICKER (DROPDOWN MODIFIED)
 function OptionPicker({ label, value, options, onChange, theme, inputStyle }) {
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState(null);
@@ -272,7 +273,6 @@ function OptionPicker({ label, value, options, onChange, theme, inputStyle }) {
   const selected = options.find((o) => o.value === value);
   const display = selected ? selected.label : "— Select —";
 
-  // --- POPRAVAK: SADA ISPRAVNO UZIMA POZICIJU GUMBA ---
   const handleClick = () => {
     if (buttonRef.current) {
         setAnchorRect(buttonRef.current.getBoundingClientRect());
@@ -286,7 +286,7 @@ function OptionPicker({ label, value, options, onChange, theme, inputStyle }) {
       <button
         ref={buttonRef}
         type="button"
-        onClick={handleClick} // <--- POPRAVLJENO
+        onClick={handleClick} 
         style={{
           ...inputStyle,
           textAlign: "left", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, cursor: "pointer",
@@ -335,25 +335,25 @@ function Row({ label, value, theme, accent }) {
   );
 }
 
-// 🛡️ MODAL - SADA PODRŽAVA POZICIONIRANJE (POPOVER)
+// 🛡️ MODAL - POPRAVLJEN ZA POZICIONIRANJE I ABSOLUTE SCROLL
 function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }) {
   if (!open) return null;
   
   const isPopover = !!anchorRect;
 
-  // --- POPRAVAK: UKLONJENO window.scrollY/scrollX jer je position: fixed ---
+  // Izračunaj poziciju na temelju gumba i scrolla stranice
   const popoverStyle = isPopover ? {
       position: "absolute",
-      top: anchorRect.bottom + 8, // viewport coordinates
-      left: anchorRect.left,      // viewport coordinates
+      top: anchorRect.bottom + window.scrollY + 6, // Dodajemo scrollY da pozicija bude točna u document flowu
+      left: anchorRect.left + window.scrollX,
       width: anchorRect.width, 
       maxWidth: "none",
-      maxHeight: "300px",
+      maxHeight: "350px",
       margin: 0,
       transform: "none",
       zIndex: 99999,
   } : {
-      // Default Centered Style
+      // Default Centered Style (za rezultate)
       position: "relative",
       width: "100%", 
       maxWidth: 500,
@@ -364,12 +364,14 @@ function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }
     <div
       onClick={onClose}
       style={{
-        position: "fixed", inset: 0, 
-        background: isPopover ? "transparent" : "rgba(0,0,0,0.6)",
+        position: isPopover ? "absolute" : "fixed", // Absolute za popover (da skrola sa stranicom), fixed za modal
+        inset: 0, 
+        height: isPopover ? "100%" : "100vh", // Za absolute trebamo full document height
+        background: isPopover ? "transparent" : "rgba(0,0,0,0.7)",
         display: isPopover ? "block" : "flex",
         alignItems: "center", justifyContent: "center",
         padding: isPopover ? 0 : 20, 
-        zIndex: 99999, 
+        zIndex: 99990, 
         backdropFilter: isPopover ? "none" : "blur(5px)",
       }}
     >
@@ -377,10 +379,10 @@ function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }
         onClick={(e) => e.stopPropagation()}
         style={{
           ...popoverStyle,
-          background: "linear-gradient(180deg, rgba(24,26,32,0.98) 0%, rgba(14,15,18,0.99) 100%)",
+          background: "linear-gradient(180deg, rgba(28,30,36,0.99) 0%, rgba(14,15,18,0.99) 100%)",
           color: theme.text, borderRadius: 12,
           border: `1px solid ${theme.accent}`,
-          boxShadow: `0 10px 40px rgba(0,0,0,0.5), ${theme.goldGlowStrong}`,
+          boxShadow: `0 10px 40px rgba(0,0,0,0.8), ${theme.goldGlowStrong}`,
           display: "flex", flexDirection: "column",
           overflow: "hidden"
         }}
@@ -392,7 +394,7 @@ function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }
             </div>
         )}
         
-        <div style={{ padding: isPopover ? 8 : 16, overflowY: "auto", flex: 1 }}>{children}</div>
+        <div style={{ padding: isPopover ? 6 : 16, overflowY: "auto", flex: 1 }}>{children}</div>
       </div>
     </div>,
     document.body
@@ -404,7 +406,6 @@ export default function App() {
   const theme = useMemo(() => makeTheme(isDark), [isDark]);
 
   const [introFinished, setIntroFinished] = useState(false);
-  const setupCardRef = useRef(null);
   const [instructionsAnchor, setInstructionsAnchor] = useState(null);
 
   useEffect(() => {
@@ -881,7 +882,7 @@ export default function App() {
             display: grid;
             grid-template-columns: 360px 1fr;
             gap: 24px;
-            align-items: start;
+            align-items: start; /* KLJUČNO ZA STICKY SIDEBAR */
           }
 
           .layout-sidebar {
@@ -889,7 +890,9 @@ export default function App() {
             top: 20px;
             display: grid;
             gap: 16px;
-            align-self: start; /* OBAVEZNO ZA STICKY U GRIDU */
+            align-self: start; 
+            z-index: 50; /* Osigurava da ostane iznad sadržaja ako dođe do preklapanja */
+            height: fit-content; /* Osigurava da sticky radi ispravno */
           }
 
           .striker-grid {
@@ -965,7 +968,7 @@ export default function App() {
           {/* --- MAIN GRID LAYOUT START --- */}
           <div className="main-layout-grid">
             
-            {/* LEFT SIDEBAR (Setup Only) */}
+            {/* LEFT SIDEBAR (Setup Only) - SADA JE STICKY */}
             <div className="layout-sidebar">
               <Card title="⚙️ Setup" theme={theme}>
                 <button
@@ -1007,7 +1010,7 @@ export default function App() {
                 </div>
               </Card>
 
-              {/* DESKTOP CALCULATE BUTTON */}
+              {/* DESKTOP CALCULATE BUTTON - STICKY ZAJEDNO SA SETUPOM */}
               <button 
                 id="btn-calculate-desktop"
                 className="desktop-calc-btn" 
