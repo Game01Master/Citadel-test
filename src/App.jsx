@@ -3,15 +3,14 @@ import { createPortal } from "react-dom";
 import TB from "./tb_data.json";
 
 // ==========================================
-// 1. IMPORT ASSETS (IMAGES & ICONS)
+// 1. IMPORT ASSETS (SLIKE I IKONE)
 // ==========================================
 
-// --- Backgrounds (WebP) ---
+// --- Pozadine (WebP format preporučen) ---
 import bgMobile from "./assets/bg.webp";
 import bgDesktop from "./assets/bg-desktop.webp";
 
-// --- Icons (PNG) - iz src/assets/icons/ ---
-// Napomena: Imena datoteka moraju točno odgovarati onome što je na disku.
+// --- Ikone (PNG) - iz src/assets/icons/ ---
 import iconCorax2 from "./assets/icons/Corax II.png";
 import iconCorax1 from "./assets/icons/Corax I.png";
 import iconGriffin7 from "./assets/icons/Griffin VII.png";
@@ -44,7 +43,6 @@ import iconDuelist1 from "./assets/icons/Duelist I.png";
 import iconHeavyKnight7 from "./assets/icons/Heavy Knight VII.png";
 import iconHeavyKnight6 from "./assets/icons/Heavy Knight VI.png";
 import iconSwordsmen5 from "./assets/icons/Swordsmen V.png";
-
 
 // --- GAMING FONTOVI ---
 const fontLink = document.createElement("link");
@@ -149,7 +147,6 @@ const ICON_MAP = {
   "Swordsmen V": iconSwordsmen5,
 };
 
-// Funkcija sada samo vraća importirani objekt (string URL-a)
 function iconSrcForTroop(name) {
   if (!name) return null;
   return ICON_MAP[name] || null;
@@ -886,8 +883,23 @@ export default function App() {
       <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", zIndex: 0, pointerEvents: "none" }} />
 
       <style>{`
-        html, body, #root { width: 100%; max-width: 100%; margin: 0; padding: 0; }
-        #root { display: block; }
+        /* --- GLOBALNI RESET ZA SPRJEČAVANJE SKROLANJA --- */
+        html, body { 
+          width: 100%; 
+          max-width: 100%; 
+          margin: 0; 
+          padding: 0; 
+          overflow-x: hidden !important; /* KLJUČNO: Zabranjuje horizontalno skrolanje */
+          position: relative;
+        }
+
+        #root { 
+          display: block; 
+          width: 100%;
+          max-width: 100%;
+          overflow-x: hidden !important; /* Osiguranje i na root elementu */
+        }
+        
         *, *::before, *::after { box-sizing: border-box; }
         :root { color-scheme: dark; }
 
@@ -898,6 +910,7 @@ export default function App() {
           background-position: center;
           background-attachment: fixed;
           transition: background-image 0.3s ease-in-out;
+          overflow-x: hidden; /* I pozadina mora biti odrezana */
         }
         @media (min-width: 768px) {
           .app-background {
@@ -905,14 +918,15 @@ export default function App() {
           }
         }
 
-        /* --- INTRO ANIMATION STYLES (SPORIJE) --- */
+        /* --- INTRO ANIMATION STYLES --- */
         
-        /* 1. Header se miče gore */
         .header-wrapper {
           transition: transform 2.0s cubic-bezier(0.25, 1, 0.5, 1);
           will-change: transform;
           position: relative; 
           z-index: 10;
+          width: 100%;
+          max-width: 100vw; /* Osigurava da header nikad ne bude širi od ekrana */
         }
 
         .app-loading .header-wrapper {
@@ -928,6 +942,7 @@ export default function App() {
           transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
           opacity: 1;
           transform: translateY(0);
+          width: 100%; /* Osigurava širinu */
         }
 
         .app-loading .content-wrapper {
@@ -954,7 +969,7 @@ export default function App() {
           width: 100%;
           max-width: 600px;
           margin: 0 auto;
-          padding: 20px 16px 100px 16px; /* 100px bottom for mobile button */
+          padding: 20px 16px 100px 16px; 
           position: relative;
           z-index: 1;
         }
@@ -970,19 +985,18 @@ export default function App() {
             display: grid;
             grid-template-columns: 360px 1fr;
             gap: 24px;
-            align-items: start; /* KLJUČNO ZA STICKY SIDEBAR */
+            align-items: start; 
           }
 
-          /* --- POPRAVAK ZA STICKY SIDEBAR --- */
           .layout-sidebar {
             position: sticky;
             top: 20px;
             align-self: start; 
-            z-index: 100; /* Iznad kartica ako dođe do scrolla */
+            z-index: 100;
             height: fit-content;
-            max-height: calc(100vh - 40px); /* Da ne bude viši od ekrana */
-            overflow-y: auto; /* Scroll unutar sidebara ako je prevelik */
-            padding-right: 4px; /* Prostor za scrollbar */
+            max-height: calc(100vh - 40px);
+            overflow-y: auto; 
+            padding-right: 4px;
           }
 
           .striker-grid {
@@ -991,12 +1005,10 @@ export default function App() {
             gap: 16px;
           }
 
-          /* Hide Mobile Bottom Bar on Desktop */
           .mobile-bottom-bar {
             display: none !important;
           }
 
-          /* Show Desktop Calculate Button */
           .desktop-calc-btn {
             display: block !important;
           }
@@ -1114,7 +1126,7 @@ export default function App() {
                   marginTop: 16,
                 }}
               >
-                CALCULATE
+                CALCULATE RESULTS
               </button>
             </div>
 
@@ -1217,15 +1229,15 @@ export default function App() {
         <div className={`mobile-bottom-bar ${introFinished ? "visible" : "hidden"}`} style={{
             position: "fixed", 
             left: 0, 
-            right: 0,       // Rasteže element od lijevog do desnog ruba
-            width: "auto",  // Poništavamo width: 100% koji je radio problem
-            bottom: 0,      // Lijepimo ga točno na dno
-            padding: "16px 16px 24px 16px", // Malo više mjesta dolje radi sigurnosti (iOS home bar)
-            background: "linear-gradient(to top, rgba(5,5,5,0.95) 20%, rgba(5,5,5,0) 100%)", // Blagi gradient da se tekst ispod ljepše stopi
+            right: 0,
+            width: "auto",
+            bottom: 0, 
+            padding: "16px 16px 24px 16px",
+            background: "linear-gradient(to top, rgba(5,5,5,0.95) 20%, rgba(5,5,5,0) 100%)",
             borderTop: "none", 
             backdropFilter: "none", 
             zIndex: 99,
-            boxSizing: "border-box" // KLJUČNO: Osigurava da padding ne širi element van ekrana
+            boxSizing: "border-box"
           }}>
           <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
             <button 
