@@ -169,7 +169,7 @@ async function copyToClipboard(text) {
 }
 
 /* =========================
-   THEME SETUP (GAMING LOOK)
+   THEME SETUP
 ========================= */
 function usePrefersDark() {
   const [isDark, setIsDark] = useState(() => {
@@ -242,7 +242,7 @@ function Card({ title, children, theme, className }) {
   );
 }
 
-// 🛡️ PICKER (TROOPS - POPUP CENTERED)
+// 🛡️ PICKER
 function TroopPicker({ label, value, options, onChange, theme, inputStyle, locked, onLockedClick }) {
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState(null);
@@ -290,7 +290,6 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle, locke
         <span style={{ color: theme.accent, fontSize: 14 }}>▼</span>
       </button>
       
-      {/* MODE = TROOP (Centrirano vertikalno, poravnato horizontalno) */}
       <Modal open={open} title={`Select ${label}`} onClose={() => setOpen(false)} theme={theme} mode="troop" anchorRect={anchorRect}>
         <div style={{ display: "grid", gap: 6 }}>
           {options.map((opt) => {
@@ -325,7 +324,7 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle, locke
   );
 }
 
-// 🛡️ OPTION PICKER (SETUP - DROPDOWN STYLE)
+// 🛡️ OPTION PICKER
 function OptionPicker({ label, value, options, onChange, theme, inputStyle }) {
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState(null);
@@ -360,7 +359,6 @@ function OptionPicker({ label, value, options, onChange, theme, inputStyle }) {
         <span style={{ color: theme.accent, fontSize: 14 }}>▼</span>
       </button>
 
-      {/* MODE = DROPDOWN (Ispod gumba) */}
       <Modal open={open} title={label} onClose={() => setOpen(false)} theme={theme} mode="dropdown" anchorRect={anchorRect}>
         <div style={{ display: "grid", gap: 6 }}>
           {options.map((opt) => {
@@ -397,14 +395,13 @@ function Row({ label, value, theme, accent }) {
   );
 }
 
-// 🛡️ MODAL - UNIVERZALNI (3 NAČINA RADA)
+// 🛡️ MODAL
 function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
   if (!open) return null;
   
   let popoverStyle = {};
 
   if (mode === "dropdown" && anchorRect) {
-      // 1. DROPDOWN STYLE (Za Setup) - Ispod gumba
       popoverStyle = {
           position: "fixed",
           top: anchorRect.bottom + 6,
@@ -417,22 +414,20 @@ function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
       };
 
   } else if (mode === "troop" && anchorRect) {
-      // 2. TROOP STYLE (Za Grid) - Vertikalno centrirano, Horizontalno poravnato
       popoverStyle = {
           position: "fixed",
           top: "50%", 
           left: anchorRect.left,
           width: anchorRect.width, 
-          minWidth: "250px", // Backup
+          minWidth: "250px",
           maxWidth: "400px",
-          transform: "translateY(-50%)", // Vertikalno centriranje
+          transform: "translateY(-50%)",
           maxHeight: "80vh",
           zIndex: 99999,
           margin: 0,
       };
 
   } else {
-      // 3. STANDARD CENTER (Results, Instructions)
       popoverStyle = {
           position: "relative",
           width: "100%", 
@@ -441,7 +436,7 @@ function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
       };
   }
 
-  const isOverlay = !mode; // Samo standard modal ima full screen overlay
+  const isOverlay = !mode;
 
   return createPortal(
     <div
@@ -449,9 +444,8 @@ function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
       style={{
         position: "fixed",
         inset: 0, 
-        // Ako je standard modal -> taman. Ako je dropdown/troop -> proziran (samo za close on click outside)
         background: isOverlay ? "rgba(0,0,0,0.7)" : "transparent",
-        display: isOverlay ? "flex" : "block", // Flex za centriranje standardnog modala
+        display: isOverlay ? "flex" : "block", 
         alignItems: "center", justifyContent: "center",
         padding: isOverlay ? 20 : 0, 
         zIndex: 99990, 
@@ -470,8 +464,7 @@ function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
           overflow: "hidden"
         }}
       >
-        {/* HEADER */}
-        {mode !== "dropdown" && ( // Dropdown obično nema "X" header, ali trupe i modal imaju
+        {mode !== "dropdown" && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "rgba(197, 160, 89, 0.05)", borderBottom: `1px solid ${theme.borderSoft}` }}>
             <div style={{ fontWeight: 700, fontSize: 18, fontFamily: "'Cinzel', serif", color: theme.accent, textTransform: "uppercase" }}>{title}</div>
             <button onClick={onClose} style={{ border: "none", background: "transparent", color: theme.text, width: 32, height: 32, fontSize: 24, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
@@ -884,7 +877,7 @@ export default function App() {
           max-width: 100%; 
           margin: 0; 
           padding: 0; 
-          overflow-x: hidden !important; /* Zabranjuje horizontalno skrolanje samo na body */
+          overflow-x: hidden !important; /* Ovo zadržavamo jer spašava animaciju */
           position: relative;
         }
 
@@ -892,7 +885,7 @@ export default function App() {
           display: block; 
           width: 100%;
           max-width: 100%;
-          /* OVDJE SMO UKLONILI overflow-x: hidden JER JE KVARIO STICKY NA DESKTOPU */
+          /* OVDJE SMO UKLONILI overflow-x: hidden JER JE KVARIO STICKY SIDEBAR */
         }
         
         *, *::before, *::after { box-sizing: border-box; }
@@ -905,7 +898,7 @@ export default function App() {
           background-position: center;
           background-attachment: fixed;
           transition: background-image 0.3s ease-in-out;
-          /* OVDJE SMO UKLONILI overflow-x: hidden JER JE KVARIO STICKY NA DESKTOPU */
+          /* OVDJE SMO UKLONILI overflow-x: hidden JER JE KVARIO STICKY SIDEBAR */
         }
         @media (min-width: 768px) {
           .app-background {
@@ -921,7 +914,7 @@ export default function App() {
           position: relative; 
           z-index: 10;
           width: 100%;
-          max-width: 100vw; /* Osigurava da header nikad ne bude širi od ekrana */
+          max-width: 100vw; 
         }
 
         .app-loading .header-wrapper {
@@ -932,12 +925,11 @@ export default function App() {
           transform: translateY(0) scale(1);
         }
 
-        /* 2. Content fade in */
         .content-wrapper {
           transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
           opacity: 1;
           transform: translateY(0);
-          width: 100%; /* Osigurava širinu */
+          width: 100%; 
         }
 
         .app-loading .content-wrapper {
@@ -946,7 +938,6 @@ export default function App() {
           pointer-events: none; 
         }
 
-        /* 3. Mobile Button fade in */
         .mobile-bottom-bar {
           transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
           opacity: 1;
@@ -964,7 +955,8 @@ export default function App() {
           width: 100%;
           max-width: 600px;
           margin: 0 auto;
-          padding: 20px 16px 100px 16px; 
+          /* OVDJE SMO POVEĆALI PADDING NA DNU ZA MOBITELE (120px) DA FOOTER BUDE VIDLJIV */
+          padding: 20px 16px 120px 16px; 
           position: relative;
           z-index: 1;
         }
@@ -973,7 +965,7 @@ export default function App() {
         @media (min-width: 1100px) {
           .app-container {
             max-width: 1300px;
-            padding-bottom: 40px;
+            padding-bottom: 40px; /* Na desktopu ne treba veliki padding */
           }
 
           .main-layout-grid {
@@ -1009,7 +1001,6 @@ export default function App() {
           }
         }
 
-        /* Mobile specific adjustments */
         @media (max-width: 1099px) {
           .main-layout-grid {
             display: flex;
@@ -1039,7 +1030,6 @@ export default function App() {
 
       <div className="app-container">
         
-        {/* HEADER WRAPPER ZA ANIMACIJU */}
         <div className="header-wrapper">
           <div style={{ textAlign: "center", marginBottom: 30 }}>
             <div style={{ 
@@ -1060,12 +1050,10 @@ export default function App() {
           </div>
         </div>
 
-        {/* CONTENT WRAPPER ZA FADE IN */}
         <div className="content-wrapper">
-          {/* --- MAIN GRID LAYOUT START --- */}
           <div className="main-layout-grid">
             
-            {/* LEFT SIDEBAR (Setup Only) - SADA JE STICKY */}
+            {/* LEFT SIDEBAR */}
             <div className="layout-sidebar">
               <Card title="⚙️ Setup" theme={theme}>
                 <button
@@ -1107,7 +1095,7 @@ export default function App() {
                 </div>
               </Card>
 
-              {/* DESKTOP CALCULATE BUTTON - STICKY ZAJEDNO SA SETUPOM */}
+              {/* DESKTOP BUTTON */}
               <button 
                 id="btn-calculate-desktop"
                 className="desktop-calc-btn" 
@@ -1125,10 +1113,8 @@ export default function App() {
               </button>
             </div>
 
-            {/* RIGHT CONTENT (Wall Killer + Striker Grid) */}
+            {/* RIGHT CONTENT */}
             <div className="striker-grid">
-              
-              {/* WALL KILLER */}
               <Card title="🛡️ Wall Killer" theme={theme}>
                 <div style={{ display: "grid", gap: 16 }}>
                   <TroopPicker
@@ -1153,14 +1139,11 @@ export default function App() {
                 </div>
               </Card>
 
-              {/* STRIKERS LOOP */}
               {perStriker.map((s) => {
                 const idx = s.idx;
                 const isFirst = idx === 0;
                 const opts = optionsForIdx(idx);
                 const nextInputId = idx < 8 ? `bonus-str-${idx + 1}` : "btn-calculate-desktop";
-
-                // 🛡️ LOGIKA ZA LOCKED: Ako nije First Striker, a First Striker je prazan -> LOCKED
                 const isFirstStrikerSelected = !!strikerTroops[0];
                 const isLocked = !isFirst && !isFirstStrikerSelected;
 
@@ -1170,8 +1153,8 @@ export default function App() {
                       <TroopPicker
                         label="Select Troop" value={strikerTroops[idx]} options={opts}
                         onChange={(v) => handleTroopChange(idx, v)} theme={theme} inputStyle={inputStyle}
-                        locked={isLocked} // <--- LOCKED UMJESTO DISABLED
-                        onLockedClick={() => setOrderWarningMsg(true)} // <--- OTVORI POPUP
+                        locked={isLocked}
+                        onLockedClick={() => setOrderWarningMsg(true)}
                       />
 
                       {isFirst && (
@@ -1194,8 +1177,8 @@ export default function App() {
                           type="number" step="any" inputMode="decimal" placeholder="0" value={strikerBonusPct[idx]}
                           onChange={(e) => setBonusAt(idx, e.target.value)}
                           onKeyDown={(e) => handleEnter(e, nextInputId)}
-                          readOnly={isLocked} // <--- READONLY UMJESTO DISABLED
-                          onClick={() => isLocked && setOrderWarningMsg(true)} // <--- KLIK OTVARA POPUP
+                          readOnly={isLocked}
+                          onClick={() => isLocked && setOrderWarningMsg(true)}
                           style={{...inputStyle, borderColor: "rgba(128, 216, 255, 0.4)"}} onFocus={(e) => e.target.select()}
                         />
                       </label>
@@ -1214,13 +1197,10 @@ export default function App() {
                 );
               })}
             </div>
-            {/* END RIGHT CONTENT */}
           </div>
-          {/* --- MAIN GRID LAYOUT END --- */}
         </div>
-        {/* END CONTENT WRAPPER */}
 
-        {/* MOBILE BOTTOM BAR (Visible only on Mobile) */}
+        {/* MOBILE BUTTON */}
         <div className={`mobile-bottom-bar ${introFinished ? "visible" : "hidden"}`} style={{
             position: "fixed", 
             left: 0, 
@@ -1256,7 +1236,6 @@ export default function App() {
           <button onClick={() => setWarningMsg("")} style={{ width: "100%", marginTop: 24, padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>OK</button>
         </Modal>
 
-        {/* --- NOVI POPUP ZA REDOSLIJED --- */}
         <Modal open={orderWarningMsg} title="⛔ Action Required" onClose={() => setOrderWarningMsg(false)} theme={theme}>
           <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6, color: theme.text, fontSize: 16 }}>
             You must select the <b style={{color: theme.accent}}>First Striker</b> before selecting other troops.
@@ -1264,7 +1243,6 @@ export default function App() {
           <button onClick={() => setOrderWarningMsg(false)} style={{ width: "100%", marginTop: 24, padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>OK</button>
         </Modal>
 
-        {/* --- INSTRUCTIONS MODAL (VRAĆEN NA STANDARD) --- */}
         <Modal open={helpOpen} title="ℹ️ Instructions & Help" onClose={() => setHelpOpen(false)} theme={theme}>
           <div style={{ color: theme.text, lineHeight: 1.6, fontSize: 15, display: "grid", gap: 20 }}>
             <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🎯 Goal</div><div style={{ color: theme.subtext }}>Use the correct troops and bonuses to minimize losses when attacking a Citadel. I took care of the proper troops selection.</div></div>
@@ -1311,7 +1289,8 @@ export default function App() {
         </Modal>
       </div>
     
-      <footer className="app-footer">
+      {/* Footer je premješten unutar App-containera ali na samo dno stranice */}
+      <footer className="app-footer" style={{ textAlign: "center", padding: "20px 0", color: theme.subtext, fontSize: 12 }}>
         © 2026 Game01Master · Non-commercial license
       </footer>
     </div>
