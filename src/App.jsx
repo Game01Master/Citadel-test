@@ -1114,7 +1114,7 @@ export default function App() {
                   marginTop: 16,
                 }}
               >
-                CALCULATE RESULTS
+                CALCULATE
               </button>
             </div>
 
@@ -1213,10 +1213,19 @@ export default function App() {
         </div>
         {/* END CONTENT WRAPPER */}
 
-        {/* MOBILE BOTTOM BAR (Visible only on Mobile) - IZVUČEN IZVAN CONTENT WRAPPERA ZA FIX POZICIJU */}
+        {/* MOBILE BOTTOM BAR (Visible only on Mobile) */}
         <div className={`mobile-bottom-bar ${introFinished ? "visible" : "hidden"}`} style={{
-            position: "fixed", left: 0, width: "100%", bottom: 9, padding: 16, // FIX: width 100% instead of right:0
-            background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99
+            position: "fixed", 
+            left: 0, 
+            right: 0,       // Rasteže element od lijevog do desnog ruba
+            width: "auto",  // Poništavamo width: 100% koji je radio problem
+            bottom: 0,      // Lijepimo ga točno na dno
+            padding: "16px 16px 24px 16px", // Malo više mjesta dolje radi sigurnosti (iOS home bar)
+            background: "linear-gradient(to top, rgba(5,5,5,0.95) 20%, rgba(5,5,5,0) 100%)", // Blagi gradient da se tekst ispod ljepše stopi
+            borderTop: "none", 
+            backdropFilter: "none", 
+            zIndex: 99,
+            boxSizing: "border-box" // KLJUČNO: Osigurava da padding ne širi element van ekrana
           }}>
           <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
             <button 
@@ -1226,7 +1235,7 @@ export default function App() {
                 width: "100%", padding: "16px", borderRadius: 12, border: "none",
                 background: theme.btnBg, color: theme.btnText,
                 fontWeight: 900, letterSpacing: 1, fontSize: 18, fontFamily: "'Cinzel', serif",
-                boxShadow: `0 0 20px rgba(197, 160, 89, 0.4)`, cursor: "pointer",
+                boxShadow: `0 4px 20px rgba(197, 160, 89, 0.4)`, cursor: "pointer",
               }}
             >
               CALCULATE
