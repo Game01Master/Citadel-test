@@ -335,18 +335,20 @@ function Row({ label, value, theme, accent }) {
   );
 }
 
-// 🛡️ MODAL - POPRAVLJEN ZA POZICIONIRANJE I ABSOLUTE SCROLL
+// 🛡️ MODAL / POPOVER
 function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }) {
   if (!open) return null;
   
   const isPopover = !!anchorRect;
 
   // Izračunaj poziciju na temelju gumba i scrolla stranice
+  // SADA: Width je isti kao gumb, pozicija je točno ispod njega.
   const popoverStyle = isPopover ? {
       position: "absolute",
-      top: anchorRect.bottom + window.scrollY + 6, // Dodajemo scrollY da pozicija bude točna u document flowu
+      top: anchorRect.bottom + window.scrollY + 8, 
       left: anchorRect.left + window.scrollX,
-      width: anchorRect.width, 
+      width: anchorRect.width,  // <-- ISTA ŠIRINA KAO GUMB
+      minWidth: "200px", // Backup
       maxWidth: "none",
       maxHeight: "350px",
       margin: 0,
@@ -364,9 +366,9 @@ function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }
     <div
       onClick={onClose}
       style={{
-        position: isPopover ? "absolute" : "fixed", // Absolute za popover (da skrola sa stranicom), fixed za modal
+        position: isPopover ? "absolute" : "fixed", 
         inset: 0, 
-        height: isPopover ? "100%" : "100vh", // Za absolute trebamo full document height
+        height: isPopover ? "100%" : "100vh", // Full height dokumenta za absolute
         background: isPopover ? "transparent" : "rgba(0,0,0,0.7)",
         display: isPopover ? "block" : "flex",
         alignItems: "center", justifyContent: "center",
@@ -798,7 +800,7 @@ export default function App() {
       <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", zIndex: 0, pointerEvents: "none" }} />
 
       <style>{`
-        html, body, #root { width: 100%; max-width: 100%; margin: 0; padding: 0; overflow-x: hidden; }
+        html, body, #root { width: 100%; max-width: 100%; margin: 0; padding: 0; }
         #root { display: block; }
         *, *::before, *::after { box-sizing: border-box; }
         :root { color-scheme: dark; }
@@ -885,14 +887,16 @@ export default function App() {
             align-items: start; /* KLJUČNO ZA STICKY SIDEBAR */
           }
 
+          /* --- POPRAVAK ZA STICKY SIDEBAR --- */
           .layout-sidebar {
             position: sticky;
             top: 20px;
-            display: grid;
-            gap: 16px;
             align-self: start; 
-            z-index: 50; /* Osigurava da ostane iznad sadržaja ako dođe do preklapanja */
-            height: fit-content; /* Osigurava da sticky radi ispravno */
+            z-index: 100; /* Iznad kartica ako dođe do scrolla */
+            height: fit-content;
+            max-height: calc(100vh - 40px); /* Da ne bude viši od ekrana */
+            overflow-y: auto; /* Scroll unutar sidebara ako je prevelik */
+            padding-right: 4px; /* Prostor za scrollbar */
           }
 
           .striker-grid {
@@ -1020,7 +1024,8 @@ export default function App() {
                   background: theme.btnBg, color: theme.btnText,
                   fontWeight: 900, letterSpacing: 1, fontSize: 20, fontFamily: "'Cinzel', serif",
                   boxShadow: `0 0 25px rgba(197, 160, 89, 0.45)`, cursor: "pointer",
-                  transition: "transform 0.2s"
+                  transition: "transform 0.2s",
+                  marginTop: 16,
                 }}
               >
                 CALCULATE RESULTS
