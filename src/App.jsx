@@ -6,7 +6,7 @@ import TB from "./tb_data.json";
 // 1. IMPORT ASSETS (SLIKE I IKONE)
 // ==========================================
 
-// --- Pozadine (WebP format preporučen) ---
+// --- Pozadine ---
 import bgMobile from "./assets/bg.webp";
 import bgDesktop from "./assets/bg-desktop.webp";
 
@@ -109,9 +109,6 @@ function normName(s) {
   return String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
 }
 
-// ==========================================
-// 2. ICON MAP (Povezivanje imena s importom)
-// ==========================================
 const ICON_MAP = {
   "Corax II": iconCorax2,
   "Corax I": iconCorax1,
@@ -403,8 +400,6 @@ function Row({ label, value, theme, accent }) {
 // 🛡️ MODAL - UNIVERZALNI (3 NAČINA RADA)
 function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
   if (!open) return null;
-  
-  // mode: "dropdown" | "troop" | undefined (center)
   
   let popoverStyle = {};
 
@@ -889,7 +884,7 @@ export default function App() {
           max-width: 100%; 
           margin: 0; 
           padding: 0; 
-          overflow-x: hidden !important; /* KLJUČNO: Zabranjuje horizontalno skrolanje */
+          overflow-x: hidden !important; /* Zabranjuje horizontalno skrolanje samo na body */
           position: relative;
         }
 
@@ -897,7 +892,7 @@ export default function App() {
           display: block; 
           width: 100%;
           max-width: 100%;
-          overflow-x: hidden !important; /* Osiguranje i na root elementu */
+          /* OVDJE SMO UKLONILI overflow-x: hidden JER JE KVARIO STICKY NA DESKTOPU */
         }
         
         *, *::before, *::after { box-sizing: border-box; }
@@ -910,7 +905,7 @@ export default function App() {
           background-position: center;
           background-attachment: fixed;
           transition: background-image 0.3s ease-in-out;
-          overflow-x: hidden; /* I pozadina mora biti odrezana */
+          /* OVDJE SMO UKLONILI overflow-x: hidden JER JE KVARIO STICKY NA DESKTOPU */
         }
         @media (min-width: 768px) {
           .app-background {
