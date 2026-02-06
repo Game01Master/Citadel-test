@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import TB from "./tb_data.json";
 
@@ -182,15 +182,20 @@ function Card({ title, children, theme, className }) {
   );
 }
 
-// 🛡️ PICKER
+// 🛡️ PICKER - SADA ŠALJE POZICIJU GUMBA
 function TroopPicker({ label, value, options, onChange, theme, inputStyle, locked, onLockedClick }) {
   const [open, setOpen] = useState(false);
+  const [anchorRect, setAnchorRect] = useState(null);
+  const buttonRef = useRef(null);
   const display = value ? value : "— Select —";
 
-  const handleClick = () => {
+  const handleClick = (e) => {
     if (locked) {
       if (onLockedClick) onLockedClick();
     } else {
+      if (buttonRef.current) {
+        setAnchorRect(buttonRef.current.getBoundingClientRect());
+      }
       setOpen((v) => !v);
     }
   };
@@ -199,6 +204,7 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle, locke
     <div style={{ display: "grid", gap: 6 }}>
       <span style={{ color: theme.subtext, fontSize: 12, textTransform: "uppercase", fontWeight: 600 }}>{label}</span>
       <button
+        ref={buttonRef}
         type="button"
         onClick={handleClick}
         style={{
@@ -223,7 +229,9 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle, locke
         </span>
         <span style={{ color: theme.accent, fontSize: 14 }}>▼</span>
       </button>
-      <Modal open={open} title={`Select ${label}`} onClose={() => setOpen(false)} theme={theme} isDropdown={true}>
+      
+      {/* PREDSTAVLJAMO ANCHOR RECT MODALU */}
+      <Modal open={open} title={`Select ${label}`} onClose={() => setOpen(false)} theme={theme} isDropdown={true} anchorRect={anchorRect}>
         <div style={{ display: "grid", gap: 6 }}>
           {options.map((opt) => {
             const isBlank = opt === "";
@@ -260,15 +268,25 @@ function TroopPicker({ label, value, options, onChange, theme, inputStyle, locke
 // 🛡️ OPTION PICKER
 function OptionPicker({ label, value, options, onChange, theme, inputStyle }) {
   const [open, setOpen] = useState(false);
+  const [anchorRect, setAnchorRect] = useState(null);
+  const buttonRef = useRef(null);
   const selected = options.find((o) => o.value === value);
   const display = selected ? selected.label : "— Select —";
+
+  const handleClick = () => {
+    if (buttonRef.current) {
+        setAnchorRect(buttonRef.current.getBoundingClientRect());
+    }
+    setOpen((v) => !v);
+  };
 
   return (
     <div style={{ display: "grid", gap: 6 }}>
       <span style={{ color: theme.subtext, fontSize: 12, textTransform: "uppercase", fontWeight: 600 }}>{label}</span>
       <button
+        ref={buttonRef}
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={handleClick}
         style={{
           ...inputStyle,
           textAlign: "left", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, cursor: "pointer",
@@ -281,7 +299,7 @@ function OptionPicker({ label, value, options, onChange, theme, inputStyle }) {
         </span>
         <span style={{ color: theme.accent, fontSize: 14 }}>▼</span>
       </button>
-      <Modal open={open} title={label} onClose={() => setOpen(false)} theme={theme} isDropdown={true}>
+      <Modal open={open} title={label} onClose={() => setOpen(false)} theme={theme} isDropdown={true} anchorRect={anchorRect}>
         <div style={{ display: "grid", gap: 6 }}>
           {options.map((opt) => {
             const isSelected = opt.value === value;
@@ -317,35 +335,66 @@ function Row({ label, value, theme, accent }) {
   );
 }
 
-// 🛡️ MODAL (Portal)
-function Modal({ open, title, onClose, children, theme, isDropdown }) {
+// 🛡️ MODAL - SADA PODRŽAVA POZICIONIRANJE (POPOVER)
+function Modal({ open, title, onClose, children, theme, isDropdown, anchorRect }) {
   if (!open) return null;
   
+  // Ako imamo anchorRect, prikazujemo modal točno iznad/na elementu
+  const isPopover = !!anchorRect;
+
+  // Izračun pozicije ako je popover
+  const popoverStyle = isPopover ? {
+      position: "absolute",
+      top: window.scrollY + anchorRect.bottom + 8, // Malo ispod gumba
+      left: window.scrollX + anchorRect.left,
+      width: anchorRect.width, // Iste širine kao gumb
+      maxWidth: "none",
+      maxHeight: "300px",
+      margin: 0,
+      transform: "none",
+      zIndex: 99999,
+  } : {
+      // Default Centered Style (za rezultate ili ako nema anchora)
+      position: "relative", // Unutar flex containera
+      width: "100%", 
+      maxWidth: 500,
+      maxHeight: "80vh",
+  };
+
   return createPortal(
     <div
       onClick={onClose}
       style={{
-        position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)",
-        display: "flex", alignItems: isDropdown ? "center" : "center", justifyContent: "center",
-        padding: 20, zIndex: 99999, backdropFilter: "blur(5px)",
+        position: "fixed", inset: 0, 
+        background: isPopover ? "transparent" : "rgba(0,0,0,0.6)", // Prozirno za popover, tamno za modal
+        display: isPopover ? "block" : "flex", // Block za absolute positioning, Flex za centriranje
+        alignItems: "center", justifyContent: "center",
+        padding: isPopover ? 0 : 20, 
+        zIndex: 99999, 
+        backdropFilter: isPopover ? "none" : "blur(5px)",
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: "100%", maxWidth: 500,
-          background: "linear-gradient(180deg, rgba(24,26,32,0.95) 0%, rgba(14,15,18,0.98) 100%)",
-          color: theme.text, borderRadius: 16,
+          ...popoverStyle,
+          background: "linear-gradient(180deg, rgba(24,26,32,0.98) 0%, rgba(14,15,18,0.99) 100%)",
+          color: theme.text, borderRadius: 12,
           border: `1px solid ${theme.accent}`,
-          boxShadow: `0 0 30px rgba(197, 160, 89, 0.18), ${theme.goldGlowStrong}`,
-          maxHeight: "80vh", display: "flex", flexDirection: "column",
+          boxShadow: `0 10px 40px rgba(0,0,0,0.5), ${theme.goldGlowStrong}`,
+          display: "flex", flexDirection: "column",
+          overflow: "hidden"
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "rgba(197, 160, 89, 0.05)", borderBottom: `1px solid ${theme.borderSoft}` }}>
-          <div style={{ fontWeight: 700, fontSize: 18, fontFamily: "'Cinzel', serif", color: theme.accent, textTransform: "uppercase" }}>{title}</div>
-          <button onClick={onClose} style={{ border: "none", background: "transparent", color: theme.text, width: 32, height: 32, fontSize: 24, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
-        </div>
-        <div style={{ padding: 16, overflowY: "auto", flex: 1 }}>{children}</div>
+        {/* Header samo ako NIJE popover (dropdown ne treba veliki header) */}
+        {!isPopover && (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "rgba(197, 160, 89, 0.05)", borderBottom: `1px solid ${theme.borderSoft}` }}>
+            <div style={{ fontWeight: 700, fontSize: 18, fontFamily: "'Cinzel', serif", color: theme.accent, textTransform: "uppercase" }}>{title}</div>
+            <button onClick={onClose} style={{ border: "none", background: "transparent", color: theme.text, width: 32, height: 32, fontSize: 24, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+            </div>
+        )}
+        
+        <div style={{ padding: isPopover ? 8 : 16, overflowY: "auto", flex: 1 }}>{children}</div>
       </div>
     </div>,
     document.body
@@ -358,6 +407,10 @@ export default function App() {
 
   // --- INTRO ANIMATION STATE ---
   const [introFinished, setIntroFinished] = useState(false);
+
+  // REFS ZA INSTRUCTIJE
+  const setupCardRef = useRef(null);
+  const [instructionsAnchor, setInstructionsAnchor] = useState(null);
 
   useEffect(() => {
     if ('scrollRestoration' in window.history) {
@@ -728,6 +781,13 @@ export default function App() {
     }
   };
 
+  // Handler za otvaranje instrukcija (da budu pozicionirane)
+  const handleInstructionsOpen = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setInstructionsAnchor(rect);
+    setHelpOpen(true);
+  };
+
   return (
     <div
       className={`app-background ${introFinished ? "app-loaded" : "app-loading"}`}
@@ -797,7 +857,7 @@ export default function App() {
           transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
           opacity: 1;
           transform: translateY(0);
-          box-sizing: border-box; /* OBAVEZNO */
+          box-sizing: border-box; 
         }
         .mobile-bottom-bar.hidden {
           opacity: 0;
@@ -834,6 +894,7 @@ export default function App() {
             top: 20px;
             display: grid;
             gap: 16px;
+            align-self: start; /* OBAVEZNO ZA STICKY U GRIDU */
           }
 
           .striker-grid {
@@ -913,7 +974,7 @@ export default function App() {
             <div className="layout-sidebar">
               <Card title="⚙️ Setup" theme={theme}>
                 <button
-                  onClick={() => setHelpOpen(true)}
+                  onClick={handleInstructionsOpen}
                   style={{
                     width: "100%", padding: "12px 16px", borderRadius: 10,
                     border: `1px solid ${theme.border}`, background: theme.btnGhostBg,
@@ -1065,7 +1126,7 @@ export default function App() {
 
         {/* MOBILE BOTTOM BAR (Visible only on Mobile) - IZVUČEN IZVAN CONTENT WRAPPERA ZA FIX POZICIJU */}
         <div className={`mobile-bottom-bar ${introFinished ? "visible" : "hidden"}`} style={{
-            position: "fixed", left: 0, width: "100%", bottom: 9, padding: 16, // FIX: width 100% instead of right:0
+            position: "fixed", left: 0, width: "100%", bottom: 9, padding: 16, 
             background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99
           }}>
           <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
@@ -1098,7 +1159,8 @@ export default function App() {
           <button onClick={() => setOrderWarningMsg(false)} style={{ width: "100%", marginTop: 24, padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>OK</button>
         </Modal>
 
-        <Modal open={helpOpen} title="ℹ️ Instructions & Help" onClose={() => setHelpOpen(false)} theme={theme}>
+        {/* --- INSTRUCTIONS MODAL (WITH ANCHOR) --- */}
+        <Modal open={helpOpen} title="ℹ️ Instructions & Help" onClose={() => setHelpOpen(false)} theme={theme} anchorRect={instructionsAnchor}>
           <div style={{ color: theme.text, lineHeight: 1.6, fontSize: 15, display: "grid", gap: 20 }}>
             <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>🎯 Goal</div><div style={{ color: theme.subtext }}>Use the correct troops and bonuses to minimize losses when attacking a Citadel. I took care of the proper troops selection.</div></div>
             <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.danger }}>❗ Most Important Rule</div><div style={{ color: theme.subtext, borderLeft: `4px solid ${theme.danger}`, paddingLeft: 12 }}>Maximize <b style={{ color: theme.text }}>First Striker Health</b>. In a proper attack, the First Striker is the only troop group that should take losses.<br /><br />The number of <b style={{ color: theme.text }}>FIRST STRIKER</b> troops <b style={{ color: theme.text }}> CAN</b> be higher than calculated. All other troops <b style={{ color: theme.text }}>MUST</b> be used in the exact number as calculated.</div></div>
