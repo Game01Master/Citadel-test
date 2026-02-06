@@ -6,11 +6,9 @@ import TB from "./tb_data.json";
 // 1. IMPORT ASSETS (SLIKE I IKONE)
 // ==========================================
 
-// --- Pozadine ---
 import bgMobile from "./assets/bg.webp";
 import bgDesktop from "./assets/bg-desktop.webp";
 
-// --- Ikone (PNG) - iz src/assets/icons/ ---
 import iconCorax2 from "./assets/icons/Corax II.png";
 import iconCorax1 from "./assets/icons/Corax I.png";
 import iconGriffin7 from "./assets/icons/Griffin VII.png";
@@ -871,13 +869,13 @@ export default function App() {
       <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", zIndex: 0, pointerEvents: "none" }} />
 
       <style>{`
-        /* --- GLOBALNI RESET ZA SPRJEČAVANJE SKROLANJA --- */
+        /* --- GLOBALNI RESET --- */
         html, body { 
           width: 100%; 
           max-width: 100%; 
           margin: 0; 
           padding: 0; 
-          overflow-x: hidden !important; /* Ovo zadržavamo jer spašava animaciju */
+          overflow-x: hidden !important; 
           position: relative;
         }
 
@@ -885,7 +883,6 @@ export default function App() {
           display: block; 
           width: 100%;
           max-width: 100%;
-          /* OVDJE SMO UKLONILI overflow-x: hidden JER JE KVARIO STICKY SIDEBAR */
         }
         
         *, *::before, *::after { box-sizing: border-box; }
@@ -898,7 +895,8 @@ export default function App() {
           background-position: center;
           background-attachment: fixed;
           transition: background-image 0.3s ease-in-out;
-          /* OVDJE SMO UKLONILI overflow-x: hidden JER JE KVARIO STICKY SIDEBAR */
+          min-height: 100vh; /* Osigurava visinu */
+          /* UKLONJEN OVERFLOW: HIDDEN koji je lomio sticky */
         }
         @media (min-width: 768px) {
           .app-background {
@@ -955,8 +953,8 @@ export default function App() {
           width: 100%;
           max-width: 600px;
           margin: 0 auto;
-          /* OVDJE SMO POVEĆALI PADDING NA DNU ZA MOBITELE (120px) DA FOOTER BUDE VIDLJIV */
-          padding: 20px 16px 120px 16px; 
+          /* KLJUČNO: Veliki padding na dnu za mobitele da se vidi footer iznad gumba */
+          padding: 20px 16px 140px 16px; 
           position: relative;
           z-index: 1;
         }
@@ -965,7 +963,7 @@ export default function App() {
         @media (min-width: 1100px) {
           .app-container {
             max-width: 1300px;
-            padding-bottom: 40px; /* Na desktopu ne treba veliki padding */
+            padding-bottom: 40px;
           }
 
           .main-layout-grid {
@@ -1198,6 +1196,11 @@ export default function App() {
               })}
             </div>
           </div>
+          
+          {/* FOOTER je sada unutar content-wrappera, na dnu liste */}
+          <footer className="app-footer" style={{ textAlign: "center", paddingTop: "20px", color: theme.subtext, fontSize: 12 }}>
+            © 2026 Game01Master · Non-commercial license
+          </footer>
         </div>
 
         {/* MOBILE BUTTON */}
@@ -1288,11 +1291,6 @@ export default function App() {
           ) : (<div style={{ color: theme.subtext, textAlign: "center", padding: 20 }}>No results to display.</div>)}
         </Modal>
       </div>
-    
-      {/* Footer je premješten unutar App-containera ali na samo dno stranice */}
-      <footer className="app-footer" style={{ textAlign: "center", padding: "20px 0", color: theme.subtext, fontSize: 12 }}>
-        © 2026 Game01Master · Non-commercial license
-      </footer>
     </div>
   );
 }
