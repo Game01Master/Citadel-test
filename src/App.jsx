@@ -2,6 +2,50 @@ import React, { useMemo, useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import TB from "./tb_data.json";
 
+// ==========================================
+// 1. IMPORT ASSETS (IMAGES & ICONS)
+// ==========================================
+
+// --- Backgrounds (WebP) ---
+import bgMobile from "./assets/bg.webp";
+import bgDesktop from "./assets/bg-desktop.webp";
+
+// --- Icons (PNG) - iz src/assets/icons/ ---
+// Napomena: Imena datoteka moraju točno odgovarati onome što je na disku.
+import iconCorax2 from "./assets/icons/Corax II.png";
+import iconCorax1 from "./assets/icons/Corax I.png";
+import iconGriffin7 from "./assets/icons/Griffin VII.png";
+import iconGriffin6 from "./assets/icons/Griffin VI.png";
+import iconGriffin5 from "./assets/icons/Griffin V.png";
+import iconWyvern from "./assets/icons/Wyvern.png";
+import iconWarregal from "./assets/icons/Warregal.png";
+import iconJago from "./assets/icons/Jago.png";
+import iconEpicMonsterHunter from "./assets/icons/Epic Monster Hunter.png";
+import iconRoyalLion2 from "./assets/icons/Royal Lion II.png";
+import iconRoyalLion1 from "./assets/icons/Royal Lion I.png";
+import iconVulture7 from "./assets/icons/Vulture VII.png";
+import iconVulture6 from "./assets/icons/Vulture VI.png";
+import iconVulture5 from "./assets/icons/Vulture V.png";
+import iconFirePhoenix2 from "./assets/icons/Fire Phoenix II.png";
+import iconFirePhoenix1 from "./assets/icons/Fire Phoenix I.png";
+import iconManticore from "./assets/icons/Manticore.png";
+import iconAriel from "./assets/icons/Ariel.png";
+import iconJosephine2 from "./assets/icons/Josephine II.png";
+import iconJosephine1 from "./assets/icons/Josephine I.png";
+import iconSiege7 from "./assets/icons/Siege Ballistae VII.png";
+import iconSiege6 from "./assets/icons/Siege Ballistae VI.png";
+import iconCatapult5 from "./assets/icons/Catapult V.png";
+import iconCatapult4 from "./assets/icons/Catapult IV.png";
+import iconPunisher1 from "./assets/icons/Punisher I.png";
+import iconHeavyHalb7 from "./assets/icons/Heavy Halberdier VII.png";
+import iconHeavyHalb6 from "./assets/icons/Heavy Halberdier VI.png";
+import iconSpearmen5 from "./assets/icons/Spearmen V.png";
+import iconDuelist1 from "./assets/icons/Duelist I.png";
+import iconHeavyKnight7 from "./assets/icons/Heavy Knight VII.png";
+import iconHeavyKnight6 from "./assets/icons/Heavy Knight VI.png";
+import iconSwordsmen5 from "./assets/icons/Swordsmen V.png";
+
+
 // --- GAMING FONTOVI ---
 const fontLink = document.createElement("link");
 fontLink.href = "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Inter:wght@300;400;600;800&display=swap";
@@ -67,26 +111,48 @@ function normName(s) {
   return String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
 }
 
-const ICON_FILE_MAP = {
-  "Corax II": "Corax II.png", "Corax I": "Corax I.png", "Griffin VII": "Griffin VII.png",
-  "Griffin VI": "Griffin VI.png", "Griffin V": "Griffin V.png", "Wyvern": "Wyvern.png",
-  "Warregal": "Warregal.png", "Jago": "Jago.png", "Epic Monster Hunter": "Epic Monster Hunter.png",
-  "Royal Lion II": "Royal Lion II.png", "Royal Lion I": "Royal Lion I.png", "Vulture VII": "Vulture VII.png",
-  "Vulture VI": "Vulture VI.png", "Vulture V": "Vulture V.png", "Fire Phoenix II": "Fire Phoenix II.png",
-  "Fire Phoenix I": "Fire Phoenix I.png", "Manticore": "Manticore.png", "Ariel": "Ariel.png",
-  "Josephine II": "Josephine II.png", "Josephine I": "Josephine I.png", "Siege Ballistae VII": "Siege Ballistae VII.png",
-  "Siege Ballistae VI": "Siege Ballistae VI.png", "Catapult V": "Catapult V.png", "Catapult IV": "Catapult IV.png",
-  "Punisher I": "Punisher I.png", "Heavy Halberdier VII": "Heavy Halberdier VII.png", "Heavy Halberdier VI": "Heavy Halberdier VI.png",
-  "Spearmen V": "Spearmen V.png", "Duelist I": "Duelist I.png", "Heavy Knight VII": "Heavy Knight VII.png",
-  "Heavy Knight VI": "Heavy Knight VI.png", "Swordsmen V": "Swordsmen V.png",
+// ==========================================
+// 2. ICON MAP (Povezivanje imena s importom)
+// ==========================================
+const ICON_MAP = {
+  "Corax II": iconCorax2,
+  "Corax I": iconCorax1,
+  "Griffin VII": iconGriffin7,
+  "Griffin VI": iconGriffin6,
+  "Griffin V": iconGriffin5,
+  "Wyvern": iconWyvern,
+  "Warregal": iconWarregal,
+  "Jago": iconJago,
+  "Epic Monster Hunter": iconEpicMonsterHunter,
+  "Royal Lion II": iconRoyalLion2,
+  "Royal Lion I": iconRoyalLion1,
+  "Vulture VII": iconVulture7,
+  "Vulture VI": iconVulture6,
+  "Vulture V": iconVulture5,
+  "Fire Phoenix II": iconFirePhoenix2,
+  "Fire Phoenix I": iconFirePhoenix1,
+  "Manticore": iconManticore,
+  "Ariel": iconAriel,
+  "Josephine II": iconJosephine2,
+  "Josephine I": iconJosephine1,
+  "Siege Ballistae VII": iconSiege7,
+  "Siege Ballistae VI": iconSiege6,
+  "Catapult V": iconCatapult5,
+  "Catapult IV": iconCatapult4,
+  "Punisher I": iconPunisher1,
+  "Heavy Halberdier VII": iconHeavyHalb7,
+  "Heavy Halberdier VI": iconHeavyHalb6,
+  "Spearmen V": iconSpearmen5,
+  "Duelist I": iconDuelist1,
+  "Heavy Knight VII": iconHeavyKnight7,
+  "Heavy Knight VI": iconHeavyKnight6,
+  "Swordsmen V": iconSwordsmen5,
 };
 
-const ICON_BASE = (import.meta && import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL : "/";
-
+// Funkcija sada samo vraća importirani objekt (string URL-a)
 function iconSrcForTroop(name) {
-  const file = ICON_FILE_MAP[name];
-  if (!file) return null;
-  return `${ICON_BASE}icons/${encodeURIComponent(file)}`;
+  if (!name) return null;
+  return ICON_MAP[name] || null;
 }
 
 async function copyToClipboard(text) {
@@ -384,7 +450,6 @@ function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
   }
 
   const isOverlay = !mode; // Samo standard modal ima full screen overlay
-  // Ako je dropdown/troop, koristimo nevidljivi overlay ili prozirni da uhvatimo klik vani
 
   return createPortal(
     <div
@@ -828,7 +893,7 @@ export default function App() {
 
         /* --- BACKGROUND LOGIC --- */
         .app-background {
-          background-image: url('./bg.jpg');
+          background-image: url('${bgMobile}');
           background-size: cover;
           background-position: center;
           background-attachment: fixed;
@@ -836,7 +901,7 @@ export default function App() {
         }
         @media (min-width: 768px) {
           .app-background {
-            background-image: url('./bg-desktop.jpg');
+            background-image: url('${bgDesktop}');
           }
         }
 
