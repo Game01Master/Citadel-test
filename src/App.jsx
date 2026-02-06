@@ -481,6 +481,7 @@ export default function App() {
   const theme = useMemo(() => makeTheme(isDark), [isDark]);
 
   const [introFinished, setIntroFinished] = useState(false);
+  const [instructionsAnchor, setInstructionsAnchor] = useState(null);
 
   useEffect(() => {
     if ('scrollRestoration' in window.history) {
@@ -851,7 +852,10 @@ export default function App() {
     }
   };
 
+  // Handler za otvaranje instrukcija (da budu pozicionirane)
   const handleInstructionsOpen = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setInstructionsAnchor(rect);
     setHelpOpen(true);
   };
 
@@ -869,20 +873,20 @@ export default function App() {
       <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", zIndex: 0, pointerEvents: "none" }} />
 
       <style>{`
-        /* --- GLOBALNI SCROLL FIX --- */
-        html, body {
-          width: 100%;
-          max-width: 100%;
-          margin: 0;
-          padding: 0;
-          overflow-x: hidden; /* KLJUČNO: Samo ovdje! */
+        /* --- GLOBALNO FIX ZA HORIZONTALNI SCROLL --- */
+        html, body { 
+          width: 100%; 
+          max-width: 100%; 
+          margin: 0; 
+          padding: 0; 
+          overflow-x: hidden; /* KLJUČNO: Spriječava horizontalni scroll na mobitelu */
         }
         
-        #root {
+        #root { 
           display: block; 
           width: 100%;
         }
-
+        
         *, *::before, *::after { box-sizing: border-box; }
         :root { color-scheme: dark; }
 
@@ -910,7 +914,7 @@ export default function App() {
           position: relative; 
           z-index: 10;
           width: 100%;
-          max-width: 100vw; /* Spriječava širenje izvan ekrana */
+          max-width: 100vw; /* Osigurava da zaglavlje ne širi ekran */
         }
 
         .app-loading .header-wrapper {
@@ -953,7 +957,7 @@ export default function App() {
           width: 100%;
           max-width: 600px;
           margin: 0 auto;
-          /* FIX: Veliki padding na dnu (120px) kako bi sadržaj (licenca) bio iznad gumba */
+          /* POVEĆAN PADDING NA DNU ZA MOBITELE (da se vidi footer) */
           padding: 20px 16px 120px 16px; 
           position: relative;
           z-index: 1;
@@ -979,8 +983,8 @@ export default function App() {
             display: grid;
             gap: 16px;
             align-self: start; 
-            z-index: 50; 
-            height: fit-content; 
+            z-index: 50; /* Osigurava da ostane iznad sadržaja ako dođe do preklapanja */
+            height: fit-content; /* Osigurava da sticky radi ispravno */
           }
 
           .striker-grid {
@@ -1056,7 +1060,7 @@ export default function App() {
           {/* --- MAIN GRID LAYOUT START --- */}
           <div className="main-layout-grid">
             
-            {/* LEFT SIDEBAR (Setup Only) */}
+            {/* LEFT SIDEBAR (Setup Only) - SADA JE STICKY */}
             <div className="layout-sidebar">
               <Card title="⚙️ Setup" theme={theme}>
                 <button
@@ -1098,7 +1102,7 @@ export default function App() {
                 </div>
               </Card>
 
-              {/* DESKTOP CALCULATE BUTTON */}
+              {/* DESKTOP CALCULATE BUTTON - STICKY ZAJEDNO SA SETUPOM */}
               <button 
                 id="btn-calculate-desktop"
                 className="desktop-calc-btn" 
@@ -1150,7 +1154,7 @@ export default function App() {
                 const opts = optionsForIdx(idx);
                 const nextInputId = idx < 8 ? `bonus-str-${idx + 1}` : "btn-calculate-desktop";
 
-                // 🛡️ LOGIKA ZA LOCKED
+                // 🛡️ LOGIKA ZA LOCKED: Ako nije First Striker, a First Striker je prazan -> LOCKED
                 const isFirstStrikerSelected = !!strikerTroops[0];
                 const isLocked = !isFirst && !isFirstStrikerSelected;
 
@@ -1208,18 +1212,17 @@ export default function App() {
           </div>
           {/* --- MAIN GRID LAYOUT END --- */}
           
-          {/* FOOTER - Sada unutar scrollabilnog dijela */}
           <footer className="app-footer" style={{ textAlign: "center", paddingTop: "20px", color: theme.subtext, fontSize: 12 }}>
             © 2026 Game01Master · Non-commercial license
           </footer>
         </div>
         {/* END CONTENT WRAPPER */}
 
-        {/* MOBILE BOTTOM BAR - FIX: left:0, right:0, auto width da ne probija ekran */}
+        {/* MOBILE BOTTOM BAR (Visible only on Mobile) - POPRAVLJENO POZICIONIRANJE I WIDTH */}
         <div className={`mobile-bottom-bar ${introFinished ? "visible" : "hidden"}`} style={{
             position: "fixed", left: 0, right: 0, width: "auto", bottom: 9, padding: "0 16px", 
             background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99,
-            boxSizing: "border-box"
+            boxSizing: "border-box" // OVO JE FALILO
           }}>
           <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
             <button 
@@ -1298,6 +1301,9 @@ export default function App() {
         </Modal>
       </div>
     
+      <footer className="app-footer">
+        © 2026 Game01Master · Non-commercial license
+      </footer>
     </div>
   );
 }
