@@ -852,7 +852,6 @@ export default function App() {
     }
   };
 
-  // Handler za otvaranje instrukcija (da budu pozicionirane)
   const handleInstructionsOpen = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setInstructionsAnchor(rect);
@@ -873,13 +872,13 @@ export default function App() {
       <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", zIndex: 0, pointerEvents: "none" }} />
 
       <style>{`
-        /* --- GLOBALNO FIX ZA HORIZONTALNI SCROLL --- */
-        html, body { 
-          width: 100%; 
-          max-width: 100%; 
-          margin: 0; 
-          padding: 0; 
-          overflow-x: hidden; /* KLJUČNO: Spriječava horizontalni scroll na mobitelu */
+        /* --- 1. POPRAVAK ZA MOBILNI HORIZONTALNI SCROLL --- */
+        html, body {
+          width: 100%;
+          max-width: 100%;
+          margin: 0;
+          padding: 0;
+          overflow-x: hidden; /* KLJUČNO: Samo ovdje, ne na #root */
         }
         
         #root { 
@@ -905,7 +904,7 @@ export default function App() {
           }
         }
 
-        /* --- INTRO ANIMATION STYLES (SPORIJE) --- */
+        /* --- INTRO ANIMATION STYLES (UKLONJEN SCALE) --- */
         
         /* 1. Header se miče gore */
         .header-wrapper {
@@ -914,15 +913,16 @@ export default function App() {
           position: relative; 
           z-index: 10;
           width: 100%;
-          max-width: 100vw; /* Osigurava da zaglavlje ne širi ekran */
+          max-width: 100vw; /* Osiguranje */
         }
 
         .app-loading .header-wrapper {
-          transform: translateY(40vh) scale(1.3);
+          /* FIX: Uklonjen scale(1.3) jer je širio ekran */
+          transform: translateY(40vh); 
         }
 
         .app-loaded .header-wrapper {
-          transform: translateY(0) scale(1);
+          transform: translateY(0);
         }
 
         /* 2. Content fade in */
@@ -930,7 +930,7 @@ export default function App() {
           transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s;
           opacity: 1;
           transform: translateY(0);
-          width: 100%;
+          width: 100%; 
         }
 
         .app-loading .content-wrapper {
@@ -957,8 +957,8 @@ export default function App() {
           width: 100%;
           max-width: 600px;
           margin: 0 auto;
-          /* POVEĆAN PADDING NA DNU ZA MOBITELE (da se vidi footer) */
-          padding: 20px 16px 120px 16px; 
+          /* FIX: Padding dolje 100px na mobitelu da se vidi licenca iznad gumba */
+          padding: 20px 16px 100px 16px; 
           position: relative;
           z-index: 1;
         }
@@ -977,14 +977,15 @@ export default function App() {
             align-items: start; /* KLJUČNO ZA STICKY SIDEBAR */
           }
 
+          /* --- STICKY SIDEBAR (RADI JER NEMA OVERFLOW HIDDEN NA PARENTU) --- */
           .layout-sidebar {
             position: sticky;
             top: 20px;
             display: grid;
             gap: 16px;
             align-self: start; 
-            z-index: 50; /* Osigurava da ostane iznad sadržaja ako dođe do preklapanja */
-            height: fit-content; /* Osigurava da sticky radi ispravno */
+            z-index: 50; 
+            height: fit-content; 
           }
 
           .striker-grid {
@@ -1211,18 +1212,14 @@ export default function App() {
             {/* END RIGHT CONTENT */}
           </div>
           {/* --- MAIN GRID LAYOUT END --- */}
-          
-          <footer className="app-footer" style={{ textAlign: "center", paddingTop: "20px", color: theme.subtext, fontSize: 12 }}>
-            © 2026 Game01Master · Non-commercial license
-          </footer>
         </div>
         {/* END CONTENT WRAPPER */}
 
-        {/* MOBILE BOTTOM BAR (Visible only on Mobile) - POPRAVLJENO POZICIONIRANJE I WIDTH */}
+        {/* MOBILE BOTTOM BAR (Visible only on Mobile) */}
         <div className={`mobile-bottom-bar ${introFinished ? "visible" : "hidden"}`} style={{
-            position: "fixed", left: 0, right: 0, width: "auto", bottom: 9, padding: "0 16px", 
+            position: "fixed", left: 0, right: 0, width: "auto", bottom: 9, padding: "0 16px", // FIX: width auto, left/right 0
             background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99,
-            boxSizing: "border-box" // OVO JE FALILO
+            boxSizing: "border-box"
           }}>
           <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
             <button 
