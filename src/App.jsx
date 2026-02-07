@@ -990,7 +990,7 @@ export default function App() {
         @media (min-width: 1100px) {
           /* Desktop verzija: Dodajemo 10px dolje (ukupno 30px) da gurnemo tekst gore */
           .app-footer {
-            padding-bottom: 30px; 
+            padding-bottom: 20px; 
           }
         }
 
