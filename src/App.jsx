@@ -826,20 +826,19 @@ export default function App() {
         *, *::before, *::after { box-sizing: border-box; }
         :root { color-scheme: dark; }
 
-        /* --- GLAVNI POPRAVAK: --- */
+        /* --- CSS POPRAVCI ZA SCROLL I STICKY --- */
         
-        /* 0. Fix za "jumping background" */
+        /* 1. Uvijek rezerviraj mjesto za vertikalni scrollbar (rješava "skakanje" pozadine) */
         html {
-           overflow-y: scroll; /* Uvijek rezerviraj mjesto za scrollbar */
+           overflow-y: scroll; 
         }
 
-        /* 1. Desktop: sticky treba "visible" overflow */
+        /* 2. Desktop default: overflow-x mora biti visible da bi sticky radio */
         html, body {
            overflow-x: visible; 
         }
 
-        /* 2. Mobile (ekrani manji od 1100px): Sakrij horizontalni scroll */
-        /* Sticky sidebar ionako ne postoji na mobitelu */
+        /* 3. Mobile (manji od 1100px): Sakrij horizontalni scroll koji radi scale animacija */
         @media (max-width: 1099px) {
            html, body {
              overflow-x: hidden;
@@ -869,7 +868,8 @@ export default function App() {
           position: relative; 
           z-index: 10;
         }
-
+        
+        /* Ovdje omotač za scale nije potreban jer overflow rješavamo preko media queryja */
         .app-loading .header-wrapper {
           transform: translateY(40vh) scale(1.3);
         }
@@ -928,7 +928,7 @@ export default function App() {
             align-items: start; /* KLJUČNO ZA STICKY SIDEBAR */
           }
 
-          /* --- POPRAVAK ZA STICKY SIDEBAR --- */
+          /* --- STICKY SIDEBAR --- */
           .layout-sidebar {
             position: sticky;
             top: 20px;
@@ -987,7 +987,7 @@ export default function App() {
 
       <div className="app-container">
         
-        {/* HEADER WRAPPER - BEZ DODATNOG WRAPPERA DA SE TEKST NE REŽE */}
+        {/* HEADER WRAPPER - OMOGUĆUJE SCALING ANIMACIJU BEZ DODATNOG WRAPPERA */}
         <div className="header-wrapper">
           <div style={{ textAlign: "center", marginBottom: 30 }}>
             <div style={{ 
@@ -1013,7 +1013,7 @@ export default function App() {
           {/* --- MAIN GRID LAYOUT START --- */}
           <div className="main-layout-grid">
             
-            {/* LEFT SIDEBAR (Setup Only) - SADA JE STICKY */}
+            {/* LEFT SIDEBAR (Setup Only) - STICKY NA DESKTOPU */}
             <div className="layout-sidebar">
               <Card title="⚙️ Setup" theme={theme}>
                 <button
