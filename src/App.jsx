@@ -1207,8 +1207,8 @@ export default function App() {
         input:focus, select:focus, button:focus { outline: none !important; border-color: rgba(197,160,89,0.85) !important; box-shadow: 0 0 0 2px rgba(197,160,89,0.35), 0 0 22px rgba(197,160,89,0.12) !important; }
 
         /* FOOTER STYLE - SA PADDING FIXOM */
-        .app-footer { text-align: center; padding: 20px; font-size: 12px; color: ${theme.subtext}; opacity: 0.6; }
-        @media (min-width: 1100px) { .app-footer { padding-bottom: 30px; } }
+        .app-footer { text-align: center; padding: 4px; font-size: 14px; color: ${theme.subtext}; opacity: 0.9; }
+        @media (min-width: 1100px) { .app-footer { padding-bottom: 18px; } }
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
