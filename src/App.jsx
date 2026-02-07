@@ -981,14 +981,14 @@ export default function App() {
         /* Global footer style */
         .app-footer {
           text-align: center;
-          padding: 20px; /* Baza je 20px sa svih strana */
-          font-size: 12px;
+          padding: 10px; /* Baza je 20px sa svih strana */
+          font-size: 16px;
           color: ${theme.subtext};
           opacity: 0.6;
         }
 
         @media (min-width: 1100px) {
-          /* Desktop verzija: Dodajemo 10px dolje (ukupno 30px) da gurnemo tekst gore */
+          /* Desktop verzija: Dodajemo 10px dolje (ukupno 20px) da gurnemo tekst gore */
           .app-footer {
             padding-bottom: 20px; 
           }
