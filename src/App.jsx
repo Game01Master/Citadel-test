@@ -969,7 +969,7 @@ export default function App() {
     if (mode === MODE_WITH && idx === 2) {
       return ["", ...filtered.filter((n) => normName(n) !== normName("Manticore"))];
     }
-    if (idx < 2) {
+    if (idx == 2) {
        return filtered.filter(n => normName(n) !== normName("Epic Monster Hunter"));
     }
     return filtered;
