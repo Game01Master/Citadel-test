@@ -828,6 +828,11 @@ export default function App() {
 
         /* --- GLAVNI POPRAVAK: --- */
         
+        /* 0. Fix za "jumping background" */
+        html {
+           overflow-y: scroll; /* Uvijek rezerviraj mjesto za scrollbar */
+        }
+
         /* 1. Desktop: sticky treba "visible" overflow */
         html, body {
            overflow-x: visible; 
@@ -982,7 +987,7 @@ export default function App() {
 
       <div className="app-container">
         
-        {/* HEADER WRAPPER - VRAĆEN TEKST (MAKNUO SAM OMOTAČ) */}
+        {/* HEADER WRAPPER - BEZ DODATNOG WRAPPERA DA SE TEKST NE REŽE */}
         <div className="header-wrapper">
           <div style={{ textAlign: "center", marginBottom: 30 }}>
             <div style={{ 
