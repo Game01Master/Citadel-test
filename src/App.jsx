@@ -11,7 +11,7 @@ document.head.appendChild(fontLink);
 const MODE_WITHOUT = "WITHOUT";
 const MODE_WITH = "WITH";
 
-// Konstanta za petlju (STRIKER_LABELS mora biti definirana prije uporabe)
+// Konstanta za petlju
 const STRIKER_LABELS = [
   "First Striker",
   "Second Striker",
@@ -999,6 +999,7 @@ export default function App() {
           const strikerLabels = TRANSLATIONS[lang]?.strikers || TRANSLATIONS['en'].strikers;
           const label = strikerLabels[idx];
           
+          // Koristimo dinamički warning iz prijevoda
           const warningFn = TRANSLATIONS[lang]?.base_stats_warning || TRANSLATIONS['en'].base_stats_warning;
           setWarningMsg(warningFn(label, fmtInt(pickedS), fmtInt(pickedH), first, fmtInt(firstS), fmtInt(firstH)));
           
@@ -1081,6 +1082,12 @@ export default function App() {
       const dmgPerTroop = baseStrength * (1 + effBonus / 100);
       const targetHP = toNum(targets[idx]);
       let required = dmgPerTroop > 0 ? Math.floor(targetHP / dmgPerTroop) : 0;
+      
+      // LOGIKA ZA SMANJENJE EPIC MONSTER HUNTERA
+      if (idx >= 2 && normName(troopName) === normName("Epic Monster Hunter")) {
+         required = Math.max(0, required - 5);
+      }
+
       if (idx === 0 && dmgPerTroop > 0) required += firstDeaths + 10;
       return { idx, label, troopName, effBonus, requiredTroops: required };
     });
@@ -1200,8 +1207,8 @@ export default function App() {
         input:focus, select:focus, button:focus { outline: none !important; border-color: rgba(197,160,89,0.85) !important; box-shadow: 0 0 0 2px rgba(197,160,89,0.35), 0 0 22px rgba(197,160,89,0.12) !important; }
 
         /* FOOTER STYLE - SA PADDING FIXOM */
-        .app-footer { text-align: center; padding: 4px; font-size: 14px; color: ${theme.subtext}; opacity: 0.6; }
-        @media (min-width: 1100px) { .app-footer { padding-bottom: 18px; } }
+        .app-footer { text-align: center; padding: 20px; font-size: 12px; color: ${theme.subtext}; opacity: 0.6; }
+        @media (min-width: 1100px) { .app-footer { padding-bottom: 30px; } }
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
