@@ -826,19 +826,19 @@ export default function App() {
         *, *::before, *::after { box-sizing: border-box; }
         :root { color-scheme: dark; }
 
-        /* --- CSS POPRAVCI ZA SCROLL I STICKY --- */
+        /* --- CSS POPRAVCI ZA SCROLL --- */
         
-        /* 1. Uvijek rezerviraj mjesto za vertikalni scrollbar (rješava "skakanje" pozadine) */
+        /* 1. Uvijek rezerviraj mjesto za vertikalni scrollbar */
         html {
            overflow-y: scroll; 
         }
 
-        /* 2. Desktop default: overflow-x mora biti visible da bi sticky radio */
+        /* 2. Desktop: overflow-x visible da sticky radi */
         html, body {
            overflow-x: visible; 
         }
 
-        /* 3. Mobile (manji od 1100px): Sakrij horizontalni scroll koji radi scale animacija */
+        /* 3. Mobile: Sakrij horizontalni scroll */
         @media (max-width: 1099px) {
            html, body {
              overflow-x: hidden;
@@ -859,9 +859,7 @@ export default function App() {
           }
         }
 
-        /* --- INTRO ANIMATION STYLES (SPORIJE) --- */
-        
-        /* 1. Header se miče gore */
+        /* --- INTRO ANIMATION STYLES --- */
         .header-wrapper {
           transition: transform 2.0s cubic-bezier(0.25, 1, 0.5, 1);
           will-change: transform;
@@ -869,13 +867,13 @@ export default function App() {
           z-index: 10;
         }
         
-        /* Ovdje omotač za scale nije potreban jer overflow rješavamo preko media queryja */
+        /* SCALE JE UKLONJEN - OVO RJEŠAVA HORIZONTALNI SCROLL */
         .app-loading .header-wrapper {
-          transform: translateY(40vh) scale(1.3);
+          transform: translateY(40vh); 
         }
 
         .app-loaded .header-wrapper {
-          transform: translateY(0) scale(1);
+          transform: translateY(0);
         }
 
         /* 2. Content fade in */
@@ -987,7 +985,7 @@ export default function App() {
 
       <div className="app-container">
         
-        {/* HEADER WRAPPER - OMOGUĆUJE SCALING ANIMACIJU BEZ DODATNOG WRAPPERA */}
+        {/* HEADER WRAPPER - BEZ SCALINGA */}
         <div className="header-wrapper">
           <div style={{ textAlign: "center", marginBottom: 30 }}>
             <div style={{ 
