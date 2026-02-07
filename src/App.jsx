@@ -11,6 +11,7 @@ document.head.appendChild(fontLink);
 const MODE_WITHOUT = "WITHOUT";
 const MODE_WITH = "WITH";
 
+// Konstanta za petlju (STRIKER_LABELS mora biti definirana prije uporabe)
 const STRIKER_LABELS = [
   "First Striker",
   "Second Striker",
@@ -23,9 +24,20 @@ const STRIKER_LABELS = [
   "Cleanup 6",
 ];
 
+// --- LANGUAGES CONFIG ---
+const LANGUAGES = [
+  { code: 'en', label: 'English', flag: '🇬🇧' },
+  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
+  { code: 'fr', label: 'Français', flag: '🇫🇷' },
+  { code: 'es', label: 'Español', flag: '🇪🇸' },
+  { code: 'it', label: 'Italiano', flag: '🇮🇹' },
+  { code: 'pl', label: 'Polski', flag: '🇵🇱' }
+];
+
 // --- TRANSLATIONS / PRIJEVODI ---
 const TRANSLATIONS = {
   en: {
+    language: "Language",
     setup: "⚙️ Setup",
     instructions_btn: "ℹ️ Instructions",
     m8_question: "Do you have M8/M9 troops?",
@@ -72,6 +84,7 @@ const TRANSLATIONS = {
     help_bonus_text2: "Or select the captains, equipment, and artifacts. Send the hero and dragon to the fort and copy the bonuses from the barracks."
   },
   de: {
+    language: "Sprache",
     setup: "⚙️ Einstellungen",
     instructions_btn: "ℹ️ Anleitung",
     m8_question: "Hast du M8/M9 Truppen?",
@@ -104,7 +117,7 @@ const TRANSLATIONS = {
     help_goal_title: "🎯 Ziel",
     help_goal_text: "Verwende die richtigen Truppen und Boni, um Verluste zu minimieren. Die Truppenauswahl habe ich bereits optimiert.",
     help_rule_title: "❗ Wichtigste Regel",
-    help_rule_text: "Maximiere das Leben des Ersten Angifers. Bei einem korrekten Angriff sollte nur diese Gruppe Verluste erleiden. Die Anzahl der TRUPPEN DES ERSTEN ANGREIFERS KANN höher sein als berechnet. Alle anderen Truppen MÜSSEN exakt wie berechnet verwendet werden.",
+    help_rule_text: "Maximiere das Leben des Ersten Angreifers. Bei einem korrekten Angriff sollte nur diese Gruppe Verluste erleiden. Die Anzahl der TRUPPEN DES ERSTEN ANGREIFERS KANN höher sein als berechnet. Alle anderen Truppen MÜSSEN exakt wie berechnet verwendet werden.",
     help_first_title: "🦅 Erster Angreifer",
     help_first_text: "Muss die stärkste fliegende Garde sein: Corax oder Greif.",
     help_captains_title: "⚔️ Hauptmänner",
@@ -118,6 +131,7 @@ const TRANSLATIONS = {
     help_bonus_text2: "Oder wähle Hauptmänner, Ausrüstung und Artefakte. Sende Held und Drache zur Festung und kopiere die Boni aus der Kaserne."
   },
   fr: {
+    language: "Langue",
     setup: "⚙️ Config",
     instructions_btn: "ℹ️ Instructions",
     m8_question: "Avez-vous des troupes M8/M9 ?",
@@ -164,6 +178,7 @@ const TRANSLATIONS = {
     help_bonus_text2: "Ou sélectionnez capitaines et artefacts, envoyez le héros au fort et copiez les bonus de la caserne."
   },
   es: {
+    language: "Idioma",
     setup: "⚙️ Configuración",
     instructions_btn: "ℹ️ Instrucciones",
     m8_question: "¿Tienes tropas M8/M9?",
@@ -210,6 +225,7 @@ const TRANSLATIONS = {
     help_bonus_text2: "O selecciona capitanes y artefactos, envía al héroe al fuerte y copia los bonos del cuartel."
   },
   it: {
+    language: "Lingua",
     setup: "⚙️ Setup",
     instructions_btn: "ℹ️ Istruzioni",
     m8_question: "Hai truppe M8/M9?",
@@ -256,6 +272,7 @@ const TRANSLATIONS = {
     help_bonus_text2: "Oppure seleziona capitani e artefatti, invia l'eroe al forte e copia i bonus dalla caserma."
   },
   pl: {
+    language: "Język",
     setup: "⚙️ Ustawienia",
     instructions_btn: "ℹ️ Instrukcja",
     m8_question: "Masz jednostki M8/M9?",
@@ -608,6 +625,68 @@ function OptionPicker({ label, value, options, onChange, theme, inputStyle, t })
   );
 }
 
+// 🛡️ LANGUAGE PICKER (NOVA KOMPONENTA)
+function LanguagePicker({ label, value, options, onChange, theme, inputStyle }) {
+  const [open, setOpen] = useState(false);
+  const [anchorRect, setAnchorRect] = useState(null);
+  const buttonRef = useRef(null);
+  const selected = options.find((o) => o.code === value);
+  const display = selected ? `${selected.flag} ${selected.label}` : "— Select —";
+
+  const handleClick = () => {
+    if (buttonRef.current) {
+        setAnchorRect(buttonRef.current.getBoundingClientRect());
+    }
+    setOpen((v) => !v);
+  };
+
+  return (
+    <div style={{ display: "grid", gap: 6 }}>
+      <span style={{ color: theme.subtext, fontSize: 12, textTransform: "uppercase", fontWeight: 600 }}>{label}</span>
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={handleClick} 
+        style={{
+          ...inputStyle,
+          textAlign: "left", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, cursor: "pointer",
+          background: "linear-gradient(180deg, rgba(28,30,38,0.9) 0%, rgba(14,15,18,0.95) 100%)",
+          boxShadow: `inset 0 0 0 1px rgba(197,160,89,0.12), 0 10px 22px rgba(0,0,0,0.55)`,
+        }}
+      >
+        <span style={{ color: theme.text, fontWeight: 800, fontSize: 15, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {display}
+        </span>
+        <span style={{ color: theme.accent, fontSize: 14 }}>▼</span>
+      </button>
+
+      <Modal open={open} title={label} onClose={() => setOpen(false)} theme={theme} mode="dropdown" anchorRect={anchorRect}>
+        <div style={{ display: "grid", gap: 6 }}>
+          {options.map((opt) => {
+            const isSelected = opt.code === value;
+            return (
+              <button
+                key={opt.code}
+                type="button"
+                onClick={() => { onChange(opt.code); setOpen(false); }}
+                style={{
+                  width: "100%", textAlign: "left", padding: "12px 12px", borderRadius: 10,
+                  border: isSelected ? `1px solid ${theme.accent}` : "1px solid transparent",
+                  background: isSelected ? "rgba(197, 160, 89, 0.15)" : "rgba(255, 255, 255, 0.03)",
+                  color: isSelected ? theme.accent : theme.text,
+                  fontWeight: 800, fontSize: 18, cursor: "pointer",
+                }}
+              >
+                {opt.flag} {opt.label}
+              </button>
+            );
+          })}
+        </div>
+      </Modal>
+    </div>
+  );
+}
+
 function Row({ label, value, theme, accent }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "8px 0", borderBottom: `1px solid ${theme.borderSoft}` }}>
@@ -621,64 +700,26 @@ function Row({ label, value, theme, accent }) {
 function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
   if (!open) return null;
   
-  // mode: "dropdown" | "troop" | undefined (center)
-  
   let popoverStyle = {};
 
   if (mode === "dropdown" && anchorRect) {
-      // 1. DROPDOWN STYLE (Za Setup) - Ispod gumba
-      popoverStyle = {
-          position: "fixed",
-          top: anchorRect.bottom + 6,
-          left: anchorRect.left,
-          width: anchorRect.width,
-          minWidth: "200px",
-          maxHeight: "350px",
-          zIndex: 99999,
-          margin: 0,
-      };
-
+      popoverStyle = { position: "fixed", top: anchorRect.bottom + 6, left: anchorRect.left, width: anchorRect.width, minWidth: "200px", maxHeight: "350px", zIndex: 99999, margin: 0 };
   } else if (mode === "troop" && anchorRect) {
-      // 2. TROOP STYLE (Za Grid) - Vertikalno centrirano, Horizontalno poravnato
-      popoverStyle = {
-          position: "fixed",
-          top: "50%", 
-          left: anchorRect.left,
-          width: anchorRect.width, 
-          minWidth: "250px", // Backup
-          maxWidth: "400px",
-          transform: "translateY(-50%)", // Vertikalno centriranje
-          maxHeight: "80vh",
-          zIndex: 99999,
-          margin: 0,
-      };
-
+      popoverStyle = { position: "fixed", top: "50%", left: anchorRect.left, width: anchorRect.width, minWidth: "250px", maxWidth: "400px", transform: "translateY(-50%)", maxHeight: "80vh", zIndex: 99999, margin: 0 };
   } else {
-      // 3. STANDARD CENTER (Results, Instructions)
-      popoverStyle = {
-          position: "relative",
-          width: "100%", 
-          maxWidth: 500,
-          maxHeight: "80vh",
-      };
+      popoverStyle = { position: "relative", width: "100%", maxWidth: 500, maxHeight: "80vh" };
   }
 
-  const isOverlay = !mode; // Samo standard modal ima full screen overlay
-  // Ako je dropdown/troop, koristimo nevidljivi overlay ili prozirni da uhvatimo klik vani
+  const isOverlay = !mode; 
 
   return createPortal(
     <div
       onClick={onClose}
       style={{
-        position: "fixed",
-        inset: 0, 
-        // Ako je standard modal -> taman. Ako je dropdown/troop -> proziran (samo za close on click outside)
+        position: "fixed", inset: 0, 
         background: isOverlay ? "rgba(0,0,0,0.7)" : "transparent",
-        display: isOverlay ? "flex" : "block", // Flex za centriranje standardnog modala
-        alignItems: "center", justifyContent: "center",
-        padding: isOverlay ? 20 : 0, 
-        zIndex: 99990, 
-        backdropFilter: isOverlay ? "blur(5px)" : "none",
+        display: isOverlay ? "flex" : "block", alignItems: "center", justifyContent: "center",
+        padding: isOverlay ? 20 : 0, zIndex: 99990, backdropFilter: isOverlay ? "blur(5px)" : "none",
       }}
     >
       <div
@@ -693,14 +734,12 @@ function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
           overflow: "hidden"
         }}
       >
-        {/* HEADER */}
-        {mode !== "dropdown" && ( // Dropdown obično nema "X" header, ali trupe i modal imaju
+        {mode !== "dropdown" && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "rgba(197, 160, 89, 0.05)", borderBottom: `1px solid ${theme.borderSoft}` }}>
             <div style={{ fontWeight: 700, fontSize: 18, fontFamily: "'Cinzel', serif", color: theme.accent, textTransform: "uppercase" }}>{title}</div>
             <button onClick={onClose} style={{ border: "none", background: "transparent", color: theme.text, width: 32, height: 32, fontSize: 24, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
             </div>
         )}
-        
         <div style={{ padding: mode === "dropdown" ? 6 : 16, overflowY: "auto", flex: 1 }}>{children}</div>
       </div>
     </div>,
@@ -722,10 +761,7 @@ export default function App() {
       window.history.scrollRestoration = 'manual';
     }
     window.scrollTo(0, 0);
-
-    const timer = setTimeout(() => {
-      setIntroFinished(true);
-    }, 1200); 
+    const timer = setTimeout(() => { setIntroFinished(true); }, 1200); 
     return () => clearTimeout(timer);
   }, []);
 
@@ -752,7 +788,6 @@ export default function App() {
   const [warningMsg, setWarningMsg] = useState("");
   const [orderWarningMsg, setOrderWarningMsg] = useState(false);
 
-  const GROUP_KEYS = useMemo(() => (["CORAX","PHOENIX","PHH_SPEAR","DUEL_HK_SW","VULTURE","ROYAL_LION","GRIFFIN"]), []);
   const [groupBonusPct, setGroupBonusPct] = useState(() => ({
     CORAX: "", PHOENIX: "", PHH_SPEAR: "", DUEL_HK_SW: "", VULTURE: "", ROYAL_LION: "", GRIFFIN: "",
   }));
@@ -1165,8 +1200,8 @@ export default function App() {
         input:focus, select:focus, button:focus { outline: none !important; border-color: rgba(197,160,89,0.85) !important; box-shadow: 0 0 0 2px rgba(197,160,89,0.35), 0 0 22px rgba(197,160,89,0.12) !important; }
 
         /* FOOTER STYLE - SA PADDING FIXOM */
-        .app-footer { text-align: center; padding: 20px; font-size: 12px; color: ${theme.subtext}; opacity: 0.6; }
-        @media (min-width: 1100px) { .app-footer { padding-bottom: 30px; } }
+        .app-footer { text-align: center; padding: 4px; font-size: 14px; color: ${theme.subtext}; opacity: 0.6; }
+        @media (min-width: 1100px) { .app-footer { padding-bottom: 18px; } }
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -1204,14 +1239,17 @@ export default function App() {
             {/* LEFT SIDEBAR (Setup Only) - STICKY NA DESKTOPU */}
             <div className="layout-sidebar">
               <Card title={t('setup')} theme={theme}>
-                {/* JEZIČNA TRAKA (ZASTAVE) */}
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16, padding: "0 4px" }}>
-                  <button onClick={() => setLang('en')} style={{ fontSize: "24px", background: "none", border: "none", cursor: "pointer", opacity: lang === 'en' ? 1 : 0.4, transition: "opacity 0.2s" }}>🇬🇧</button>
-                  <button onClick={() => setLang('de')} style={{ fontSize: "24px", background: "none", border: "none", cursor: "pointer", opacity: lang === 'de' ? 1 : 0.4, transition: "opacity 0.2s" }}>🇩🇪</button>
-                  <button onClick={() => setLang('fr')} style={{ fontSize: "24px", background: "none", border: "none", cursor: "pointer", opacity: lang === 'fr' ? 1 : 0.4, transition: "opacity 0.2s" }}>🇫🇷</button>
-                  <button onClick={() => setLang('es')} style={{ fontSize: "24px", background: "none", border: "none", cursor: "pointer", opacity: lang === 'es' ? 1 : 0.4, transition: "opacity 0.2s" }}>🇪🇸</button>
-                  <button onClick={() => setLang('it')} style={{ fontSize: "24px", background: "none", border: "none", cursor: "pointer", opacity: lang === 'it' ? 1 : 0.4, transition: "opacity 0.2s" }}>🇮🇹</button>
-                  <button onClick={() => setLang('pl')} style={{ fontSize: "24px", background: "none", border: "none", cursor: "pointer", opacity: lang === 'pl' ? 1 : 0.4, transition: "opacity 0.2s" }}>🇵🇱</button>
+                
+                {/* JEZIČNI PAD (DROPDOWN) */}
+                <div style={{ marginBottom: 16 }}>
+                  <LanguagePicker 
+                    label={t('language')}
+                    value={lang}
+                    options={LANGUAGES}
+                    onChange={setLang}
+                    theme={theme}
+                    inputStyle={inputStyle}
+                  />
                 </div>
 
                 <button
@@ -1253,7 +1291,7 @@ export default function App() {
                 </div>
               </Card>
 
-              {/* DESKTOP CALCULATE BUTTON - STICKY ZAJEDNO SA SETUPOM */}
+              {/* DESKTOP CALCULATE BUTTON - POPRAVLJEN SHADOW */}
               <button 
                 id="btn-calculate-desktop"
                 className="desktop-calc-btn" 
@@ -1262,8 +1300,10 @@ export default function App() {
                   width: "100%", padding: "20px", borderRadius: 12, border: "none",
                   background: theme.btnBg, color: theme.btnText,
                   fontWeight: 900, letterSpacing: 1, fontSize: 20, fontFamily: "'Cinzel', serif",
-                  boxShadow: `0 0 25px rgba(197, 160, 89, 0.45)`, cursor: "pointer",
-                  transition: "transform 0.2s",
+                  // Smanjen shadow (bio je 25px, sad je 15px i ima mali offset) da ne izgleda kao blok
+                  boxShadow: `0 4px 15px rgba(197, 160, 89, 0.4)`, 
+                  cursor: "pointer",
+                  transition: "transform 0.2s, box-shadow 0.2s",
                   marginTop: 16,
                 }}
               >
