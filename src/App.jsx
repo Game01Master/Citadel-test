@@ -11,6 +11,18 @@ document.head.appendChild(fontLink);
 const MODE_WITHOUT = "WITHOUT";
 const MODE_WITH = "WITH";
 
+const STRIKER_LABELS = [
+  "First Striker",
+  "Second Striker",
+  "Third Striker",
+  "Cleanup 1",
+  "Cleanup 2",
+  "Cleanup 3",
+  "Cleanup 4",
+  "Cleanup 5",
+  "Cleanup 6",
+];
+
 // --- TRANSLATIONS / PRIJEVODI ---
 const TRANSLATIONS = {
   en: {
@@ -34,7 +46,6 @@ const TRANSLATIONS = {
     action_required: "⛔ Action Required",
     select_first_striker_msg: "You must select the First Striker before selecting other troops.",
     invalid_order: "⚠️ Invalid Striker Order",
-    stronger_warning: (name1, name2) => `${name1} is stronger than First Striker (${name2})!`,
     base_stats_warning: (name1, str1, hp1, name2, str2, hp2) => `${name1} has higher BASE stats (Str: ${str1}, HP: ${hp1}) than First Striker (${name2} - Str: ${str2}, HP: ${hp2}).\n\nChoose a stronger First striker!`,
     results_title: "📋 Calculated Results",
     mode_label: "Mode",
@@ -44,7 +55,6 @@ const TRANSLATIONS = {
     copy_fail: "❌ Copy failed",
     no_results: "No results to display.",
     strikers: ["First Striker", "Second Striker", "Third Striker", "Cleanup 1", "Cleanup 2", "Cleanup 3", "Cleanup 4", "Cleanup 5", "Cleanup 6"],
-    // Instructions content
     help_goal_title: "🎯 Goal",
     help_goal_text: "Use the correct troops and bonuses to minimize losses when attacking a Citadel. I took care of the proper troops selection.",
     help_rule_title: "❗ Most Important Rule",
@@ -82,7 +92,6 @@ const TRANSLATIONS = {
     action_required: "⛔ Aktion erforderlich",
     select_first_striker_msg: "Du musst zuerst den Ersten Angreifer auswählen.",
     invalid_order: "⚠️ Ungültige Reihenfolge",
-    stronger_warning: (name1, name2) => `${name1} ist stärker als der Erste Angreifer (${name2})!`,
     base_stats_warning: (name1, str1, hp1, name2, str2, hp2) => `${name1} hat höhere BASIS-Werte (Str: ${str1}, HP: ${hp1}) als der Erste Angreifer (${name2} - Str: ${str2}, HP: ${hp2}).\n\nWähle einen stärkeren Ersten Angreifer!`,
     results_title: "📋 Ergebnisse",
     mode_label: "Modus",
@@ -95,7 +104,7 @@ const TRANSLATIONS = {
     help_goal_title: "🎯 Ziel",
     help_goal_text: "Verwende die richtigen Truppen und Boni, um Verluste zu minimieren. Die Truppenauswahl habe ich bereits optimiert.",
     help_rule_title: "❗ Wichtigste Regel",
-    help_rule_text: "Maximiere das Leben des Ersten Angreifers. Bei einem korrekten Angriff sollte nur diese Gruppe Verluste erleiden. Die Anzahl der TRUPPEN DES ERSTEN ANGREIFERS KANN höher sein als berechnet. Alle anderen Truppen MÜSSEN exakt wie berechnet verwendet werden.",
+    help_rule_text: "Maximiere das Leben des Ersten Angifers. Bei einem korrekten Angriff sollte nur diese Gruppe Verluste erleiden. Die Anzahl der TRUPPEN DES ERSTEN ANGREIFERS KANN höher sein als berechnet. Alle anderen Truppen MÜSSEN exakt wie berechnet verwendet werden.",
     help_first_title: "🦅 Erster Angreifer",
     help_first_text: "Muss die stärkste fliegende Garde sein: Corax oder Greif.",
     help_captains_title: "⚔️ Hauptmänner",
@@ -129,7 +138,6 @@ const TRANSLATIONS = {
     action_required: "⛔ Action Requise",
     select_first_striker_msg: "Vous devez sélectionner le Premier Frappeur avant les autres.",
     invalid_order: "⚠️ Ordre Invalide",
-    stronger_warning: (name1, name2) => `${name1} est plus fort que le Premier Frappeur (${name2}) !`,
     base_stats_warning: (name1, str1, hp1, name2, str2, hp2) => `${name1} a des stats DE BASE plus élevées (Str: ${str1}, HP: ${hp1}) que le Premier Frappeur (${name2} - Str: ${str2}, HP: ${hp2}).\n\nChoisissez un Premier Frappeur plus fort !`,
     results_title: "📋 Résultats",
     mode_label: "Mode",
@@ -176,7 +184,6 @@ const TRANSLATIONS = {
     action_required: "⛔ Acción Requerida",
     select_first_striker_msg: "Debes seleccionar el Primer Atacante antes que los demás.",
     invalid_order: "⚠️ Orden Inválido",
-    stronger_warning: (name1, name2) => `¡${name1} es más fuerte que el Primer Atacante (${name2})!`,
     base_stats_warning: (name1, str1, hp1, name2, str2, hp2) => `${name1} tiene estadísticas BASE más altas (Fue: ${str1}, Sal: ${hp1}) que el Primer Atacante (${name2} - Fue: ${str2}, Sal: ${hp2}).\n\n¡Elige un Primer Atacante más fuerte!`,
     results_title: "📋 Resultados",
     mode_label: "Modo",
@@ -223,7 +230,6 @@ const TRANSLATIONS = {
     action_required: "⛔ Azione Richiesta",
     select_first_striker_msg: "Devi selezionare il Primo Attaccante prima degli altri.",
     invalid_order: "⚠️ Ordine Non Valido",
-    stronger_warning: (name1, name2) => `${name1} è più forte del Primo Attaccante (${name2})!`,
     base_stats_warning: (name1, str1, hp1, name2, str2, hp2) => `${name1} ha statistiche BASE più alte (Str: ${str1}, HP: ${hp1}) del Primo Attaccante (${name2} - Str: ${str2}, HP: ${hp2}).\n\nScegli un Primo Attaccante più forte!`,
     results_title: "📋 Risultati",
     mode_label: "Modalità",
@@ -270,7 +276,6 @@ const TRANSLATIONS = {
     action_required: "⛔ Wymagana Akcja",
     select_first_striker_msg: "Musisz wybrać Pierwszego Atakującego przed innymi.",
     invalid_order: "⚠️ Zła Kolejność",
-    stronger_warning: (name1, name2) => `${name1} jest silniejszy niż Pierwszy Atakujący (${name2})!`,
     base_stats_warning: (name1, str1, hp1, name2, str2, hp2) => `${name1} ma wyższe statystyki BAZOWE (Siła: ${str1}, Życie: ${hp1}) niż Pierwszy Atakujący (${name2} - Siła: ${str2}, Życie: ${hp2}).\n\nWybierz silniejszego Pierwszego Atakującego!`,
     results_title: "📋 Wyniki",
     mode_label: "Tryb",
@@ -616,26 +621,64 @@ function Row({ label, value, theme, accent }) {
 function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
   if (!open) return null;
   
+  // mode: "dropdown" | "troop" | undefined (center)
+  
   let popoverStyle = {};
 
   if (mode === "dropdown" && anchorRect) {
-      popoverStyle = { position: "fixed", top: anchorRect.bottom + 6, left: anchorRect.left, width: anchorRect.width, minWidth: "200px", maxHeight: "350px", zIndex: 99999, margin: 0 };
+      // 1. DROPDOWN STYLE (Za Setup) - Ispod gumba
+      popoverStyle = {
+          position: "fixed",
+          top: anchorRect.bottom + 6,
+          left: anchorRect.left,
+          width: anchorRect.width,
+          minWidth: "200px",
+          maxHeight: "350px",
+          zIndex: 99999,
+          margin: 0,
+      };
+
   } else if (mode === "troop" && anchorRect) {
-      popoverStyle = { position: "fixed", top: "50%", left: anchorRect.left, width: anchorRect.width, minWidth: "250px", maxWidth: "400px", transform: "translateY(-50%)", maxHeight: "80vh", zIndex: 99999, margin: 0 };
+      // 2. TROOP STYLE (Za Grid) - Vertikalno centrirano, Horizontalno poravnato
+      popoverStyle = {
+          position: "fixed",
+          top: "50%", 
+          left: anchorRect.left,
+          width: anchorRect.width, 
+          minWidth: "250px", // Backup
+          maxWidth: "400px",
+          transform: "translateY(-50%)", // Vertikalno centriranje
+          maxHeight: "80vh",
+          zIndex: 99999,
+          margin: 0,
+      };
+
   } else {
-      popoverStyle = { position: "relative", width: "100%", maxWidth: 500, maxHeight: "80vh" };
+      // 3. STANDARD CENTER (Results, Instructions)
+      popoverStyle = {
+          position: "relative",
+          width: "100%", 
+          maxWidth: 500,
+          maxHeight: "80vh",
+      };
   }
 
-  const isOverlay = !mode; 
+  const isOverlay = !mode; // Samo standard modal ima full screen overlay
+  // Ako je dropdown/troop, koristimo nevidljivi overlay ili prozirni da uhvatimo klik vani
 
   return createPortal(
     <div
       onClick={onClose}
       style={{
-        position: "fixed", inset: 0, 
+        position: "fixed",
+        inset: 0, 
+        // Ako je standard modal -> taman. Ako je dropdown/troop -> proziran (samo za close on click outside)
         background: isOverlay ? "rgba(0,0,0,0.7)" : "transparent",
-        display: isOverlay ? "flex" : "block", alignItems: "center", justifyContent: "center",
-        padding: isOverlay ? 20 : 0, zIndex: 99990, backdropFilter: isOverlay ? "blur(5px)" : "none",
+        display: isOverlay ? "flex" : "block", // Flex za centriranje standardnog modala
+        alignItems: "center", justifyContent: "center",
+        padding: isOverlay ? 20 : 0, 
+        zIndex: 99990, 
+        backdropFilter: isOverlay ? "blur(5px)" : "none",
       }}
     >
       <div
@@ -650,12 +693,14 @@ function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
           overflow: "hidden"
         }}
       >
-        {mode !== "dropdown" && (
+        {/* HEADER */}
+        {mode !== "dropdown" && ( // Dropdown obično nema "X" header, ali trupe i modal imaju
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "rgba(197, 160, 89, 0.05)", borderBottom: `1px solid ${theme.borderSoft}` }}>
             <div style={{ fontWeight: 700, fontSize: 18, fontFamily: "'Cinzel', serif", color: theme.accent, textTransform: "uppercase" }}>{title}</div>
             <button onClick={onClose} style={{ border: "none", background: "transparent", color: theme.text, width: 32, height: 32, fontSize: 24, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
             </div>
         )}
+        
         <div style={{ padding: mode === "dropdown" ? 6 : 16, overflowY: "auto", flex: 1 }}>{children}</div>
       </div>
     </div>,
@@ -677,7 +722,10 @@ export default function App() {
       window.history.scrollRestoration = 'manual';
     }
     window.scrollTo(0, 0);
-    const timer = setTimeout(() => { setIntroFinished(true); }, 1200); 
+
+    const timer = setTimeout(() => {
+      setIntroFinished(true);
+    }, 1200); 
     return () => clearTimeout(timer);
   }, []);
 
@@ -704,6 +752,7 @@ export default function App() {
   const [warningMsg, setWarningMsg] = useState("");
   const [orderWarningMsg, setOrderWarningMsg] = useState(false);
 
+  const GROUP_KEYS = useMemo(() => (["CORAX","PHOENIX","PHH_SPEAR","DUEL_HK_SW","VULTURE","ROYAL_LION","GRIFFIN"]), []);
   const [groupBonusPct, setGroupBonusPct] = useState(() => ({
     CORAX: "", PHOENIX: "", PHH_SPEAR: "", DUEL_HK_SW: "", VULTURE: "", ROYAL_LION: "", GRIFFIN: "",
   }));
@@ -915,7 +964,6 @@ export default function App() {
           const strikerLabels = TRANSLATIONS[lang]?.strikers || TRANSLATIONS['en'].strikers;
           const label = strikerLabels[idx];
           
-          // Koristimo dinamički warning iz prijevoda
           const warningFn = TRANSLATIONS[lang]?.base_stats_warning || TRANSLATIONS['en'].base_stats_warning;
           setWarningMsg(warningFn(label, fmtInt(pickedS), fmtInt(pickedH), first, fmtInt(firstS), fmtInt(firstH)));
           
