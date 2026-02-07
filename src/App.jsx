@@ -959,6 +959,7 @@ export default function App() {
     setResultsOpen(false);
   }, [mode, citadelLevel, poolAll.join("|"), wallKillerPool.join("|"), firstAllowed.join("|")]);
 
+  // --- POPRAVLJENO: Epic Monster Hunter zabranjen za 1., 2. i 3. stikera
   const optionsForIdx = (idx) => {
     const taken = new Set(strikerTroops.filter((_, i) => i !== idx).filter(Boolean).map(normName));
     let pool;
@@ -966,13 +967,22 @@ export default function App() {
     else if (idx === 1) pool = secondAllowed;
     else pool = nonWallPool;
     const filtered = pool.filter((n) => !taken.has(normName(n)));
-    if (mode === MODE_WITH && idx === 2) {
-      return ["", ...filtered.filter((n) => normName(n) !== normName("Manticore"))];
-    }
+    
+    // Filtriranje
+    let result = filtered;
+
+    // 1. UVIJEK: Ne smije biti Epic Monster Hunter za prva tri mjesta (0, 1, 2)
     if (idx <= 2) {
-       return filtered.filter(n => normName(n) !== normName("Epic Monster Hunter"));
+       result = result.filter(n => normName(n) !== normName("Epic Monster Hunter"));
     }
-    return filtered;
+
+    // 2. WITH MODE: Ne smije biti Manticore za 3. strikera
+    if (mode === MODE_WITH && idx === 2) {
+       result = result.filter(n => normName(n) !== normName("Manticore"));
+    }
+
+    if (idx !== 1) return ["", ...result];
+    return result;
   };
 
   const setTroopAt = (idx, name) => {
@@ -1084,7 +1094,7 @@ export default function App() {
       const targetHP = toNum(targets[idx]);
       let required = dmgPerTroop > 0 ? Math.floor(targetHP / dmgPerTroop) : 0;
       
-      // LOGIKA ZA SMANJENJE EPIC MONSTER HUNTERA (Samo ako je cleanup)
+      // LOGIKA ZA SMANJENJE EPIC MONSTER HUNTERA (Samo ako je cleanup > 2)
       if (idx > 2 && normName(troopName) === normName("Epic Monster Hunter")) {
          required = Math.max(0, required - 5);
       }
