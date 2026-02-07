@@ -959,7 +959,7 @@ export default function App() {
     setResultsOpen(false);
   }, [mode, citadelLevel, poolAll.join("|"), wallKillerPool.join("|"), firstAllowed.join("|")]);
 
-  // --- POPRAVLJENO: Epic Monster Hunter zabranjen za 1., 2. i 3. stikera
+  // --- LOGIKA ZA FILTRIRANJE TRUPA PO POZICIJAMA ---
   const optionsForIdx = (idx) => {
     const taken = new Set(strikerTroops.filter((_, i) => i !== idx).filter(Boolean).map(normName));
     let pool;
@@ -968,17 +968,23 @@ export default function App() {
     else pool = nonWallPool;
     const filtered = pool.filter((n) => !taken.has(normName(n)));
     
-    // Filtriranje
     let result = filtered;
 
-    // 1. UVIJEK: Ne smije biti Epic Monster Hunter za prva tri mjesta (0, 1, 2)
+    // 1. ZABRANA: Epic Monster Hunter ne smije biti 1., 2. ili 3. napadač (indeksi 0, 1, 2)
+    // Može se birati tek od Cleanup 1 (indeks 3) nadalje
     if (idx <= 2) {
        result = result.filter(n => normName(n) !== normName("Epic Monster Hunter"));
     }
 
-    // 2. WITH MODE: Ne smije biti Manticore za 3. strikera
+    // 2. ZABRANA: U "With M8" modu Manticore ne smije biti 3. napadač (indeks 2)
     if (mode === MODE_WITH && idx === 2) {
        result = result.filter(n => normName(n) !== normName("Manticore"));
+    }
+
+    // 3. ZABRANA: U "Without M8" modu, određene pješačke jedinice ne smiju biti 3. napadač
+    if (mode === MODE_WITHOUT && idx === 2) {
+        const excluded = ["Punisher I", "Heavy Halberdier VII", "Heavy Halberdier VI", "Duelist I", "Heavy Knight VII", "Heavy Knight VI", "Swordsmen V"];
+        result = result.filter(n => !excluded.some(e => normName(e) === normName(n)));
     }
 
     if (idx !== 1) return ["", ...result];
@@ -1095,6 +1101,7 @@ export default function App() {
       let required = dmgPerTroop > 0 ? Math.floor(targetHP / dmgPerTroop) : 0;
       
       // LOGIKA ZA SMANJENJE EPIC MONSTER HUNTERA (Samo ako je cleanup > 2)
+      // I ako je odabran (što je moguće samo na pozicijama 3+)
       if (idx > 2 && normName(troopName) === normName("Epic Monster Hunter")) {
          required = Math.max(0, required - 5);
       }
