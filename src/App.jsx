@@ -983,7 +983,7 @@ export default function App() {
 
     // 3. ZABRANA: U "Without M8" modu, određene pješačke jedinice ne smiju biti 3. napadač
     if (mode === MODE_WITHOUT && idx === 2) {
-        const excluded = ["Punisher I", "Heavy Halberdier VII", "Heavy Halberdier VI", "Duelist I", "Heavy Knight VII", "Heavy Knight VI", "Swordsmen V"];
+        const excluded = ["Punisher I", "Heavy Halberdier VII", "Heavy Halberdier VI", "Duelist I", "Heavy Knight VII", "Heavy Knight VI", "Spearmen V", "Swordsmen V"];
         result = result.filter(n => !excluded.some(e => normName(e) === normName(n)));
     }
 
@@ -1225,8 +1225,8 @@ export default function App() {
         input:focus, select:focus, button:focus { outline: none !important; border-color: rgba(197,160,89,0.85) !important; box-shadow: 0 0 0 2px rgba(197,160,89,0.35), 0 0 22px rgba(197,160,89,0.12) !important; }
 
         /* FOOTER STYLE - SA PADDING FIXOM */
-        .app-footer { text-align: center; padding: 20px; font-size: 12px; color: ${theme.subtext}; opacity: 0.6; }
-        @media (min-width: 1100px) { .app-footer { padding-bottom: 30px; } }
+        .app-footer { text-align: center; padding: 4px; font-size: 14px; color: ${theme.subtext}; opacity: 0.9; }
+        @media (min-width: 1100px) { .app-footer { padding-bottom: 18px; } }
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
