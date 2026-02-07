@@ -978,6 +978,22 @@ export default function App() {
           box-shadow: 0 0 0 2px rgba(197,160,89,0.35), 0 0 22px rgba(197,160,89,0.12) !important;
         }
 
+        /* Global footer style */
+        .app-footer {
+          text-align: center;
+          padding: 20px; /* Baza je 20px sa svih strana */
+          font-size: 12px;
+          color: ${theme.subtext};
+          opacity: 0.6;
+        }
+
+        @media (min-width: 1100px) {
+          /* Desktop verzija: Dodajemo 10px dolje (ukupno 30px) da gurnemo tekst gore */
+          .app-footer {
+            padding-bottom: 30px; 
+          }
+        }
+
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: ${theme.accent}; border-radius: 3px; }
