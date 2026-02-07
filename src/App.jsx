@@ -826,6 +826,21 @@ export default function App() {
         *, *::before, *::after { box-sizing: border-box; }
         :root { color-scheme: dark; }
 
+        /* --- GLAVNI POPRAVAK: --- */
+        
+        /* 1. Desktop: sticky treba "visible" overflow */
+        html, body {
+           overflow-x: visible; 
+        }
+
+        /* 2. Mobile (ekrani manji od 1100px): Sakrij horizontalni scroll */
+        /* Sticky sidebar ionako ne postoji na mobitelu */
+        @media (max-width: 1099px) {
+           html, body {
+             overflow-x: hidden;
+           }
+        }
+
         /* --- BACKGROUND LOGIC --- */
         .app-background {
           background-image: url('./bg.jpg');
@@ -967,27 +982,25 @@ export default function App() {
 
       <div className="app-container">
         
-        {/* HEADER WRAPPER ZA ANIMACIJU - POPRAVAK ZA MOBILNI SCROLL OVDJE */}
-        <div style={{ width: "100%", overflow: "hidden" }}>
-            <div className="header-wrapper">
-            <div style={{ textAlign: "center", marginBottom: 30 }}>
-                <div style={{ 
-                fontWeight: 800, fontSize: 32, textAlign: "center", 
-                background: `linear-gradient(to bottom, #fff, ${theme.accent})`, 
-                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-                fontFamily: "'Cinzel', serif", textTransform: "uppercase", letterSpacing: 2,
-                filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))"
-                }}>
-                Citadel Calculator
-                </div>
-                <div style={{
-                marginTop: 6, fontSize: 12, fontWeight: 800, letterSpacing: 3,
-                textTransform: "uppercase", color: theme.accent, opacity: 1, textShadow: "0 2px 10px rgba(0,0,0,0.8)", fontFamily: "'Inter', sans-serif",
-                }}>
-                by GM
-                </div>
+        {/* HEADER WRAPPER - VRAĆEN TEKST (MAKNUO SAM OMOTAČ) */}
+        <div className="header-wrapper">
+          <div style={{ textAlign: "center", marginBottom: 30 }}>
+            <div style={{ 
+              fontWeight: 800, fontSize: 32, textAlign: "center", 
+              background: `linear-gradient(to bottom, #fff, ${theme.accent})`, 
+              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+              fontFamily: "'Cinzel', serif", textTransform: "uppercase", letterSpacing: 2,
+              filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))"
+            }}>
+              Citadel Calculator
             </div>
+            <div style={{
+              marginTop: 6, fontSize: 12, fontWeight: 800, letterSpacing: 3,
+              textTransform: "uppercase", color: theme.accent, opacity: 1, textShadow: "0 2px 10px rgba(0,0,0,0.8)", fontFamily: "'Inter', sans-serif",
+            }}>
+              by GM
             </div>
+          </div>
         </div>
 
         {/* CONTENT WRAPPER ZA FADE IN */}
