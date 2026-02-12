@@ -2,6 +2,12 @@ import React, { useMemo, useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import TB from "./tb_data.json";
 
+// --- COUNTERAPI KONFIGURACIJA ---
+// VAŽNO: Promijeni 'moj-citadel-calc-v1' u nešto unikatno za tvoju aplikaciju!
+const COUNTER_NAMESPACE = 'moj-citadel-calc-v1'; 
+const KEY_VISIT = 'page_visits';
+const KEY_CALC = 'total_calculations';
+
 // --- GAMING FONTOVI ---
 const fontLink = document.createElement("link");
 fontLink.href = "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Inter:wght@300;400;600;800&display=swap";
@@ -67,6 +73,9 @@ const TRANSLATIONS = {
     copy_fail: "❌ Copy failed",
     no_results: "No results to display.",
     strikers: ["First Striker", "Second Striker", "Third Striker", "Cleanup 1", "Cleanup 2", "Cleanup 3", "Cleanup 4", "Cleanup 5", "Cleanup 6"],
+    stats_title: "📊 Statistics",
+    stats_visits: "Page Visits",
+    stats_calcs: "Calculations",
     help_goal_title: "🎯 Goal",
     help_goal_text: "Use the correct troops and bonuses to minimize losses when attacking a Citadel. I took care of the proper troops selection.",
     help_rule_title: "❗ Most Important Rule",
@@ -114,6 +123,9 @@ const TRANSLATIONS = {
     copy_fail: "❌ Fehler beim Kopieren",
     no_results: "Keine Ergebnisse.",
     strikers: ["Erster Angreifer", "Zweiter Angreifer", "Dritter Angreifer", "Aufräumer 1", "Aufräumer 2", "Aufräumer 3", "Aufräumer 4", "Aufräumer 5", "Aufräumer 6"],
+    stats_title: "📊 Statistik",
+    stats_visits: "Seitenaufrufe",
+    stats_calcs: "Berechnungen",
     help_goal_title: "🎯 Ziel",
     help_goal_text: "Verwende die richtigen Truppen und Boni, um Verluste zu minimieren. Die Truppenauswahl habe ich bereits optimiert.",
     help_rule_title: "❗ Wichtigste Regel",
@@ -161,6 +173,9 @@ const TRANSLATIONS = {
     copy_fail: "❌ Échec",
     no_results: "Aucun résultat.",
     strikers: ["Premier Frappeur", "Deuxième Frappeur", "Troisième Frappeur", "Nettoyeur 1", "Nettoyeur 2", "Nettoyeur 3", "Nettoyeur 4", "Nettoyeur 5", "Nettoyeur 6"],
+    stats_title: "📊 Statistiques",
+    stats_visits: "Visites",
+    stats_calcs: "Calculs",
     help_goal_title: "🎯 Objectif",
     help_goal_text: "Utilisez les bonnes troupes et bonus pour minimiser les pertes. La sélection des troupes est gérée par l'app.",
     help_rule_title: "❗ Règle Importante",
@@ -208,6 +223,9 @@ const TRANSLATIONS = {
     copy_fail: "❌ Fallo al copiar",
     no_results: "Sin resultados.",
     strikers: ["Primer Atacante", "Segundo Atacante", "Tercer Atacante", "Limpieza 1", "Limpieza 2", "Limpieza 3", "Limpieza 4", "Limpieza 5", "Limpieza 6"],
+    stats_title: "📊 Estadísticas",
+    stats_visits: "Visitas",
+    stats_calcs: "Cálculos",
     help_goal_title: "🎯 Objetivo",
     help_goal_text: "Usa las tropas y bonos correctos para minimizar pérdidas.",
     help_rule_title: "❗ Regla Importante",
@@ -255,6 +273,9 @@ const TRANSLATIONS = {
     copy_fail: "❌ Errore copia",
     no_results: "Nessun risultato.",
     strikers: ["Primo Attaccante", "Secondo Attaccante", "Terzo Attaccante", "Pulizia 1", "Pulizia 2", "Pulizia 3", "Pulizia 4", "Pulizia 5", "Pulizia 6"],
+    stats_title: "📊 Statistica",
+    stats_visits: "Visite",
+    stats_calcs: "Calcoli",
     help_goal_title: "🎯 Obiettivo",
     help_goal_text: "Usa truppe e bonus corretti per minimizzare le perdite.",
     help_rule_title: "❗ Regola Importante",
@@ -302,6 +323,9 @@ const TRANSLATIONS = {
     copy_fail: "❌ Błąd kopiowania",
     no_results: "Brak wyników.",
     strikers: ["Pierwszy Atak", "Drugi Atak", "Trzeci Atak", "Czyszczenie 1", "Czyszczenie 2", "Czyszczenie 3", "Czyszczenie 4", "Czyszczenie 5", "Czyszczenie 6"],
+    stats_title: "📊 Statystyki",
+    stats_visits: "Wizyty",
+    stats_calcs: "Obliczenia",
     help_goal_title: "🎯 Cel",
     help_goal_text: "Użyj odpowiednich jednostek i bonusów, aby zminimalizować straty.",
     help_rule_title: "❗ Najważniejsza Zasada",
@@ -436,10 +460,6 @@ function usePrefersDark() {
       else mq.removeListener(handler);
     };
   }, []);
-
-  useEffect(() => {
-}, []);
-
   return isDark;
 }
 
@@ -497,7 +517,7 @@ function Card({ title, children, theme, className }) {
 // 🛡️ PICKER (TROOPS - POPUP CENTERED)
 function TroopPicker({ label, value, options, onChange, theme, inputStyle, locked, onLockedClick, t }) {
   const [open, setOpen] = useState(false);
-const [anchorRect, setAnchorRect] = useState(null);
+  const [anchorRect, setAnchorRect] = useState(null);
   const buttonRef = useRef(null);
   const display = value ? value : t('select_placeholder');
 
@@ -640,7 +660,7 @@ function OptionPicker({ label, value, options, onChange, theme, inputStyle, t })
   );
 }
 
-// 🛡️ LANGUAGE PICKER (NOVA KOMPONENTA)
+// 🛡️ LANGUAGE PICKER
 function LanguagePicker({ label, value, options, onChange, theme, inputStyle }) {
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState(null);
@@ -701,7 +721,6 @@ function LanguagePicker({ label, value, options, onChange, theme, inputStyle }) 
     </div>
   );
 }
-
 function Row({ label, value, theme, accent }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "8px 0", borderBottom: `1px solid ${theme.borderSoft}` }}>
@@ -711,7 +730,7 @@ function Row({ label, value, theme, accent }) {
   );
 }
 
-// 🛡️ MODAL - UNIVERZALNI (3 NAČINA RADA)
+// 🛡️ MODAL - UNIVERZALNI
 function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
   if (!open) return null;
   
@@ -765,11 +784,15 @@ function Modal({ open, title, onClose, children, theme, mode, anchorRect }) {
 export default function App() {
   const isDark = usePrefersDark();
   const theme = useMemo(() => makeTheme(isDark), [isDark]);
-  const [lang, setLang] = useState("en"); // State za jezik
+  const [lang, setLang] = useState("en");
 
   const t = (key) => TRANSLATIONS[lang]?.[key] || TRANSLATIONS["en"][key] || key;
 
   const [introFinished, setIntroFinished] = useState(false);
+  
+  // --- COUNTER API STATE ---
+  const [visitCount, setVisitCount] = useState("...");
+  const [calcCount, setCalcCount] = useState("...");
 
   useEffect(() => {
     if ('scrollRestoration' in window.history) {
@@ -777,21 +800,22 @@ export default function App() {
     }
     window.scrollTo(0, 0);
     const timer = setTimeout(() => { setIntroFinished(true); }, 1200); 
-
-  // CountAPI: increment global visits (does not affect app if it fails)
-  useEffect(() => {
-    (async () => {
-      try {
-        const r = await fetch("https://api.countapi.xyz/hit/game01master-citadel/visits");
-        const j = await r.json();
-        if (j && typeof j.value === "number") setGlobalVisits(j.value);
-      } catch (e) {
-        // ignore
-      }
-    })();
+    return () => clearTimeout(timer);
   }, []);
 
-    return () => clearTimeout(timer);
+  // --- COUNTER API LOGIC (ON MOUNT) ---
+  useEffect(() => {
+    // 1. Povećaj broj posjeta (KEY_VISIT / up)
+    fetch(`https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${KEY_VISIT}/up`)
+      .then(res => res.json())
+      .then(data => { if(data.count) setVisitCount(data.count); })
+      .catch(err => console.error("API Error Visits:", err));
+
+    // 2. Samo dohvati broj kalkulacija (KEY_CALC) - bez povećanja
+    fetch(`https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${KEY_CALC}`)
+      .then(res => res.json())
+      .then(data => { if(data.count) setCalcCount(data.count); })
+      .catch(() => setCalcCount("0")); // Ako ne postoji, 0
   }, []);
 
   const citadelKeys = Object.keys(TB.citadels ?? {});
@@ -968,11 +992,7 @@ export default function App() {
   const [wallKillerTroop, setWallKillerTroop] = useState("");
   const [wallKillerBonusPct, setWallKillerBonusPct] = useState("");
 
-  
-  // Global counters (CountAPI) - non-blocking
-  const [globalVisits, setGlobalVisits] = useState(null);
-  const [globalCalculates, setGlobalCalculates] = useState(null);
-useEffect(() => {
+  useEffect(() => {
     if (!wallKillerTroop) setWallKillerTroop(wallKillerPool[0] ?? "");
   }, [wallKillerTroop, wallKillerPool]);
 
@@ -992,7 +1012,6 @@ useEffect(() => {
     setResultsOpen(false);
   }, [mode, citadelLevel, poolAll.join("|"), wallKillerPool.join("|"), firstAllowed.join("|")]);
 
-  // --- LOGIKA ZA FILTRIRANJE TRUPA PO POZICIJAMA ---
   const optionsForIdx = (idx) => {
     const taken = new Set(strikerTroops.filter((_, i) => i !== idx).filter(Boolean).map(normName));
     let pool;
@@ -1000,26 +1019,17 @@ useEffect(() => {
     else if (idx === 1) pool = secondAllowed;
     else pool = nonWallPool;
     const filtered = pool.filter((n) => !taken.has(normName(n)));
-    
     let result = filtered;
-
-    // 1. ZABRANA: Epic Monster Hunter ne smije biti 1., 2. ili 3. napadač (indeksi 0, 1, 2)
-    // Može se birati tek od Cleanup 1 (indeks 3) nadalje
     if (idx <= 2) {
        result = result.filter(n => normName(n) !== normName("Epic Monster Hunter"));
     }
-
-    // 2. ZABRANA: U "With M8" modu Manticore ne smije biti 3. napadač (indeks 2)
     if (mode === MODE_WITH && idx === 2) {
        result = result.filter(n => normName(n) !== normName("Manticore"));
     }
-
-    // 3. ZABRANA: U "Without M8" modu, određene pješačke jedinice ne smiju biti 3. napadač
     if (mode === MODE_WITHOUT && idx === 2) {
         const excluded = ["Punisher I", "Heavy Halberdier VII", "Heavy Halberdier VI", "Duelist I", "Heavy Knight VII", "Heavy Knight VI", "Spearmen V", "Swordsmen V"];
         result = result.filter(n => !excluded.some(e => normName(e) === normName(n)));
     }
-
     if (idx !== 1) return ["", ...result];
     return result;
   };
@@ -1049,10 +1059,8 @@ useEffect(() => {
         if (pickedS > firstS || pickedH > firstH) {
           const strikerLabels = TRANSLATIONS[lang]?.strikers || TRANSLATIONS['en'].strikers;
           const label = strikerLabels[idx];
-          
           const warningFn = TRANSLATIONS[lang]?.base_stats_warning || TRANSLATIONS['en'].base_stats_warning;
           setWarningMsg(warningFn(label, fmtInt(pickedS), fmtInt(pickedH), first, fmtInt(firstS), fmtInt(firstH)));
-          
           setTroopAt(idx, "");
           setStrikerBonusPct((prev) => { const next = [...prev]; next[idx] = ""; return next; });
           return;
@@ -1117,10 +1125,7 @@ useEffect(() => {
 
   const perStriker = useMemo(() => {
     if (!cit || !targets || targets.length !== 9) return [];
-    
-    // Get localized labels
     const labels = TRANSLATIONS[lang]?.strikers || TRANSLATIONS['en'].strikers;
-
     return STRIKER_LABELS.map((_, idx) => {
       const label = labels[idx];
       const troopName = strikerTroops[idx];
@@ -1132,30 +1137,16 @@ useEffect(() => {
       const dmgPerTroop = baseStrength * (1 + effBonus / 100);
       const targetHP = toNum(targets[idx]);
       let required = dmgPerTroop > 0 ? Math.floor(targetHP / dmgPerTroop) : 0;
-      
-      // LOGIKA ZA SMANJENJE EPIC MONSTER HUNTERA (Samo ako je cleanup > 2)
-      // I ako je odabran (što je moguće samo na pozicijama 3+)
       if (idx > 2 && normName(troopName) === normName("Epic Monster Hunter")) {
          required = Math.max(0, required - 5);
       }
-
       if (idx === 0 && dmgPerTroop > 0) required += firstDeaths + 10;
       return { idx, label, troopName, effBonus, requiredTroops: required };
     });
   }, [cit, targets, strikerTroops, strikerBonusPct, troopByName, additionalBonus, phoenixExtra, mode, firstDeaths, lang]);
 
   const showResults = () => {
-    // CountAPI: increment global calculates (fire-and-forget)
-    try {
-      fetch("https://api.countapi.xyz/hit/game01master-citadel/calculates", { method: "GET" })
-        .then((r) => r.json())
-        .then((j) => {
-          if (j && typeof j.value === "number") setGlobalCalculates(j.value);
-        })
-        .catch(() => {});
-    } catch (e) {}
-
-const counts = new Map();
+    const counts = new Map();
     const add = (name, n) => {
       if (!name || !Number.isFinite(n)) return;
       const k = normName(name);
@@ -1182,9 +1173,15 @@ const counts = new Map();
       troops: ordered,
     });
     setResultsOpen(true);
+
+    // --- COUNTER API LOGIC (ON CLICK) ---
+    // Povećaj brojač kalkulacija (KEY_CALC / up)
+    fetch(`https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${KEY_CALC}/up`)
+      .then(res => res.json())
+      .then(data => { if(data.count) setCalcCount(data.count); })
+      .catch(err => console.error("API Error Click:", err));
   };
 
-  // --- ENTER KEY HANDLER ---
   const handleEnter = (e, nextId) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -1192,7 +1189,7 @@ const counts = new Map();
       if (nextElement) {
         nextElement.focus();
         if (nextElement.tagName === "INPUT") {
-          nextElement.select(); // Oznacava tekst za lakse prepisivanje
+          nextElement.select(); 
         }
       }
     }
@@ -1220,11 +1217,9 @@ const counts = new Map();
         #root { display: block; }
         *, *::before, *::after { box-sizing: border-box; }
         :root { color-scheme: dark; }
-
         html { overflow-y: scroll; }
         html, body { overflow-x: visible; }
         @media (max-width: 1099px) { html, body { overflow-x: hidden; } }
-
         .app-background {
           background-image: url('./bg.jpg');
           background-size: cover;
@@ -1233,7 +1228,6 @@ const counts = new Map();
           transition: background-image 0.3s ease-in-out;
         }
         @media (min-width: 768px) { .app-background { background-image: url('./bg-desktop.jpg'); } }
-
         .header-wrapper {
           transition: transform 2.0s cubic-bezier(0.25, 1, 0.5, 1);
           will-change: transform;
@@ -1241,15 +1235,11 @@ const counts = new Map();
         }
         .app-loading .header-wrapper { transform: translateY(40vh); }
         .app-loaded .header-wrapper { transform: translateY(0); }
-
         .content-wrapper { transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s; opacity: 1; transform: translateY(0); }
         .app-loading .content-wrapper { opacity: 0; transform: translateY(50px); pointer-events: none; }
-
         .mobile-bottom-bar { transition: opacity 1.8s ease 0.6s, transform 1.8s ease 0.6s; opacity: 1; transform: translateY(0); box-sizing: border-box; }
         .mobile-bottom-bar.hidden { opacity: 0; transform: translateY(20px); pointer-events: none; }
-
         .app-container { width: 100%; max-width: 600px; margin: 0 auto; padding: 20px 16px 100px 16px; position: relative; z-index: 1; }
-
         @media (min-width: 1100px) {
           .app-container { max-width: 1300px; padding-bottom: 40px; }
           .main-layout-grid { display: grid; grid-template-columns: 360px 1fr; gap: 24px; align-items: start; }
@@ -1258,19 +1248,14 @@ const counts = new Map();
           .mobile-bottom-bar { display: none !important; }
           .desktop-calc-btn { display: block !important; }
         }
-
         @media (max-width: 1099px) {
           .main-layout-grid { display: flex; flex-direction: column; gap: 16px; }
           .striker-grid { display: flex; flex-direction: column; gap: 16px; }
           .desktop-calc-btn { display: none !important; }
         }
-
         input:focus, select:focus, button:focus { outline: none !important; border-color: rgba(197,160,89,0.85) !important; box-shadow: 0 0 0 2px rgba(197,160,89,0.35), 0 0 22px rgba(197,160,89,0.12) !important; }
-
-        /* FOOTER STYLE - SA PADDING FIXOM */
         .app-footer { text-align: center; padding: 4px; font-size: 14px; color: ${theme.subtext}; opacity: 0.9; }
         @media (min-width: 1100px) { .app-footer { padding-bottom: 18px; } }
-
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: ${theme.accent}; border-radius: 3px; }
@@ -1278,7 +1263,6 @@ const counts = new Map();
 
       <div className="app-container">
         
-        {/* HEADER WRAPPER - BEZ SCALINGA */}
         <div className="header-wrapper">
           <div style={{ textAlign: "center", marginBottom: 30 }}>
             <div style={{ 
@@ -1299,16 +1283,12 @@ const counts = new Map();
           </div>
         </div>
 
-        {/* CONTENT WRAPPER ZA FADE IN */}
         <div className="content-wrapper">
-          {/* --- MAIN GRID LAYOUT START --- */}
           <div className="main-layout-grid">
             
-            {/* LEFT SIDEBAR (Setup Only) - STICKY NA DESKTOPU */}
             <div className="layout-sidebar">
               <Card title={t('setup')} theme={theme}>
                 
-                {/* JEZIČNI PAD (DROPDOWN) */}
                 <div style={{ marginBottom: 16 }}>
                   <LanguagePicker 
                     label={t('language')}
@@ -1356,10 +1336,21 @@ const counts = new Map();
                   >
                     {t('reset_btn')}
                   </button>
+
+                  {/* --- NOVA SEKCIJA ZA STATISTIKU --- */}
+                  <div style={{ marginTop: 20, paddingTop: 10, borderTop: `1px solid ${theme.borderSoft}`, fontSize: 12, color: theme.subtext }}>
+                     <div style={{ fontWeight: "bold", marginBottom: 5, color: theme.accent }}>{t('stats_title')}</div>
+                     <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span>{t('stats_visits')}:</span> <span style={{ color: theme.text }}>{visitCount}</span>
+                     </div>
+                     <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span>{t('stats_calcs')}:</span> <span style={{ color: theme.text }}>{calcCount}</span>
+                     </div>
+                  </div>
+
                 </div>
               </Card>
 
-              {/* DESKTOP CALCULATE BUTTON - POPRAVLJEN SHADOW */}
               <button 
                 id="btn-calculate-desktop"
                 className="desktop-calc-btn" 
@@ -1368,7 +1359,6 @@ const counts = new Map();
                   width: "100%", padding: "20px", borderRadius: 12, border: "none",
                   background: theme.btnBg, color: theme.btnText,
                   fontWeight: 900, letterSpacing: 1, fontSize: 20, fontFamily: "'Cinzel', serif",
-                  // Smanjen shadow (bio je 25px, sad je 15px i ima mali offset) da ne izgleda kao blok
                   boxShadow: `0 4px 15px rgba(197, 160, 89, 0.4)`, 
                   cursor: "pointer",
                   transition: "transform 0.2s, box-shadow 0.2s",
@@ -1379,10 +1369,8 @@ const counts = new Map();
               </button>
             </div>
 
-            {/* RIGHT CONTENT (Wall Killer + Striker Grid) */}
             <div className="striker-grid">
               
-              {/* WALL KILLER */}
               <Card title={t('wall_killer')} theme={theme}>
                 <div style={{ display: "grid", gap: 16 }}>
                   <TroopPicker
@@ -1407,14 +1395,11 @@ const counts = new Map();
                 </div>
               </Card>
 
-              {/* STRIKERS LOOP */}
               {perStriker.map((s) => {
                 const idx = s.idx;
                 const isFirst = idx === 0;
                 const opts = optionsForIdx(idx);
                 const nextInputId = idx < 8 ? `bonus-str-${idx + 1}` : "btn-calculate-desktop";
-
-                // 🛡️ LOGIKA ZA LOCKED: Ako nije First Striker, a First Striker je prazan -> LOCKED
                 const isFirstStrikerSelected = !!strikerTroops[0];
                 const isLocked = !isFirst && !isFirstStrikerSelected;
 
@@ -1424,8 +1409,8 @@ const counts = new Map();
                       <TroopPicker
                         label={t('select_troop')} value={strikerTroops[idx]} options={opts}
                         onChange={(v) => handleTroopChange(idx, v)} theme={theme} inputStyle={inputStyle}
-                        locked={isLocked} // <--- LOCKED UMJESTO DISABLED
-                        onLockedClick={() => setOrderWarningMsg(true)} // <--- OTVORI POPUP
+                        locked={isLocked}
+                        onLockedClick={() => setOrderWarningMsg(true)}
                         t={t}
                       />
 
@@ -1449,8 +1434,8 @@ const counts = new Map();
                           type="number" step="any" inputMode="decimal" placeholder="0" value={strikerBonusPct[idx]}
                           onChange={(e) => setBonusAt(idx, e.target.value)}
                           onKeyDown={(e) => handleEnter(e, nextInputId)}
-                          readOnly={isLocked} // <--- READONLY UMJESTO DISABLED
-                          onClick={() => isLocked && setOrderWarningMsg(true)} // <--- KLIK OTVARA POPUP
+                          readOnly={isLocked}
+                          onClick={() => isLocked && setOrderWarningMsg(true)}
                           style={{...inputStyle, borderColor: "rgba(128, 216, 255, 0.4)"}} onFocus={(e) => e.target.select()}
                         />
                       </label>
@@ -1469,15 +1454,11 @@ const counts = new Map();
                 );
               })}
             </div>
-            {/* END RIGHT CONTENT */}
           </div>
-          {/* --- MAIN GRID LAYOUT END --- */}
         </div>
-        {/* END CONTENT WRAPPER */}
 
-        {/* MOBILE BOTTOM BAR (Visible only on Mobile) - IZVUČEN IZVAN CONTENT WRAPPERA ZA FIX POZICIJU */}
         <div className={`mobile-bottom-bar ${introFinished ? "visible" : "hidden"}`} style={{
-            position: "fixed", left: 0, width: "100%", bottom: 9, padding: 16, // FIX: width 100% instead of right:0
+            position: "fixed", left: 0, width: "100%", bottom: 9, padding: 16,
             background: "transparent", borderTop: "none", backdropFilter: "none", zIndex: 99
           }}>
           <div style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
@@ -1496,13 +1477,11 @@ const counts = new Map();
           </div>
         </div>
 
-        {/* MODALS */}
         <Modal open={!!warningMsg} title={t('invalid_order')} onClose={() => setWarningMsg("")} theme={theme}>
           <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6, color: theme.text, fontSize: 16 }}>{warningMsg}</div>
           <button onClick={() => setWarningMsg("")} style={{ width: "100%", marginTop: 24, padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>OK</button>
         </Modal>
 
-        {/* --- NOVI POPUP ZA REDOSLIJED --- */}
         <Modal open={orderWarningMsg} title={t('action_required')} onClose={() => setOrderWarningMsg(false)} theme={theme}>
           <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6, color: theme.text, fontSize: 16 }}>
             {t('select_first_striker_msg')}
@@ -1510,7 +1489,6 @@ const counts = new Map();
           <button onClick={() => setOrderWarningMsg(false)} style={{ width: "100%", marginTop: 24, padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>OK</button>
         </Modal>
 
-        {/* --- INSTRUCTIONS MODAL (VRAĆEN NA STANDARD) --- */}
         <Modal open={helpOpen} title={t('instructions_btn')} onClose={() => setHelpOpen(false)} theme={theme}>
           <div style={{ color: theme.text, lineHeight: 1.6, fontSize: 15, display: "grid", gap: 20 }}>
             <div><div style={{ fontWeight: 800, marginBottom: 8, fontSize: 18, color: theme.accent }}>{t('help_goal_title')}</div><div style={{ color: theme.subtext }}>{t('help_goal_text')}</div></div>
@@ -1559,11 +1537,8 @@ const counts = new Map();
     
       <footer className="app-footer">
         © 2026 Game01Master · Non-commercial license
-
-        <div style={{ fontSize: 12, opacity: 0.6, marginTop: 6 }}>
-          Global visits: {globalVisits ?? "-"} | Calculates: {globalCalculates ?? "-"}
-        </div>
-</footer>
+      </footer>
     </div>
   );
 }
+
