@@ -332,7 +332,7 @@ const RESULT_ORDER = [
   "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI", "Punisher I",
   "Duelist I", "Catapult V", "Vulture VII", "Heavy Halberdier VII",
   "Heavy Knight VII", "Catapult IV", "Vulture VI", "Heavy Halberdier VI",
-  "Heavy Knight VI", "Spearmen V", "Swordsmen V", "Vulture V"
+  "Heavy Knight VI", "Catapult III", "Spearmen V", "Swordsmen V", "Vulture V"
 ];
 
 const TROOPS_WITH_M8_RAW = [
@@ -340,7 +340,7 @@ const TROOPS_WITH_M8_RAW = [
   "Fire Phoenix I", "Manticore", "Corax II", "Royal Lion II", "Corax I",
   "Royal Lion I", "Griffin VII", "Josephine II", "Griffin VI", "Josephine I",
   "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI", "Catapult V",
-  "Vulture VII", "Catapult IV", "Vulture VI", "Vulture V",
+  "Vulture VII", "Catapult IV", "Vulture VI", "Catapult III", "Vulture V",
 ];
 
 const TROOPS_WITHOUT_M8_RAW = [
@@ -349,12 +349,12 @@ const TROOPS_WITHOUT_M8_RAW = [
   "Josephine I", "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI",
   "Punisher I", "Duelist I", "Catapult V", "Vulture VII", "Heavy Halberdier VII",
   "Heavy Knight VII", "Catapult IV", "Vulture VI", "Heavy Halberdier VI",
-  "Heavy Knight VI", "Spearmen V", "Swordsmen V", "Vulture V"
+  "Heavy Knight VI", "Catapult III", "Spearmen V", "Swordsmen V", "Vulture V"
 ];
 
 const WALL_KILLER_NAMES_RAW = [
   "Ariel", "Josephine II", "Josephine I", "Siege Ballistae VII",
-  "Siege Ballistae VI", "Catapult V", "Catapult IV",
+  "Siege Ballistae VI", "Catapult V", "Catapult IV", "Catapult III",
 ];
 
 function toNum(v) {
@@ -391,7 +391,7 @@ const ICON_FILE_MAP = {
   "Siege Ballistae VI": "Siege Ballistae VI.png", "Catapult V": "Catapult V.png", "Catapult IV": "Catapult IV.png",
   "Punisher I": "Punisher I.png", "Heavy Halberdier VII": "Heavy Halberdier VII.png", "Heavy Halberdier VI": "Heavy Halberdier VI.png",
   "Spearmen V": "Spearmen V.png", "Duelist I": "Duelist I.png", "Heavy Knight VII": "Heavy Knight VII.png",
-  "Heavy Knight VI": "Heavy Knight VI.png", "Swordsmen V": "Swordsmen V.png",
+  "Heavy Knight VI": "Heavy Knight VI.png", "Swordsmen V": "Swordsmen V.png", "Catapult III": "Catapult III.png",
 };
 
 const ICON_BASE = (import.meta && import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL : "/";
@@ -1199,13 +1199,13 @@ export default function App() {
         @media (max-width: 1099px) { html, body { overflow-x: hidden; } }
 
         .app-background {
-          background-image: url('./bg.jpg');
+          background-image: url(${bgMobile});
           background-size: cover;
           background-position: center;
           background-attachment: fixed;
           transition: background-image 0.3s ease-in-out;
         }
-        @media (min-width: 768px) { .app-background { background-image: url('./bg-desktop.jpg'); } }
+        @media (min-width: 768px) { .app-background { background-image: url(${bgDesktop}); } }
 
         .header-wrapper {
           transition: transform 2.0s cubic-bezier(0.25, 1, 0.5, 1);
