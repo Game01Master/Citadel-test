@@ -1,6 +1,11 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import TB from "./tb_data.json";
+import bgMobile from "./assets/bg.jpg";
+import bgDesktop from "./assets/bg-desktop.jpg";
+
+// Auto-import all icons from ./icons (Vite)
+const ICON_MODULES = import.meta.glob("./icons/*", { eager: true, import: "default" });
 
 // --- GAMING FONTOVI ---
 const fontLink = document.createElement("link");
@@ -327,7 +332,7 @@ const RESULT_ORDER = [
   "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI", "Punisher I",
   "Duelist I", "Catapult V", "Vulture VII", "Heavy Halberdier VII",
   "Heavy Knight VII", "Catapult IV", "Vulture VI", "Heavy Halberdier VI",
-  "Heavy Knight VI", "Catapult III", "Spearmen V", "Swordsmen V", "Vulture V"
+  "Heavy Knight VI", "Spearmen V", "Swordsmen V", "Vulture V"
 ];
 
 const TROOPS_WITH_M8_RAW = [
@@ -335,7 +340,7 @@ const TROOPS_WITH_M8_RAW = [
   "Fire Phoenix I", "Manticore", "Corax II", "Royal Lion II", "Corax I",
   "Royal Lion I", "Griffin VII", "Josephine II", "Griffin VI", "Josephine I",
   "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI", "Catapult V",
-  "Vulture VII", "Catapult IV", "Vulture VI", "Catapult III", "Vulture V",
+  "Vulture VII", "Catapult IV", "Vulture VI", "Vulture V",
 ];
 
 const TROOPS_WITHOUT_M8_RAW = [
@@ -344,12 +349,12 @@ const TROOPS_WITHOUT_M8_RAW = [
   "Josephine I", "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI",
   "Punisher I", "Duelist I", "Catapult V", "Vulture VII", "Heavy Halberdier VII",
   "Heavy Knight VII", "Catapult IV", "Vulture VI", "Heavy Halberdier VI",
-  "Heavy Knight VI", "Catapult III", "Spearmen V", "Swordsmen V", "Vulture V"
+  "Heavy Knight VI", "Spearmen V", "Swordsmen V", "Vulture V"
 ];
 
 const WALL_KILLER_NAMES_RAW = [
   "Ariel", "Josephine II", "Josephine I", "Siege Ballistae VII",
-  "Siege Ballistae VI", "Catapult V", "Catapult IV","Catapult III",
+  "Siege Ballistae VI", "Catapult V", "Catapult IV",
 ];
 
 function toNum(v) {
@@ -386,15 +391,15 @@ const ICON_FILE_MAP = {
   "Siege Ballistae VI": "Siege Ballistae VI.png", "Catapult V": "Catapult V.png", "Catapult IV": "Catapult IV.png",
   "Punisher I": "Punisher I.png", "Heavy Halberdier VII": "Heavy Halberdier VII.png", "Heavy Halberdier VI": "Heavy Halberdier VI.png",
   "Spearmen V": "Spearmen V.png", "Duelist I": "Duelist I.png", "Heavy Knight VII": "Heavy Knight VII.png",
-  "Heavy Knight VI": "Heavy Knight VI.png", "Swordsmen V": "Swordsmen V.png", "Catapult III": "Catapult III.png",
+  "Heavy Knight VI": "Heavy Knight VI.png", "Swordsmen V": "Swordsmen V.png",
 };
 
-const ICON_BASE = (import.meta && import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL : "/";
 
 function iconSrcForTroop(name) {
   const file = ICON_FILE_MAP[name];
   if (!file) return null;
-  return `${ICON_BASE}icons/${encodeURIComponent(file)}`;
+  // Imported icon URL from Vite bundle
+  return ICON_MODULES[`./icons/${file}`] || null;
 }
 
 async function copyToClipboard(text) {
@@ -766,6 +771,23 @@ export default function App() {
   const t = (key) => TRANSLATIONS[lang]?.[key] || TRANSLATIONS["en"][key] || key;
 
   const [introFinished, setIntroFinished] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return false;
+    return window.matchMedia("(min-width: 768px)").matches;
+  });
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(min-width: 768px)");
+    const onChange = () => setIsDesktop(mq.matches);
+    onChange();
+    if (mq.addEventListener) mq.addEventListener("change", onChange);
+    else mq.addListener(onChange);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener("change", onChange);
+      else mq.removeListener(onChange);
+    };
+  }, []);
+
 
   useEffect(() => {
     if ('scrollRestoration' in window.history) {
@@ -1176,6 +1198,11 @@ export default function App() {
       style={{
         width: "100%",
         minHeight: "100vh",
+        backgroundImage: `url(${isDesktop ? bgDesktop : bgMobile})`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: isDesktop ? "contain" : "cover",
+        backgroundPosition: isDesktop ? "top center" : "center",
+        backgroundAttachment: "fixed",
         backgroundColor: theme.pageBg,
         color: theme.text,
         fontFamily: "'Inter', sans-serif",
@@ -1194,13 +1221,11 @@ export default function App() {
         @media (max-width: 1099px) { html, body { overflow-x: hidden; } }
 
         .app-background {
-          background-image: url('./bg.jpg');
           background-size: cover;
           background-position: center;
           background-attachment: fixed;
-          transition: background-image 0.3s ease-in-out;
         }
-        @media (min-width: 768px) { .app-background { background-image: url('./bg-desktop.jpg'); } }
+        
 
         .header-wrapper {
           transition: transform 2.0s cubic-bezier(0.25, 1, 0.5, 1);
