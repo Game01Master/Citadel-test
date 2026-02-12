@@ -1336,17 +1336,8 @@ export default function App() {
                   >
                     {t('reset_btn')}
                   </button>
-
-                  {/* --- NOVA SEKCIJA ZA STATISTIKU --- */}
-                  <div style={{ marginTop: 20, paddingTop: 10, borderTop: `1px solid ${theme.borderSoft}`, fontSize: 12, color: theme.subtext }}>
-                     <div style={{ fontWeight: "bold", marginBottom: 5, color: theme.accent }}>{t('stats_title')}</div>
-                     <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span>{t('stats_visits')}:</span> <span style={{ color: theme.text }}>{visitCount}</span>
-                     </div>
-                     <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span>{t('stats_calcs')}:</span> <span style={{ color: theme.text }}>{calcCount}</span>
-                     </div>
-                  </div>
+                  
+                  {/* --- STATISTIKA OVDJE UKLONJENA --- */}
 
                 </div>
               </Card>
@@ -1535,10 +1526,25 @@ export default function App() {
         </Modal>
       </div>
     
-      <footer className="app-footer">
-        © 2026 Game01Master · Non-commercial license
+      <footer className="app-footer" style={{ paddingBottom: 100 }}>
+        <div style={{ marginBottom: 8 }}>
+           © 2026 Game01Master · Non-commercial license
+        </div>
+        
+        {/* --- STATISTIKA U FOOTERU (SUPTILNO) --- */}
+        <div style={{ 
+            display: "flex", justifyContent: "center", gap: 16, 
+            fontSize: 11, color: theme.subtext, opacity: 0.6 
+        }}>
+            <span>
+                {t('stats_visits')}: <span style={{ color: theme.accent, fontWeight: "bold" }}>{visitCount}</span>
+            </span>
+            <span style={{ borderLeft: `1px solid ${theme.subtext}`, height: 12 }}></span>
+            <span>
+                {t('stats_calcs')}: <span style={{ color: theme.accent, fontWeight: "bold" }}>{calcCount}</span>
+            </span>
+        </div>
       </footer>
     </div>
   );
 }
-
