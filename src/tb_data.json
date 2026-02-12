@@ -228,6 +228,12 @@
       "health": 8750,
       "fortBonus": 219
     },
+       {
+      "name": "Catapult III",
+      "strength": 810,
+      "health": 4860,
+      "fortBonus": 146
+    },
     {
       "name": "Fire Phoenix II",
       "strength": 1190000,
