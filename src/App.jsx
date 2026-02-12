@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import TB from "./tb_data.json";
-import bgMobile from "./assets/bg.jpg";
-import bgDesktop from "./assets/bg-desktop.jpg";
+import bgMobile from "./assets/bg.webp";
+import bgDesktop from "./assets/bg-desktop.webp";
 
 // Auto-import all icons from ./icons (Vite)
 const ICON_MODULES = import.meta.glob("./icons/*", { eager: true, import: "default" });
@@ -332,7 +332,7 @@ const RESULT_ORDER = [
   "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI", "Punisher I",
   "Duelist I", "Catapult V", "Vulture VII", "Heavy Halberdier VII",
   "Heavy Knight VII", "Catapult IV", "Vulture VI", "Heavy Halberdier VI",
-  "Heavy Knight VI", "Spearmen V", "Swordsmen V", "Vulture V"
+  "Heavy Knight VI","Catapult III", "Spearmen V", "Swordsmen V", "Vulture V"
 ];
 
 const TROOPS_WITH_M8_RAW = [
@@ -340,7 +340,7 @@ const TROOPS_WITH_M8_RAW = [
   "Fire Phoenix I", "Manticore", "Corax II", "Royal Lion II", "Corax I",
   "Royal Lion I", "Griffin VII", "Josephine II", "Griffin VI", "Josephine I",
   "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI", "Catapult V",
-  "Vulture VII", "Catapult IV", "Vulture VI", "Vulture V",
+  "Vulture VII", "Catapult IV", "Vulture VI", "Catapult III", "Vulture V",
 ];
 
 const TROOPS_WITHOUT_M8_RAW = [
@@ -349,12 +349,12 @@ const TROOPS_WITHOUT_M8_RAW = [
   "Josephine I", "Griffin V", "Siege Ballistae VII", "Siege Ballistae VI",
   "Punisher I", "Duelist I", "Catapult V", "Vulture VII", "Heavy Halberdier VII",
   "Heavy Knight VII", "Catapult IV", "Vulture VI", "Heavy Halberdier VI",
-  "Heavy Knight VI", "Spearmen V", "Swordsmen V", "Vulture V"
+  "Heavy Knight VI", "Catapult III", "Spearmen V", "Swordsmen V", "Vulture V"
 ];
 
 const WALL_KILLER_NAMES_RAW = [
   "Ariel", "Josephine II", "Josephine I", "Siege Ballistae VII",
-  "Siege Ballistae VI", "Catapult V", "Catapult IV",
+  "Siege Ballistae VI", "Catapult V", "Catapult IV", "Catapult III",
 ];
 
 function toNum(v) {
@@ -391,7 +391,7 @@ const ICON_FILE_MAP = {
   "Siege Ballistae VI": "Siege Ballistae VI.png", "Catapult V": "Catapult V.png", "Catapult IV": "Catapult IV.png",
   "Punisher I": "Punisher I.png", "Heavy Halberdier VII": "Heavy Halberdier VII.png", "Heavy Halberdier VI": "Heavy Halberdier VI.png",
   "Spearmen V": "Spearmen V.png", "Duelist I": "Duelist I.png", "Heavy Knight VII": "Heavy Knight VII.png",
-  "Heavy Knight VI": "Heavy Knight VI.png", "Swordsmen V": "Swordsmen V.png",
+  "Heavy Knight VI": "Heavy Knight VI.png", "Swordsmen V": "Swordsmen V.png", "Catapult III": "Catapult III.png",
 };
 
 
