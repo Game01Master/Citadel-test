@@ -1,0 +1,15 @@
+{
+  "name": "TB Citadel Calculator",
+  "short_name": "Citadel Calc",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#c5a059",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
