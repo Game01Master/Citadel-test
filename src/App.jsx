@@ -1662,7 +1662,6 @@ html, body {
                           onKeyDown={(e) => handleEnter(e, nextInputId)}
                           readOnly={isLocked} // <--- READONLY UMJESTO DISABLED
                           onClick={() 
-
                           => isLocked && setOrderWarningMsg(true)} // <--- KLIK OTVARA POPUP
                           style={{...inputStyle, borderColor: "rgba(128, 216, 255, 0.4)"}} onFocus={(e) => e.target.select()}
                         />
