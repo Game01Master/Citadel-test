@@ -15,7 +15,7 @@ document.head.appendChild(fontLink);
 
 const MODE_WITHOUT = "WITHOUT";
 const MODE_WITH = "WITH";
-const PRESETS_STORAGE_KEY = "citadel_calc_presets";
+const PRESETS_STORAGE_KEY = "citadel_calc_presets"; // KLJUČ ZA LOCAL STORAGE
 
 // Konstanta za petlju
 const STRIKER_LABELS = [
@@ -141,7 +141,14 @@ const TRANSLATIONS = {
     help_recalc_text: "Nach JEDER Änderung des Stärkebonus neu berechnen. Kleine Änderungen sind wichtig!",
     help_bonus_title: "❓ Wie finde ich Boni?",
     help_bonus_text1: "Greife eine Zitadelle Level 10 mit je 10 Einheiten der gewählten Truppen an. Kopiere die Boni aus dem Bericht.",
-    help_bonus_text2: "Oder wähle Hauptmänner, Ausrüstung und Artefakte. Sende Held und Drache zur Festung und kopiere die Boni aus der Kaserne."
+    help_bonus_text2: "Oder wähle Hauptmänner, Ausrüstung und Artefakte. Sende Held und Drache zur Festung und kopiere die Boni aus der Kaserne.",
+    presets_title: "💾 Presets",
+    save_preset_btn: "+ Setup Speichern",
+    no_presets: "Keine gespeicherten Presets.",
+    load_btn: "LADEN",
+    save_preset_modal_title: "Preset Speichern",
+    preset_name_label: "Preset Name",
+    save_setup_btn: "Speichern"
   },
   fr: {
     language: "Langue",
@@ -188,7 +195,14 @@ const TRANSLATIONS = {
     help_recalc_text: "Après CHAQUE changement de bonus, recalculez.",
     help_bonus_title: "❓ Trouver les bonus ?",
     help_bonus_text1: "Attaquez une Citadelle niv. 10 avec 10 unités de chaque type. Copiez les bonus du rapport.",
-    help_bonus_text2: "Ou sélectionnez capitaines et artefacts, envoyez le héros au fort et copiez les bonus de la caserne."
+    help_bonus_text2: "Ou sélectionnez capitaines et artefacts, envoyez le héros au fort et copiez les bonus de la caserne.",
+    presets_title: "💾 Préréglages",
+    save_preset_btn: "+ Sauvegarder Config",
+    no_presets: "Aucun préréglage.",
+    load_btn: "CHARGER",
+    save_preset_modal_title: "Sauvegarder",
+    preset_name_label: "Nom du Préréglage",
+    save_setup_btn: "Sauvegarder"
   },
   es: {
     language: "Idioma",
@@ -235,7 +249,14 @@ const TRANSLATIONS = {
     help_recalc_text: "Tras CUALQUIER cambio en bonos, calcula de nuevo.",
     help_bonus_title: "❓ ¿Cómo ver los bonos?",
     help_bonus_text1: "Ataca una Ciudadela nv. 10 con 10 unidades de cada tipo. Copia los bonos del informe.",
-    help_bonus_text2: "O selecciona capitanes y artefactos, envía al héroe al fuerte y copia los bonos del cuartel."
+    help_bonus_text2: "O selecciona capitanes y artefactos, envía al héroe al fuerte y copia los bonos del cuartel.",
+    presets_title: "💾 Preajustes",
+    save_preset_btn: "+ Guardar Config.",
+    no_presets: "Sin preajustes.",
+    load_btn: "CARGAR",
+    save_preset_modal_title: "Guardar Preajuste",
+    preset_name_label: "Nombre del Preajuste",
+    save_setup_btn: "Guardar"
   },
   it: {
     language: "Lingua",
@@ -282,7 +303,14 @@ const TRANSLATIONS = {
     help_recalc_text: "Dopo QUALSIASI cambio di bonus, ricalcola.",
     help_bonus_title: "❓ Come trovare i bonus?",
     help_bonus_text1: "Attacca una Cittadella liv. 10 con 10 unità per tipo. Copia i bonus dal report.",
-    help_bonus_text2: "Oppure seleziona capitani e artefatti, invia l'eroe al forte e copia i bonus dalla caserma."
+    help_bonus_text2: "Oppure seleziona capitani e artefatti, invia l'eroe al forte e copia i bonus dalla caserma.",
+    presets_title: "💾 Preimpostazioni",
+    save_preset_btn: "+ Salva Setup",
+    no_presets: "Nessuna preimpostazione.",
+    load_btn: "CARICA",
+    save_preset_modal_title: "Salva Preimpostazione",
+    preset_name_label: "Nome Preimpostazione",
+    save_setup_btn: "Salva Setup"
   },
   pl: {
     language: "Język",
@@ -329,7 +357,14 @@ const TRANSLATIONS = {
     help_recalc_text: "Po KAŻDEJ zmianie bonusu siły, oblicz ponownie.",
     help_bonus_title: "❓ Jak znaleźć bonusy?",
     help_bonus_text1: "Zaatakuj Cytadelę poz. 10 używając po 10 jednostek każdego typu. Skopiuj bonusy z raportu.",
-    help_bonus_text2: "Lub wybierz kapitanów i artefakty, wyślij bohatera do fortu i skopiuj bonusy z koszar."
+    help_bonus_text2: "Lub wybierz kapitanów i artefakty, wyślij bohatera do fortu i skopiuj bonusy z koszar.",
+    presets_title: "💾 Zapisane Ustawienia",
+    save_preset_btn: "+ Zapisz Ustawienia",
+    no_presets: "Brak zapisanych ustawień.",
+    load_btn: "WCZYTAJ",
+    save_preset_modal_title: "Zapisz Ustawienia",
+    preset_name_label: "Nazwa",
+    save_setup_btn: "Zapisz"
   }
 };
 
@@ -1471,11 +1506,11 @@ export default function App() {
                 {presets.length === 0 ? (
                   <div style={{ color: theme.subtext, fontSize: 13, textAlign: "center" }}>{t('no_presets') || "No saved presets."}</div>
                 ) : (
-                  <div style={{ display: "grid", gap: 8 }}>
+                  <div style={{ display: "grid", gap: 8, maxHeight: "240px", overflowY: "auto", paddingRight: 6 }}>
                     {presets.map(p => (
                       <div key={p.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(0,0,0,0.4)", padding: "8px 12px", borderRadius: 8, border: `1px solid ${theme.borderSoft}` }}>
-                        <span style={{ fontWeight: 600, fontSize: 14, color: theme.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
-                        <div style={{ display: "flex", gap: 6 }}>
+                        <span style={{ fontWeight: 600, fontSize: 14, color: theme.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: "8px" }}>{p.name}</span>
+                        <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
                           <button onClick={() => handleLoadPreset(p)} style={{ background: theme.btnBg, color: "#000", border: "none", borderRadius: 6, padding: "6px 12px", fontWeight: 700, cursor: "pointer", fontSize: 12 }}>{t('load_btn') || "LOAD"}</button>
                           <button onClick={() => handleDeletePreset(p.id)} style={{ background: "rgba(255, 77, 77, 0.15)", color: theme.danger, border: `1px solid ${theme.danger}`, borderRadius: 6, padding: "6px 10px", fontWeight: 700, cursor: "pointer", fontSize: 12 }}>✕</button>
                         </div>
@@ -1498,6 +1533,9 @@ export default function App() {
                   cursor: "pointer",
                   transition: "transform 0.2s, box-shadow 0.2s",
                   marginTop: 16,
+                  position: "sticky",
+                  bottom: 0,
+                  zIndex: 20,
                 }}
               >
                 {t('calculate_btn')}
