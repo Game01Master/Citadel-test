@@ -15,7 +15,7 @@ document.head.appendChild(fontLink);
 
 const MODE_WITHOUT = "WITHOUT";
 const MODE_WITH = "WITH";
-const PRESETS_STORAGE_KEY = "citadel_calc_presets"; // KLJUČ ZA LOCAL STORAGE
+const PRESETS_STORAGE_KEY = "citadel_calc_presets"; // Ključ za lokalnu memoriju
 
 // Konstanta za petlju
 const STRIKER_LABELS = [
@@ -88,13 +88,13 @@ const TRANSLATIONS = {
     help_bonus_title: "❓ How to find bonuses?",
     help_bonus_text1: "Attack a level 10 Citadel with 10 of each selected troop type. Copy the bonuses from the attack report into the calculator.",
     help_bonus_text2: "Or select the captains, equipment, and artifacts. Send the hero and dragon to the fort and copy the bonuses from the barracks.",
-    presets_title: "💾 Presets",
-    save_preset_btn: "+ Save Current Setup",
-    no_presets: "No saved presets.",
+    presets_btn: "💾 Presets",
+    presets_modal_title: "Presets Manager",
+    save_setup: "Save Current Setup",
+    preset_name: "Preset Name",
+    save_btn: "SAVE",
     load_btn: "LOAD",
-    save_preset_modal_title: "Save Preset",
-    preset_name_label: "Preset Name",
-    save_setup_btn: "Save Setup"
+    no_presets: "No saved presets."
   },
   de: {
     language: "Sprache",
@@ -142,13 +142,13 @@ const TRANSLATIONS = {
     help_bonus_title: "❓ Wie finde ich Boni?",
     help_bonus_text1: "Greife eine Zitadelle Level 10 mit je 10 Einheiten der gewählten Truppen an. Kopiere die Boni aus dem Bericht.",
     help_bonus_text2: "Oder wähle Hauptmänner, Ausrüstung und Artefakte. Sende Held und Drache zur Festung und kopiere die Boni aus der Kaserne.",
-    presets_title: "💾 Presets",
-    save_preset_btn: "+ Setup Speichern",
-    no_presets: "Keine gespeicherten Presets.",
+    presets_btn: "💾 Presets",
+    presets_modal_title: "Preset-Manager",
+    save_setup: "Setup speichern",
+    preset_name: "Preset-Name",
+    save_btn: "SPEICHERN",
     load_btn: "LADEN",
-    save_preset_modal_title: "Preset Speichern",
-    preset_name_label: "Preset Name",
-    save_setup_btn: "Speichern"
+    no_presets: "Keine Presets."
   },
   fr: {
     language: "Langue",
@@ -196,13 +196,13 @@ const TRANSLATIONS = {
     help_bonus_title: "❓ Trouver les bonus ?",
     help_bonus_text1: "Attaquez une Citadelle niv. 10 avec 10 unités de chaque type. Copiez les bonus du rapport.",
     help_bonus_text2: "Ou sélectionnez capitaines et artefacts, envoyez le héros au fort et copiez les bonus de la caserne.",
-    presets_title: "💾 Préréglages",
-    save_preset_btn: "+ Sauvegarder Config",
-    no_presets: "Aucun préréglage.",
+    presets_btn: "💾 Préréglages",
+    presets_modal_title: "Gestionnaire",
+    save_setup: "Sauvegarder Config",
+    preset_name: "Nom",
+    save_btn: "SAUVER",
     load_btn: "CHARGER",
-    save_preset_modal_title: "Sauvegarder",
-    preset_name_label: "Nom du Préréglage",
-    save_setup_btn: "Sauvegarder"
+    no_presets: "Aucun préréglage."
   },
   es: {
     language: "Idioma",
@@ -250,13 +250,13 @@ const TRANSLATIONS = {
     help_bonus_title: "❓ ¿Cómo ver los bonos?",
     help_bonus_text1: "Ataca una Ciudadela nv. 10 con 10 unidades de cada tipo. Copia los bonos del informe.",
     help_bonus_text2: "O selecciona capitanes y artefactos, envía al héroe al fuerte y copia los bonos del cuartel.",
-    presets_title: "💾 Preajustes",
-    save_preset_btn: "+ Guardar Config.",
-    no_presets: "Sin preajustes.",
+    presets_btn: "💾 Preajustes",
+    presets_modal_title: "Gestor",
+    save_setup: "Guardar Config",
+    preset_name: "Nombre",
+    save_btn: "GUARDAR",
     load_btn: "CARGAR",
-    save_preset_modal_title: "Guardar Preajuste",
-    preset_name_label: "Nombre del Preajuste",
-    save_setup_btn: "Guardar"
+    no_presets: "Sin preajustes."
   },
   it: {
     language: "Lingua",
@@ -304,13 +304,13 @@ const TRANSLATIONS = {
     help_bonus_title: "❓ Come trovare i bonus?",
     help_bonus_text1: "Attacca una Cittadella liv. 10 con 10 unità per tipo. Copia i bonus dal report.",
     help_bonus_text2: "Oppure seleziona capitani e artefatti, invia l'eroe al forte e copia i bonus dalla caserma.",
-    presets_title: "💾 Preimpostazioni",
-    save_preset_btn: "+ Salva Setup",
-    no_presets: "Nessuna preimpostazione.",
+    presets_btn: "💾 Preimpostazioni",
+    presets_modal_title: "Gestione",
+    save_setup: "Salva Setup",
+    preset_name: "Nome",
+    save_btn: "SALVA",
     load_btn: "CARICA",
-    save_preset_modal_title: "Salva Preimpostazione",
-    preset_name_label: "Nome Preimpostazione",
-    save_setup_btn: "Salva Setup"
+    no_presets: "Nessuna preimpostazione."
   },
   pl: {
     language: "Język",
@@ -358,13 +358,13 @@ const TRANSLATIONS = {
     help_bonus_title: "❓ Jak znaleźć bonusy?",
     help_bonus_text1: "Zaatakuj Cytadelę poz. 10 używając po 10 jednostek każdego typu. Skopiuj bonusy z raportu.",
     help_bonus_text2: "Lub wybierz kapitanów i artefakty, wyślij bohatera do fortu i skopiuj bonusy z koszar.",
-    presets_title: "💾 Zapisane Ustawienia",
-    save_preset_btn: "+ Zapisz Ustawienia",
-    no_presets: "Brak zapisanych ustawień.",
+    presets_btn: "💾 Zapisane Ustawienia",
+    presets_modal_title: "Zarządzaj Ustawieniami",
+    save_setup: "Zapisz Ustawienia",
+    preset_name: "Nazwa Ustawienia",
+    save_btn: "ZAPISZ",
     load_btn: "WCZYTAJ",
-    save_preset_modal_title: "Zapisz Ustawienia",
-    preset_name_label: "Nazwa",
-    save_setup_btn: "Zapisz"
+    no_presets: "Brak zapisanych ustawień."
   }
 };
 
@@ -867,12 +867,11 @@ export default function App() {
   const [warningMsg, setWarningMsg] = useState("");
   const [orderWarningMsg, setOrderWarningMsg] = useState(false);
 
-  // --- PRESETS LOGIKA ---
+  // --- LOGIKA ZA PRESETS (Spremanje u Local Storage) ---
   const [presets, setPresets] = useState([]);
-  const [savePresetOpen, setSavePresetOpen] = useState(false);
+  const [presetsModalOpen, setPresetsModalOpen] = useState(false);
   const [newPresetName, setNewPresetName] = useState("");
 
-  // Učitavanje iz Local Storage na početku
   useEffect(() => {
     try {
       const saved = localStorage.getItem(PRESETS_STORAGE_KEY);
@@ -897,7 +896,6 @@ export default function App() {
     setPresets(updated);
     localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(updated));
     setNewPresetName("");
-    setSavePresetOpen(false);
   };
 
   const handleLoadPreset = (p) => {
@@ -911,6 +909,7 @@ export default function App() {
     setGroupBonusPct({ CORAX: "", PHOENIX: "", PHH_SPEAR: "", DUEL_HK_SW: "", VULTURE: "", ROYAL_LION: "", GRIFFIN: "" });
     setCalcOutput(null);
     setResultsOpen(false);
+    setPresetsModalOpen(false); // Zatvori prozor nakon učitavanja
   };
 
   const handleDeletePreset = (id) => {
@@ -918,7 +917,7 @@ export default function App() {
     setPresets(updated);
     localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(updated));
   };
-  // -----------------------
+  // -----------------------------------------------------
 
   const [groupBonusPct, setGroupBonusPct] = useState(() => ({
     CORAX: "", PHOENIX: "", PHH_SPEAR: "", DUEL_HK_SW: "", VULTURE: "", ROYAL_LION: "", GRIFFIN: "",
@@ -1464,11 +1463,23 @@ export default function App() {
                     onChange={(v) => { setCitadelLevel(v); setCalcOutput(null); setResultsOpen(false); }}
                     theme={theme} inputStyle={inputStyle} t={t}
                   />
+                  
+                  {/* --- NOVI GUMB ZA OTVARANJE PRESET MODALA --- */}
+                  <button onClick={() => setPresetsModalOpen(true)}
+                    style={{
+                      width: "100%", padding: "12px 16px", borderRadius: 10,
+                      border: `1px solid ${theme.accent}`, background: "rgba(197, 160, 89, 0.1)",
+                      color: theme.accent, fontWeight: 700, fontSize: 14, cursor: "pointer", marginTop: 8,
+                    }}
+                  >
+                    {t('presets_btn') || "💾 Presets"}
+                  </button>
+
                   <button onClick={resetSelections}
                     style={{
                       width: "100%", padding: "12px 16px", borderRadius: 10,
                       border: `1px solid ${theme.danger}`, background: "rgba(255, 77, 77, 0.15)",
-                      color: "#ff6b6b", fontWeight: 700, fontSize: 14, cursor: "pointer", marginTop: 8,
+                      color: "#ff6b6b", fontWeight: 700, fontSize: 14, cursor: "pointer"
                     }}
                     >
                     {t('reset_btn')}
@@ -1490,36 +1501,6 @@ export default function App() {
                 </div>
               </Card>
 
-              {/* DODANO: PRESETS CARD U SIDEBAR */}
-              <Card title={t('presets_title') || "💾 Presets"} theme={theme}>
-                <button
-                  onClick={() => setSavePresetOpen(true)}
-                  style={{
-                    width: "100%", padding: "10px", borderRadius: 8,
-                    border: `1px solid ${theme.accent}`, background: "rgba(197, 160, 89, 0.15)",
-                    color: theme.accent, fontWeight: 700, fontSize: 14, cursor: "pointer", marginBottom: 12
-                  }}
-                >
-                  {t('save_preset_btn') || "+ Save Current Setup"}
-                </button>
-
-                {presets.length === 0 ? (
-                  <div style={{ color: theme.subtext, fontSize: 13, textAlign: "center" }}>{t('no_presets') || "No saved presets."}</div>
-                ) : (
-                  <div style={{ display: "grid", gap: 8, maxHeight: "240px", overflowY: "auto", paddingRight: 6 }}>
-                    {presets.map(p => (
-                      <div key={p.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(0,0,0,0.4)", padding: "8px 12px", borderRadius: 8, border: `1px solid ${theme.borderSoft}` }}>
-                        <span style={{ fontWeight: 600, fontSize: 14, color: theme.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: "8px" }}>{p.name}</span>
-                        <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                          <button onClick={() => handleLoadPreset(p)} style={{ background: theme.btnBg, color: "#000", border: "none", borderRadius: 6, padding: "6px 12px", fontWeight: 700, cursor: "pointer", fontSize: 12 }}>{t('load_btn') || "LOAD"}</button>
-                          <button onClick={() => handleDeletePreset(p.id)} style={{ background: "rgba(255, 77, 77, 0.15)", color: theme.danger, border: `1px solid ${theme.danger}`, borderRadius: 6, padding: "6px 10px", fontWeight: 700, cursor: "pointer", fontSize: 12 }}>✕</button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </Card>
-
               <button 
                 id="btn-calculate-desktop"
                 className="desktop-calc-btn" 
@@ -1533,9 +1514,6 @@ export default function App() {
                   cursor: "pointer",
                   transition: "transform 0.2s, box-shadow 0.2s",
                   marginTop: 16,
-                  position: "sticky",
-                  bottom: 0,
-                  zIndex: 20,
                 }}
               >
                 {t('calculate_btn')}
@@ -1646,32 +1624,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* --- MODAL ZA UNOS IMENA PRESETA --- */}
-        <Modal open={savePresetOpen} title={t('save_preset_modal_title') || "Save Preset"} onClose={() => setSavePresetOpen(false)} theme={theme}>
-          <div style={{ display: "grid", gap: 16 }}>
-            <label style={{ display: "grid", gap: 8 }}>
-              <span style={{ color: theme.subtext, fontWeight: 600, fontSize: 13, textTransform: "uppercase" }}>{t('preset_name_label') || "Preset Name"}</span>
-              <input 
-                autoFocus
-                type="text" 
-                placeholder="e.g. Manticore 25" 
-                value={newPresetName}
-                onChange={(e) => setNewPresetName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSavePreset();
-                }}
-                style={inputStyle} 
-              />
-            </label>
-            <button 
-              onClick={handleSavePreset} 
-              style={{ width: "100%", padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}
-            >
-              {t('save_setup_btn') || "Save Setup"}
-            </button>
-          </div>
-        </Modal>
-
         <Modal open={!!warningMsg} title={t('invalid_order')} onClose={() => setWarningMsg("")} theme={theme}>
           <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6, color: theme.text, fontSize: 16 }}>{warningMsg}</div>
           <button onClick={() => setWarningMsg("")} style={{ width: "100%", marginTop: 24, padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>OK</button>
@@ -1730,6 +1682,52 @@ export default function App() {
             </>
           ) : (<div style={{ color: theme.subtext, textAlign: "center", padding: 20 }}>{t('no_results')}</div>)}
         </Modal>
+
+        {/* --- NOVI MODAL ZA PRESETS --- */}
+        <Modal open={presetsModalOpen} title={t('presets_modal_title') || "Presets Manager"} onClose={() => setPresetsModalOpen(false)} theme={theme}>
+          <div style={{ display: "grid", gap: 20 }}>
+            {/* Save Section */}
+            <div style={{ display: "grid", gap: 8, background: "rgba(0,0,0,0.3)", padding: 16, borderRadius: 12, border: `1px solid ${theme.borderSoft}` }}>
+              <span style={{ color: theme.subtext, fontWeight: 600, fontSize: 13, textTransform: "uppercase" }}>{t('save_setup') || "Save Current Setup"}</span>
+              <div style={{ display: "flex", gap: 8 }}>
+                <input 
+                  type="text" 
+                  placeholder="e.g. Manticore 25" 
+                  value={newPresetName}
+                  onChange={(e) => setNewPresetName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleSavePreset(); }}
+                  style={{...inputStyle, flex: 1}} 
+                />
+                <button 
+                  onClick={handleSavePreset} 
+                  style={{ padding: "0 16px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 14, cursor: "pointer" }}
+                >
+                  {t('save_btn') || "SAVE"}
+                </button>
+              </div>
+            </div>
+
+            {/* List Section */}
+            <div>
+              {presets.length === 0 ? (
+                <div style={{ color: theme.subtext, fontSize: 14, textAlign: "center", padding: "20px 0" }}>{t('no_presets') || "No saved presets."}</div>
+              ) : (
+                <div style={{ display: "grid", gap: 8, maxHeight: "40vh", overflowY: "auto", paddingRight: 4 }}>
+                  {presets.map(p => (
+                    <div key={p.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: theme.cardBg, padding: "10px 14px", borderRadius: 10, border: `1px solid ${theme.borderSoft}` }}>
+                      <span style={{ fontWeight: 700, fontSize: 15, color: theme.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: "8px" }}>{p.name}</span>
+                      <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                        <button onClick={() => handleLoadPreset(p)} style={{ background: theme.btnBg, color: "#000", border: "none", borderRadius: 6, padding: "8px 14px", fontWeight: 800, cursor: "pointer", fontSize: 12 }}>{t('load_btn') || "LOAD"}</button>
+                        <button onClick={() => handleDeletePreset(p.id)} style={{ background: "rgba(255, 77, 77, 0.15)", color: theme.danger, border: `1px solid ${theme.danger}`, borderRadius: 6, padding: "8px 12px", fontWeight: 800, cursor: "pointer", fontSize: 12 }}>✕</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </Modal>
+
       </div>
     
       <footer className="app-footer">
