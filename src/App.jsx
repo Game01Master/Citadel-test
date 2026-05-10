@@ -33,6 +33,7 @@ const STRIKER_LABELS = [
 // --- LANGUAGES CONFIG ---
 const LANGUAGES = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
+  { code: 'hr', label: 'Hrvatski', flag: '🇭🇷' },
   { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
   { code: 'fr', label: 'Français', flag: '🇫🇷' },
   { code: 'es', label: 'Español', flag: '🇪🇸' },
@@ -95,6 +96,60 @@ const TRANSLATIONS = {
     save_btn: "SAVE",
     load_btn: "LOAD",
     no_presets: "No saved presets."
+  },
+  hr: {
+    language: "Jezik",
+    setup: "⚙️ Postavke",
+    instructions_btn: "ℹ️ Upute",
+    m8_question: "Imaš li M8/M9 trupe?",
+    yes: "Da",
+    no: "Ne",
+    citadel_level: "Razina Citadele",
+    reset_btn: "Poništi Odabir",
+    calculate_btn: "IZRAČUNAJ",
+    wall_killer: "🛡️ Razbijač Zida",
+    select_troop: "Odaberi Trupu",
+    select_placeholder: "— Odaberi —",
+    none: "— Ništa —",
+    strength_bonus: "Bonus Snage (%)",
+    health_bonus: "Bonus Zdravlja (%)",
+    eff_bonus: "Efektivni Bonus",
+    req_troops: "Potrebne Trupe",
+    citadel_losses: "Gubitci Prvog Udara",
+    action_required: "⛔ Potrebna Akcija",
+    select_first_striker_msg: "Moraš odabrati Prvog Napadača prije odabira ostalih trupa.",
+    invalid_order: "⚠️ Neispravan Redoslijed",
+    base_stats_warning: (name1, str1, hp1, name2, str2, hp2) => `${name1} ima veće OSNOVNE statistike (Snaga: ${str1}, Zdr: ${hp1}) od Prvog Napadača (${name2} - Snaga: ${str2}, Zdr: ${hp2}).\n\nOdaberi jačeg Prvog napadača!`,
+    results_title: "📋 Rezultati Izračuna",
+    mode_label: "Način",
+    citadel_label: "Citadela",
+    copy_btn: "📄 Kopiraj Listu",
+    copy_success: "✅ Kopirano!",
+    copy_fail: "❌ Greška pri kopiranju",
+    no_results: "Nema rezultata za prikaz.",
+    strikers: ["Prvi Napadač", "Drugi Napadač", "Treći Napadač", "Čišćenje 1", "Čišćenje 2", "Čišćenje 3", "Čišćenje 4", "Čišćenje 5", "Čišćenje 6"],
+    help_goal_title: "🎯 Cilj",
+    help_goal_text: "Koristi ispravne trupe i bonuse kako bi smanjio gubitke pri napadu na Citadelu. Ja sam se pobrinuo za pravilan odabir trupa.",
+    help_rule_title: "❗ Najvažnije Pravilo",
+    help_rule_text: "Maksimiziraj Zdravlje Prvog Napadača. U pravilnom napadu, samo bi trupe Prvog Napadača trebale imati gubitke. Broj trupa PRVOG NAPADAČA MOŽE biti veći od izračunatog. Sve ostale trupe MORAJU se koristiti u točnom broju kako je izračunato.",
+    help_first_title: "🦅 Prvi Napadač",
+    help_first_text: "Mora biti najjača leteća garda (Guardsmen): Corax ili Griffin.",
+    help_captains_title: "⚔️ Kapetani",
+    help_captains_text: "Preporučeni: Wu Zetian, Brunhild, Skadi, Beowulf, Aydae, Ramses, Sofia.",
+    help_arti_title: "✨ Artefakti",
+    help_arti_text: "Koristi artefakte koji povećavaju Zdravlje (Health) za Leteće trupe, Gardu ili Vojsku (Army).",
+    help_recalc_title: "🔄 Ponovni izračun",
+    help_recalc_text: "Nakon BILO KOJE promjene bonusa snage, unesi nove bonuse i ponovno klikni Izračunaj. Male promjene čine razliku!",
+    help_bonus_title: "❓ Kako pronaći bonuse?",
+    help_bonus_text1: "Napadni Citadelu razine 10 s po 10 trupa od svakog odabranog tipa. Kopiraj bonuse iz izvješća o napadu u kalkulator.",
+    help_bonus_text2: "Ili odaberi kapetane, opremu i artefakte, pošalji heroja i zmaja u utvrdu i prepiši bonuse iz vojarne (barracks).",
+    presets_btn: "💾 Postavke",
+    presets_modal_title: "Spremljene Postavke",
+    save_setup: "Spremi Trenutne Postavke",
+    preset_name: "Ime Postavke",
+    save_btn: "SPREMI",
+    load_btn: "UČITAJ",
+    no_presets: "Nema spremljenih postavki."
   },
   de: {
     language: "Sprache",
@@ -298,7 +353,7 @@ const TRANSLATIONS = {
     help_captains_title: "⚔️ Capitani",
     help_captains_text: "Consigliati: Wu Zetian, Brunhild, Skadi, Beowulf, Aydae, Ramses, Sofia.",
     help_arti_title: "✨ Artefatti",
-    help_arti_text: "Usa artefatti che aumentano la Salute (Volanti, Guardie o Esercito).",
+    help_arti_text: "Usa artefatti che aumenten la Salute (Volanti, Guardie o Esercito).",
     help_recalc_title: "🔄 Ricalcola",
     help_recalc_text: "Dopo QUALSIASI cambio di bonus, ricalcola.",
     help_bonus_title: "❓ Come trovare i bonus?",
@@ -887,7 +942,7 @@ export default function App() {
     setGroupBonusPct({ CORAX: "", PHOENIX: "", PHH_SPEAR: "", DUEL_HK_SW: "", VULTURE: "", ROYAL_LION: "", GRIFFIN: "" });
     setCalcOutput(null);
     setResultsOpen(false);
-    setPresetsModalOpen(false); // Zatvori prozor nakon učitavanja
+    setPresetsModalOpen(false); 
   };
 
   const handleDeletePreset = (id) => {
@@ -1450,7 +1505,7 @@ export default function App() {
                       color: theme.accent, fontWeight: 700, fontSize: 14, cursor: "pointer", marginTop: 8,
                     }}
                   >
-                    {t('presets_btn') || "💾 Presets"}
+                    {t('presets_btn')}
                   </button>
 
                   <button onClick={resetSelections}
@@ -1594,11 +1649,11 @@ export default function App() {
         </div>
 
         {/* --- MODAL ZA UNOS IMENA PRESETA --- */}
-        <Modal open={presetsModalOpen} title={t('presets_modal_title') || "Presets Manager"} onClose={() => setPresetsModalOpen(false)} theme={theme}>
+        <Modal open={presetsModalOpen} title={t('presets_modal_title')} onClose={() => setPresetsModalOpen(false)} theme={theme}>
           <div style={{ display: "grid", gap: 20 }}>
             {/* Save Section */}
             <div style={{ display: "grid", gap: 8, background: "rgba(0,0,0,0.3)", padding: 16, borderRadius: 12, border: `1px solid ${theme.borderSoft}` }}>
-              <span style={{ color: theme.subtext, fontWeight: 600, fontSize: 13, textTransform: "uppercase" }}>{t('save_setup') || "Save Current Setup"}</span>
+              <span style={{ color: theme.subtext, fontWeight: 600, fontSize: 13, textTransform: "uppercase" }}>{t('save_setup')}</span>
               <div style={{ display: "flex", gap: 8 }}>
                 <input 
                   type="text" 
@@ -1612,7 +1667,7 @@ export default function App() {
                   onClick={handleSavePreset} 
                   style={{ padding: "0 16px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 14, cursor: "pointer" }}
                 >
-                  {t('save_btn') || "SAVE"}
+                  {t('save_btn')}
                 </button>
               </div>
             </div>
@@ -1620,14 +1675,14 @@ export default function App() {
             {/* List Section */}
             <div>
               {presets.length === 0 ? (
-                <div style={{ color: theme.subtext, fontSize: 14, textAlign: "center", padding: "20px 0" }}>{t('no_presets') || "No saved presets."}</div>
+                <div style={{ color: theme.subtext, fontSize: 14, textAlign: "center", padding: "20px 0" }}>{t('no_presets')}</div>
               ) : (
                 <div style={{ display: "grid", gap: 8, maxHeight: "40vh", overflowY: "auto", paddingRight: 4 }}>
                   {presets.map(p => (
                     <div key={p.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: theme.cardBg, padding: "10px 14px", borderRadius: 10, border: `1px solid ${theme.borderSoft}` }}>
                       <span style={{ fontWeight: 700, fontSize: 15, color: theme.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: "8px" }}>{p.name}</span>
                       <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-                        <button onClick={() => handleLoadPreset(p)} style={{ background: theme.btnBg, color: "#000", border: "none", borderRadius: 6, padding: "8px 14px", fontWeight: 800, cursor: "pointer", fontSize: 12 }}>{t('load_btn') || "LOAD"}</button>
+                        <button onClick={() => handleLoadPreset(p)} style={{ background: theme.btnBg, color: "#000", border: "none", borderRadius: 6, padding: "8px 14px", fontWeight: 800, cursor: "pointer", fontSize: 12 }}>{t('load_btn')}</button>
                         <button onClick={() => handleDeletePreset(p.id)} style={{ background: "rgba(255, 77, 77, 0.15)", color: theme.danger, border: `1px solid ${theme.danger}`, borderRadius: 6, padding: "8px 12px", fontWeight: 800, cursor: "pointer", fontSize: 12 }}>✕</button>
                       </div>
                     </div>
