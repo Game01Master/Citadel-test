@@ -15,6 +15,7 @@ document.head.appendChild(fontLink);
 
 const MODE_WITHOUT = "WITHOUT";
 const MODE_WITH = "WITH";
+const PRESETS_STORAGE_KEY = "citadel_calc_presets";
 
 // Konstanta za petlju
 const STRIKER_LABELS = [
@@ -86,7 +87,14 @@ const TRANSLATIONS = {
     help_recalc_text: "After ANY strength bonus change, enter new bonuses and press Calculate again. Small changes matter!",
     help_bonus_title: "❓ How to find bonuses?",
     help_bonus_text1: "Attack a level 10 Citadel with 10 of each selected troop type. Copy the bonuses from the attack report into the calculator.",
-    help_bonus_text2: "Or select the captains, equipment, and artifacts. Send the hero and dragon to the fort and copy the bonuses from the barracks."
+    help_bonus_text2: "Or select the captains, equipment, and artifacts. Send the hero and dragon to the fort and copy the bonuses from the barracks.",
+    presets_title: "💾 Presets",
+    save_preset_btn: "+ Save Current Setup",
+    no_presets: "No saved presets.",
+    load_btn: "LOAD",
+    save_preset_modal_title: "Save Preset",
+    preset_name_label: "Preset Name",
+    save_setup_btn: "Save Setup"
   },
   de: {
     language: "Sprache",
@@ -763,6 +771,28 @@ export default function App() {
 
   const [lang, setLang] = useState("en");
 
+  // --- PWA INSTALLATION LOGIC ---
+  const [installPrompt, setInstallPrompt] = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setInstallPrompt(null);
+    }
+  };
+  // ------------------------------
+
   const t = (key) => TRANSLATIONS[lang]?.[key] || TRANSLATIONS["en"][key] || key;
 
   const [introFinished, setIntroFinished] = useState(false);
@@ -801,6 +831,59 @@ export default function App() {
   const [firstHealthBonusPct, setFirstHealthBonusPct] = useState("");
   const [warningMsg, setWarningMsg] = useState("");
   const [orderWarningMsg, setOrderWarningMsg] = useState(false);
+
+  // --- PRESETS LOGIKA ---
+  const [presets, setPresets] = useState([]);
+  const [savePresetOpen, setSavePresetOpen] = useState(false);
+  const [newPresetName, setNewPresetName] = useState("");
+
+  // Učitavanje iz Local Storage na početku
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(PRESETS_STORAGE_KEY);
+      if (saved) setPresets(JSON.parse(saved));
+    } catch (e) { console.error("Greška pri učitavanju preseta", e); }
+  }, []);
+
+  const handleSavePreset = () => {
+    if (!newPresetName.trim()) return;
+    const newPreset = {
+      id: Date.now().toString(),
+      name: newPresetName.trim(),
+      mode,
+      citadelLevel,
+      wallKillerTroop,
+      wallKillerBonusPct,
+      strikerTroops,
+      strikerBonusPct,
+      firstHealthBonusPct,
+    };
+    const updated = [...presets, newPreset];
+    setPresets(updated);
+    localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(updated));
+    setNewPresetName("");
+    setSavePresetOpen(false);
+  };
+
+  const handleLoadPreset = (p) => {
+    setMode(p.mode || MODE_WITHOUT);
+    setCitadelLevel(p.citadelLevel || "25");
+    setWallKillerTroop(p.wallKillerTroop || "");
+    setWallKillerBonusPct(p.wallKillerBonusPct || "");
+    setStrikerTroops(p.strikerTroops || Array(9).fill(""));
+    setStrikerBonusPct(p.strikerBonusPct || Array(9).fill(""));
+    setFirstHealthBonusPct(p.firstHealthBonusPct || "");
+    setGroupBonusPct({ CORAX: "", PHOENIX: "", PHH_SPEAR: "", DUEL_HK_SW: "", VULTURE: "", ROYAL_LION: "", GRIFFIN: "" });
+    setCalcOutput(null);
+    setResultsOpen(false);
+  };
+
+  const handleDeletePreset = (id) => {
+    const updated = presets.filter(p => p.id !== id);
+    setPresets(updated);
+    localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(updated));
+  };
+  // -----------------------
 
   const [groupBonusPct, setGroupBonusPct] = useState(() => ({
     CORAX: "", PHOENIX: "", PHH_SPEAR: "", DUEL_HK_SW: "", VULTURE: "", ROYAL_LION: "", GRIFFIN: "",
@@ -1355,7 +1438,51 @@ export default function App() {
                     >
                     {t('reset_btn')}
                   </button>
+
+                  {installPrompt && (
+                    <button 
+                      onClick={handleInstallClick}
+                      style={{
+                        width: "100%", padding: "12px 16px", borderRadius: 10,
+                        border: "none", background: theme.accent,
+                        color: "#000", fontWeight: 800, fontSize: 15, cursor: "pointer", marginTop: 8,
+                        display: "flex", alignItems: "center", justifyContent: "center"
+                      }}
+                    >
+                      📲 Install app
+                    </button>
+                  )}
                 </div>
+              </Card>
+
+              {/* DODANO: PRESETS CARD U SIDEBAR */}
+              <Card title={t('presets_title') || "💾 Presets"} theme={theme}>
+                <button
+                  onClick={() => setSavePresetOpen(true)}
+                  style={{
+                    width: "100%", padding: "10px", borderRadius: 8,
+                    border: `1px solid ${theme.accent}`, background: "rgba(197, 160, 89, 0.15)",
+                    color: theme.accent, fontWeight: 700, fontSize: 14, cursor: "pointer", marginBottom: 12
+                  }}
+                >
+                  {t('save_preset_btn') || "+ Save Current Setup"}
+                </button>
+
+                {presets.length === 0 ? (
+                  <div style={{ color: theme.subtext, fontSize: 13, textAlign: "center" }}>{t('no_presets') || "No saved presets."}</div>
+                ) : (
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {presets.map(p => (
+                      <div key={p.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(0,0,0,0.4)", padding: "8px 12px", borderRadius: 8, border: `1px solid ${theme.borderSoft}` }}>
+                        <span style={{ fontWeight: 600, fontSize: 14, color: theme.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          <button onClick={() => handleLoadPreset(p)} style={{ background: theme.btnBg, color: "#000", border: "none", borderRadius: 6, padding: "6px 12px", fontWeight: 700, cursor: "pointer", fontSize: 12 }}>{t('load_btn') || "LOAD"}</button>
+                          <button onClick={() => handleDeletePreset(p.id)} style={{ background: "rgba(255, 77, 77, 0.15)", color: theme.danger, border: `1px solid ${theme.danger}`, borderRadius: 6, padding: "6px 10px", fontWeight: 700, cursor: "pointer", fontSize: 12 }}>✕</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </Card>
 
               <button 
@@ -1480,6 +1607,32 @@ export default function App() {
             </button>
           </div>
         </div>
+
+        {/* --- MODAL ZA UNOS IMENA PRESETA --- */}
+        <Modal open={savePresetOpen} title={t('save_preset_modal_title') || "Save Preset"} onClose={() => setSavePresetOpen(false)} theme={theme}>
+          <div style={{ display: "grid", gap: 16 }}>
+            <label style={{ display: "grid", gap: 8 }}>
+              <span style={{ color: theme.subtext, fontWeight: 600, fontSize: 13, textTransform: "uppercase" }}>{t('preset_name_label') || "Preset Name"}</span>
+              <input 
+                autoFocus
+                type="text" 
+                placeholder="e.g. Manticore 25" 
+                value={newPresetName}
+                onChange={(e) => setNewPresetName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSavePreset();
+                }}
+                style={inputStyle} 
+              />
+            </label>
+            <button 
+              onClick={handleSavePreset} 
+              style={{ width: "100%", padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}
+            >
+              {t('save_setup_btn') || "Save Setup"}
+            </button>
+          </div>
+        </Modal>
 
         <Modal open={!!warningMsg} title={t('invalid_order')} onClose={() => setWarningMsg("")} theme={theme}>
           <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6, color: theme.text, fontSize: 16 }}>{warningMsg}</div>
