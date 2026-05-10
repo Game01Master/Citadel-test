@@ -806,28 +806,6 @@ export default function App() {
 
   const [lang, setLang] = useState("en");
 
-  // --- PWA INSTALLATION LOGIC ---
-  const [installPrompt, setInstallPrompt] = useState(null);
-
-  useEffect(() => {
-    const handler = (e) => {
-      e.preventDefault();
-      setInstallPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
-
-  const handleInstallClick = async () => {
-    if (!installPrompt) return;
-    installPrompt.prompt();
-    const { outcome } = await installPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setInstallPrompt(null);
-    }
-  };
-  // ------------------------------
-
   const t = (key) => TRANSLATIONS[lang]?.[key] || TRANSLATIONS["en"][key] || key;
 
   const [introFinished, setIntroFinished] = useState(false);
@@ -1464,7 +1442,7 @@ export default function App() {
                     theme={theme} inputStyle={inputStyle} t={t}
                   />
                   
-                  {/* --- NOVI GUMB ZA OTVARANJE PRESET MODALA --- */}
+                  {/* --- GUMB ZA OTVARANJE PRESET MODALA --- */}
                   <button onClick={() => setPresetsModalOpen(true)}
                     style={{
                       width: "100%", padding: "12px 16px", borderRadius: 10,
@@ -1485,22 +1463,10 @@ export default function App() {
                     {t('reset_btn')}
                   </button>
 
-                  {installPrompt && (
-                    <button 
-                      onClick={handleInstallClick}
-                      style={{
-                        width: "100%", padding: "12px 16px", borderRadius: 10,
-                        border: "none", background: theme.accent,
-                        color: "#000", fontWeight: 800, fontSize: 15, cursor: "pointer", marginTop: 8,
-                        display: "flex", alignItems: "center", justifyContent: "center"
-                      }}
-                    >
-                      📲 Install app
-                    </button>
-                  )}
                 </div>
               </Card>
 
+              {/* DESKTOP CALCULATE BUTTON - STICKY UNUTAR SIDEBARA */}
               <button 
                 id="btn-calculate-desktop"
                 className="desktop-calc-btn" 
@@ -1514,6 +1480,9 @@ export default function App() {
                   cursor: "pointer",
                   transition: "transform 0.2s, box-shadow 0.2s",
                   marginTop: 16,
+                  position: "sticky", // LJEPLJIV NA DESKTOPU
+                  bottom: 0,          // ZALIJEPLJEN ZA DNO
+                  zIndex: 20,         // IZNAD OSTALOG SADRŽAJA
                 }}
               >
                 {t('calculate_btn')}
@@ -1624,6 +1593,51 @@ export default function App() {
           </div>
         </div>
 
+        {/* --- MODAL ZA UNOS IMENA PRESETA --- */}
+        <Modal open={presetsModalOpen} title={t('presets_modal_title') || "Presets Manager"} onClose={() => setPresetsModalOpen(false)} theme={theme}>
+          <div style={{ display: "grid", gap: 20 }}>
+            {/* Save Section */}
+            <div style={{ display: "grid", gap: 8, background: "rgba(0,0,0,0.3)", padding: 16, borderRadius: 12, border: `1px solid ${theme.borderSoft}` }}>
+              <span style={{ color: theme.subtext, fontWeight: 600, fontSize: 13, textTransform: "uppercase" }}>{t('save_setup') || "Save Current Setup"}</span>
+              <div style={{ display: "flex", gap: 8 }}>
+                <input 
+                  type="text" 
+                  placeholder="e.g. Manticore 25" 
+                  value={newPresetName}
+                  onChange={(e) => setNewPresetName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleSavePreset(); }}
+                  style={{...inputStyle, flex: 1}} 
+                />
+                <button 
+                  onClick={handleSavePreset} 
+                  style={{ padding: "0 16px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 14, cursor: "pointer" }}
+                >
+                  {t('save_btn') || "SAVE"}
+                </button>
+              </div>
+            </div>
+
+            {/* List Section */}
+            <div>
+              {presets.length === 0 ? (
+                <div style={{ color: theme.subtext, fontSize: 14, textAlign: "center", padding: "20px 0" }}>{t('no_presets') || "No saved presets."}</div>
+              ) : (
+                <div style={{ display: "grid", gap: 8, maxHeight: "40vh", overflowY: "auto", paddingRight: 4 }}>
+                  {presets.map(p => (
+                    <div key={p.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: theme.cardBg, padding: "10px 14px", borderRadius: 10, border: `1px solid ${theme.borderSoft}` }}>
+                      <span style={{ fontWeight: 700, fontSize: 15, color: theme.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: "8px" }}>{p.name}</span>
+                      <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                        <button onClick={() => handleLoadPreset(p)} style={{ background: theme.btnBg, color: "#000", border: "none", borderRadius: 6, padding: "8px 14px", fontWeight: 800, cursor: "pointer", fontSize: 12 }}>{t('load_btn') || "LOAD"}</button>
+                        <button onClick={() => handleDeletePreset(p.id)} style={{ background: "rgba(255, 77, 77, 0.15)", color: theme.danger, border: `1px solid ${theme.danger}`, borderRadius: 6, padding: "8px 12px", fontWeight: 800, cursor: "pointer", fontSize: 12 }}>✕</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </Modal>
+
         <Modal open={!!warningMsg} title={t('invalid_order')} onClose={() => setWarningMsg("")} theme={theme}>
           <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6, color: theme.text, fontSize: 16 }}>{warningMsg}</div>
           <button onClick={() => setWarningMsg("")} style={{ width: "100%", marginTop: 24, padding: "14px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>OK</button>
@@ -1682,52 +1696,6 @@ export default function App() {
             </>
           ) : (<div style={{ color: theme.subtext, textAlign: "center", padding: 20 }}>{t('no_results')}</div>)}
         </Modal>
-
-        {/* --- NOVI MODAL ZA PRESETS --- */}
-        <Modal open={presetsModalOpen} title={t('presets_modal_title') || "Presets Manager"} onClose={() => setPresetsModalOpen(false)} theme={theme}>
-          <div style={{ display: "grid", gap: 20 }}>
-            {/* Save Section */}
-            <div style={{ display: "grid", gap: 8, background: "rgba(0,0,0,0.3)", padding: 16, borderRadius: 12, border: `1px solid ${theme.borderSoft}` }}>
-              <span style={{ color: theme.subtext, fontWeight: 600, fontSize: 13, textTransform: "uppercase" }}>{t('save_setup') || "Save Current Setup"}</span>
-              <div style={{ display: "flex", gap: 8 }}>
-                <input 
-                  type="text" 
-                  placeholder="e.g. Manticore 25" 
-                  value={newPresetName}
-                  onChange={(e) => setNewPresetName(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") handleSavePreset(); }}
-                  style={{...inputStyle, flex: 1}} 
-                />
-                <button 
-                  onClick={handleSavePreset} 
-                  style={{ padding: "0 16px", borderRadius: 10, border: "none", background: theme.accent, color: "#000", fontWeight: 800, fontSize: 14, cursor: "pointer" }}
-                >
-                  {t('save_btn') || "SAVE"}
-                </button>
-              </div>
-            </div>
-
-            {/* List Section */}
-            <div>
-              {presets.length === 0 ? (
-                <div style={{ color: theme.subtext, fontSize: 14, textAlign: "center", padding: "20px 0" }}>{t('no_presets') || "No saved presets."}</div>
-              ) : (
-                <div style={{ display: "grid", gap: 8, maxHeight: "40vh", overflowY: "auto", paddingRight: 4 }}>
-                  {presets.map(p => (
-                    <div key={p.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: theme.cardBg, padding: "10px 14px", borderRadius: 10, border: `1px solid ${theme.borderSoft}` }}>
-                      <span style={{ fontWeight: 700, fontSize: 15, color: theme.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: "8px" }}>{p.name}</span>
-                      <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-                        <button onClick={() => handleLoadPreset(p)} style={{ background: theme.btnBg, color: "#000", border: "none", borderRadius: 6, padding: "8px 14px", fontWeight: 800, cursor: "pointer", fontSize: 12 }}>{t('load_btn') || "LOAD"}</button>
-                        <button onClick={() => handleDeletePreset(p.id)} style={{ background: "rgba(255, 77, 77, 0.15)", color: theme.danger, border: `1px solid ${theme.danger}`, borderRadius: 6, padding: "8px 12px", fontWeight: 800, cursor: "pointer", fontSize: 12 }}>✕</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </Modal>
-
       </div>
     
       <footer className="app-footer">
